@@ -1040,26 +1040,31 @@
                       <button onclick="adminUpdateVaultAddress()" class="px-3.5 py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-[11px] uppercase cursor-pointer shrink-0">Save Address</button>
                     </div>
                   </div>
-                  <div class="space-y-2 pt-2 border-t border-slate-800">
+                  <div class="space-y-2.5 pt-2 border-t border-slate-800">
                     <label class="block text-[10px] font-bold uppercase text-cyan-300">Chain Deposit Addresses / Links (BEP-20, TRC-20, Ethereum — Syncs to All Members)</label>
                     <div>
                       <span class="text-[10px] font-mono text-amber-300 block mb-0.5">BEP-20 (BNB Smart Chain) Address / Link</span>
-                      <input type="text" id="admin-chain-bep20-inp" placeholder="BEP-20 deposit address or link" class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/40 font-mono text-[11px] text-amber-200" />
+                      <div class="flex gap-2">
+                        <input type="text" id="admin-chain-bep20-inp" placeholder="BEP-20 deposit address or link" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/40 font-mono text-[11px] text-amber-200" />
+                        <button type="button" onclick="adminSaveSingleChainAddress('BEP20', 'admin-chain-bep20-inp', 'BEP-20')" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] uppercase cursor-pointer shrink-0">SAVE BEP-20</button>
+                      </div>
                     </div>
                     <div>
                       <span class="text-[10px] font-mono text-rose-300 block mb-0.5">TRC-20 (TRON) Address / Link</span>
                       <div class="flex gap-2">
                         <input type="text" id="admin-chain-trc20-inp" placeholder="TRC-20 deposit address or link" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-rose-500/40 font-mono text-[11px] text-rose-200" />
-                        <button type="button" onclick="adminSaveSingleChainAddress('TRC20', 'admin-chain-trc20-inp', 'TRC-20')" class="px-3 py-1.5 rounded-xl bg-rose-400 hover:bg-rose-300 text-slate-950 font-black text-[10px] uppercase cursor-pointer shrink-0">Save TRC-20</button>
+                        <button type="button" onclick="adminSaveSingleChainAddress('TRC20', 'admin-chain-trc20-inp', 'TRC-20')" class="px-3 py-1.5 rounded-xl bg-rose-400 hover:bg-rose-300 text-slate-950 font-black text-[10px] uppercase cursor-pointer shrink-0">SAVE TRC-20</button>
                       </div>
                     </div>
-                    <div class="flex gap-2 items-end">
-                      <div class="flex-1">
-                        <span class="text-[10px] font-mono text-indigo-300 block mb-0.5">Ethereum (ERC-20) Address / Link</span>
-                        <input type="text" id="admin-chain-erc20-inp" placeholder="Ethereum deposit address or link" class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-indigo-500/40 font-mono text-[11px] text-indigo-200" />
+                    <div>
+                      <span class="text-[10px] font-mono text-indigo-300 block mb-0.5">Ethereum (ERC-20) Address / Link</span>
+                      <div class="flex gap-2">
+                        <input type="text" id="admin-chain-erc20-inp" placeholder="Ethereum deposit address or link" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-indigo-500/40 font-mono text-[11px] text-indigo-200" />
+                        <button type="button" onclick="adminSaveSingleChainAddress('ERC20', 'admin-chain-erc20-inp', 'Ethereum')" class="px-3 py-1.5 rounded-xl bg-indigo-400 hover:bg-indigo-300 text-slate-950 font-black text-[10px] uppercase cursor-pointer shrink-0">SAVE ETH</button>
                       </div>
-                      <button type="button" onclick="adminSaveSingleChainAddress('ERC20', 'admin-chain-erc20-inp', 'Ethereum')" class="px-3 py-1.5 rounded-xl bg-indigo-400 hover:bg-indigo-300 text-slate-950 font-black text-[10px] uppercase cursor-pointer shrink-0">Save ETH</button>
-                      <button type="button" onclick="adminSaveChainDepositAddresses()" class="px-3.5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black text-[11px] uppercase cursor-pointer shrink-0">Save Chains</button>
+                    </div>
+                    <div class="flex justify-end pt-0.5">
+                      <button type="button" onclick="adminSaveChainDepositAddresses()" class="px-3.5 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black text-[11px] uppercase cursor-pointer shrink-0">SAVE ALL CHAINS</button>
                     </div>
                   </div>
 
