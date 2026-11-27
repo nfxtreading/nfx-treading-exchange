@@ -329,6 +329,13 @@
                   </a>
                 </div>
 
+                
+                <button type="button" onclick="openMemberNotificationsModal()" class="relative px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-cyan-500/20 border border-cyan-400/60 text-cyan-200 text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer" title="Notifications">
+                  <span>🔔</span>
+                  <span class="hidden sm:inline">Alerts</span>
+                  <span id="member-bell-badge" class="px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-mono text-[10px] font-black">0</span>
+                </button>
+
                 <!-- Top-Right Profile & Wallet Hub Button -->
                 <button onclick="openProfileModal('holdings')" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500/25 to-blue-600/25 hover:from-cyan-400/35 hover:to-blue-500/35 border border-cyan-400/70 shadow-[0_0_16px_rgba(0,242,254,0.28)] flex items-center gap-2.5 transition cursor-pointer">
                   <div class="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-300 to-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center">
@@ -954,6 +961,13 @@
                   <span class="text-[10px] text-cyan-300 block">NFX Liquidity TVL</span>
                   <span class="text-sm font-black text-cyan-300 nav-tvl-full">$2,000,000,000</span>
                 </div>
+                
+                <button type="button" onclick="openAdminNotificationsDrawer()" class="relative px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/60 text-rose-200 text-xs font-sans font-bold flex items-center gap-1.5 cursor-pointer">
+                  <span>🔔</span>
+                  <span>Admin Bell</span>
+                  <span id="admin-bell-badge" class="px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-mono text-[10px] font-black">0</span>
+                </button>
+
                 <button onclick="exitAdminPortal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-sans font-bold text-slate-200 cursor-pointer">
                   Exit Admin View
                 </button>
@@ -4043,6 +4057,1063 @@
       }
       return false;
     };
+  });
+})();
+</script>
+
+
+  <!-- MEMBER BELL NOTIFICATIONS MODAL -->
+  <div id="member-bell-modal" class="hidden fixed inset-0 z-[175] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-xl w-full cyber-panel border-2 border-cyan-400/60 rounded-3xl p-6 space-y-4 my-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-bold uppercase">Notification Center</span>
+          <h3 class="text-lg font-black text-white mt-0.5">Member Notifications &amp; Alerts</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="clearDismissibleMemberNotifications()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 cursor-pointer">Clear Read</button>
+          <button type="button" onclick="document.getElementById('member-bell-modal').classList.add('hidden')" class="p-2 rounded-xl bg-slate-900 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-slate-700 cursor-pointer">✕</button>
+        </div>
+      </div>
+      <div id="member-bell-list" class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+        <p class="text-xs text-slate-400 text-center py-6">No notifications yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERMANENT / NON-DISMISSIBLE SCREEN LOCK NOTIFICATION MODAL (ONLY ADMIN CAN DELETE) -->
+  <div id="permanent-screen-lock-modal" class="hidden fixed inset-0 z-[240] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="max-w-lg w-full cyber-panel border-2 border-amber-400 rounded-3xl p-6 space-y-4 shadow-[0_0_50px_rgba(251,191,36,0.35)]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider">Important Official Notice • Admin Managed</span>
+        <span class="font-mono text-[10px] text-rose-300">LOCKED ON SCREEN</span>
+      </div>
+      <div id="permanent-screen-lock-content" class="space-y-3"></div>
+      <p class="text-[11px] font-mono text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+        This notice remains active on your screen until removed by Admin Master.
+      </p>
+    </div>
+  </div>
+
+  <!-- ADMIN BELL & BROADCAST / TARGETED / PERMANENT NOTIFICATION CONSOLE MODAL -->
+  <div id="admin-notif-modal" class="hidden fixed inset-0 z-[185] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-3xl w-full cyber-panel border-2 border-rose-500/60 rounded-3xl p-6 space-y-5 my-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold uppercase">Admin Master Notification Control</span>
+          <h3 class="text-lg font-black text-white mt-0.5">Send Bell Alerts &amp; Permanent Screen Notices</h3>
+        </div>
+        <button type="button" onclick="document.getElementById('admin-notif-modal').classList.add('hidden')" class="p-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">✕</button>
+      </div>
+
+      <form onsubmit="adminPublishNotification(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[11px] font-bold text-cyan-300 mb-1">Target Audience</label>
+          <select id="adm-notif-target-mode" onchange="toggleAdminNotifUidField()" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-white">
+            <option value="ALL">All Members (Bell Inbox)</option>
+            <option value="SPECIFIC_UID">Specific Member UID Only</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-amber-300 mb-1">Notification Display Mode</label>
+          <select id="adm-notif-mode" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-amber-300">
+            <option value="BELL">Bell Inbox Notification (Dismissible by Member)</option>
+            <option value="PERMANENT_SCREEN">Permanent Screen Notice (Cannot Dismiss Until Admin Deletes)</option>
+          </select>
+        </div>
+        <div id="adm-notif-uid-wrap" class="hidden md:col-span-2">
+          <label class="block text-[11px] font-bold text-emerald-300 mb-1">Target Member UID (Search or Enter UID)</label>
+          <input type="text" id="adm-notif-target-uid" list="admin-member-uid-datalist" placeholder="e.g. NFX-884920" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-emerald-500/40 font-mono text-xs text-white" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">Title</label>
+          <input type="text" id="adm-notif-title" required placeholder="Notice Title" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">Photo URL or Upload Image</label>
+          <div class="flex gap-2">
+            <input type="text" id="adm-notif-photo-url" placeholder="https://... or upload image" class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-cyan-200" />
+            <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/50 text-cyan-200 text-xs font-bold cursor-pointer shrink-0">
+              Photo
+              <input type="file" accept="image/*" onchange="handleAdminNotifImageUpload(event)" class="hidden" />
+            </label>
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">Description</label>
+          <textarea id="adm-notif-desc" rows="3" required placeholder="Write detailed notification message..." class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"></textarea>
+        </div>
+        <div class="md:col-span-2">
+          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 via-amber-400 to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
+            Publish &amp; Sync Notification
+          </button>
+        </div>
+      </form>
+
+      <div class="space-y-2 border-t border-slate-800 pt-4">
+        <h4 class="text-xs font-extrabold uppercase text-amber-300">Active &amp; Sent Notifications (Delete Permanent Notices Here)</h4>
+        <div id="admin-notif-list" class="space-y-2 max-h-56 overflow-y-auto font-mono text-xs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATALIST FOR QUICK MEMBER UID SEARCH -->
+  <datalist id="admin-member-uid-datalist"></datalist>
+
+<script>
+(function() {
+  const ALL_WALLET_NAMES = [
+    "SafePal",
+    "Trust Wallet",
+    "Binance Wallet",
+    "OKX Wallet",
+    "Bybit Wallet",
+    "Bitget Wallet",
+    "MetaMask",
+    "Coinbase Wallet",
+    "Phantom"
+  ];
+
+  // Ensure state structures exist cleanly
+  if (typeof state !== "undefined") {
+    state.user.withdrawalFeePct = Number(state.user.withdrawalFeePct ?? 7);
+    state.user.teamA = Array.isArray(state.user.teamA) ? state.user.teamA : [];
+    state.user.teamB = Array.isArray(state.user.teamB) ? state.user.teamB : [];
+    state.user.teamC = Array.isArray(state.user.teamC) ? state.user.teamC : [];
+    state.notifications = Array.isArray(state.notifications) ? state.notifications : [];
+    state.adminBellNotifications = Array.isArray(state.adminBellNotifications) ? state.adminBellNotifications : [];
+    state.token.withdrawFeeCapPct = 7;
+  }
+
+  // Trigger prominent popup message for every major action (Deposit, Withdrawal, NFX Buy/Swap, Plan, etc.)
+  function triggerSystemPopup(title, message, kind = "success") {
+    if (typeof notify === "function") {
+      notify(title, message, kind);
+    }
+    const cleanUid = (typeof state !== "undefined" && state.user && state.user.memberId) ? state.user.memberId : "GUEST";
+    const entry = {
+      id: "SYS-" + Date.now() + "-" + Math.floor(Math.random() * 999),
+      title,
+      description: message,
+      photo: "",
+      targetUid: cleanUid,
+      mode: "BELL",
+      createdAt: new Date().toLocaleTimeString(),
+      isSystemEvent: true,
+      read: false
+    };
+    if (typeof state !== "undefined") {
+      state.notifications.unshift(entry);
+      if (state.notifications.length > 60) state.notifications.length = 60;
+      updateBellBadges();
+      renderMemberBellList();
+    }
+  }
+
+  window.triggerSystemPopup = triggerSystemPopup;
+
+  function pushAdminBellAlert(title, message) {
+    if (typeof state === "undefined") return;
+    state.adminBellNotifications.unshift({
+      id: "ADM-AL-" + Date.now() + "-" + Math.floor(Math.random() * 999),
+      title,
+      message,
+      time: new Date().toLocaleTimeString()
+    });
+    if (state.adminBellNotifications.length > 60) state.adminBellNotifications.length = 60;
+    updateBellBadges();
+    renderAdminNotifList();
+  }
+
+  function updateBellBadges() {
+    if (typeof state === "undefined") return;
+    const myUid = (state.user && state.user.memberId) ? state.user.memberId.toUpperCase() : "";
+    const visibleMemberNotifs = (state.notifications || []).filter(n => {
+      if (n.mode === "PERMANENT_SCREEN") return false;
+      if (!n.targetUid || n.targetUid === "ALL") return true;
+      return myUid && n.targetUid.toUpperCase() === myUid;
+    });
+    const unreadCount = visibleMemberNotifs.filter(n => !n.read).length;
+    const mBadge = document.getElementById("member-bell-badge");
+    if (mBadge) mBadge.textContent = String(unreadCount);
+
+    const aBadge = document.getElementById("admin-bell-badge");
+    if (aBadge) aBadge.textContent = String((state.adminBellNotifications || []).length);
+  }
+
+  function renderMemberBellList() {
+    const box = document.getElementById("member-bell-list");
+    if (!box || typeof state === "undefined") return;
+    const myUid = (state.user && state.user.memberId) ? state.user.memberId.toUpperCase() : "";
+    const list = (state.notifications || []).filter(n => {
+      if (!n.targetUid || n.targetUid === "ALL") return true;
+      return myUid && n.targetUid.toUpperCase() === myUid;
+    });
+
+    if (!list.length) {
+      box.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No notifications yet.</p>`;
+      return;
+    }
+
+    box.innerHTML = list.map(n => `
+      <div class="p-3.5 rounded-2xl bg-slate-900/95 border ${n.mode === 'PERMANENT_SCREEN' ? 'border-amber-400/70' : 'border-cyan-500/35'} space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-extrabold text-xs text-white">${n.title}</span>
+          <span class="font-mono text-[10px] text-slate-400">${n.createdAt || ''}</span>
+        </div>
+        ${n.photo ? `<img src="${n.photo}" alt="Notice" class="w-full max-h-48 object-cover rounded-xl border border-slate-800" />` : ''}
+        <p class="text-xs text-slate-300 leading-relaxed">${n.description}</p>
+        <div class="flex items-center justify-between text-[10px] font-mono">
+          <span class="text-cyan-300">${n.targetUid === 'ALL' ? 'All Members' : 'UID: ' + n.targetUid}</span>
+          ${n.mode === 'PERMANENT_SCREEN' ? '<span class="text-amber-300 font-bold">Permanent (Admin Controlled)</span>' : '<span class="text-emerald-400">Bell Alert</span>'}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  window.openMemberNotificationsModal = function() {
+    if (typeof state !== "undefined") {
+      (state.notifications || []).forEach(n => { n.read = true; });
+      updateBellBadges();
+      renderMemberBellList();
+    }
+    const modal = document.getElementById("member-bell-modal");
+    if (modal) modal.classList.remove("hidden");
+  };
+
+  window.clearDismissibleMemberNotifications = function() {
+    if (typeof state === "undefined") return;
+    const myUid = (state.user && state.user.memberId) ? state.user.memberId.toUpperCase() : "";
+    state.notifications = (state.notifications || []).filter(n => {
+      if (n.mode === "PERMANENT_SCREEN") return true;
+      if (n.targetUid && n.targetUid !== "ALL" && myUid && n.targetUid.toUpperCase() !== myUid) return true;
+      return false;
+    });
+    updateBellBadges();
+    renderMemberBellList();
+    if (typeof persistSharedState === "function") persistSharedState();
+  };
+
+  function checkAndRenderPermanentScreenNotice() {
+    if (typeof state === "undefined") return;
+    const myUid = (state.user && state.user.memberId) ? state.user.memberId.toUpperCase() : "";
+    const activePerm = (state.notifications || []).find(n => {
+      if (n.mode !== "PERMANENT_SCREEN") return false;
+      if (!n.targetUid || n.targetUid === "ALL") return true;
+      return myUid && n.targetUid.toUpperCase() === myUid;
+    });
+
+    const lockModal = document.getElementById("permanent-screen-lock-modal");
+    const lockContent = document.getElementById("permanent-screen-lock-content");
+    if (!lockModal || !lockContent) return;
+
+    if (activePerm) {
+      lockContent.innerHTML = `
+        <h4 class="text-base font-black text-white">${activePerm.title}</h4>
+        ${activePerm.photo ? `<img src="${activePerm.photo}" alt="Notice" class="w-full max-h-52 object-cover rounded-xl border border-amber-400/40" />` : ''}
+        <p class="text-xs text-slate-200 leading-relaxed whitespace-pre-line">${activePerm.description}</p>
+      `;
+      lockModal.classList.remove("hidden");
+    } else {
+      lockModal.classList.add("hidden");
+    }
+  }
+
+  window.openAdminNotificationsDrawer = function() {
+    renderAdminNotifList();
+    const m = document.getElementById("admin-notif-modal");
+    if (m) m.classList.remove("hidden");
+  };
+
+  window.toggleAdminNotifUidField = function() {
+    const modeSel = document.getElementById("adm-notif-target-mode");
+    const wrap = document.getElementById("adm-notif-uid-wrap");
+    if (!modeSel || !wrap) return;
+    if (modeSel.value === "SPECIFIC_UID") wrap.classList.remove("hidden");
+    else wrap.classList.add("hidden");
+  };
+
+  window.handleAdminNotifImageUpload = function(ev) {
+    const file = ev.target && ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const inp = document.getElementById("adm-notif-photo-url");
+      if (inp) inp.value = String(reader.result || "");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.adminPublishNotification = function(e) {
+    e.preventDefault();
+    if (typeof state === "undefined") return;
+    const targetMode = document.getElementById("adm-notif-target-mode")?.value || "ALL";
+    const mode = document.getElementById("adm-notif-mode")?.value || "BELL";
+    const specificUid = (document.getElementById("adm-notif-target-uid")?.value || "").trim().toUpperCase();
+    const title = (document.getElementById("adm-notif-title")?.value || "").trim();
+    const photo = (document.getElementById("adm-notif-photo-url")?.value || "").trim();
+    const description = (document.getElementById("adm-notif-desc")?.value || "").trim();
+
+    if (!title || !description) return;
+    if (targetMode === "SPECIFIC_UID" && !specificUid) {
+      return triggerSystemPopup("UID Required", "Enter a specific Member UID.", "error");
+    }
+
+    const item = {
+      id: "NOTIF-" + Date.now() + "-" + Math.floor(Math.random() * 999),
+      title,
+      description,
+      photo,
+      targetUid: targetMode === "SPECIFIC_UID" ? specificUid : "ALL",
+      mode,
+      createdAt: new Date().toLocaleTimeString(),
+      read: false
+    };
+
+    state.notifications.unshift(item);
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    renderAdminNotifList();
+    renderMemberBellList();
+    updateBellBadges();
+    checkAndRenderPermanentScreenNotice();
+    triggerSystemPopup("Notification Published!", mode === "PERMANENT_SCREEN" ? "Permanent screen notice set until deleted by Admin." : "Sent to member bell inbox.");
+    if (e.target && typeof e.target.reset === "function") e.target.reset();
+    toggleAdminNotifUidField();
+  };
+
+  window.adminDeleteNotification = function(id) {
+    if (typeof state === "undefined") return;
+    state.notifications = (state.notifications || []).filter(n => n.id !== id);
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    renderAdminNotifList();
+    renderMemberBellList();
+    updateBellBadges();
+    checkAndRenderPermanentScreenNotice();
+    triggerSystemPopup("Notification Deleted", "Removed from platform notifications.");
+  };
+
+  function renderAdminNotifList() {
+    const box = document.getElementById("admin-notif-list");
+    if (!box || typeof state === "undefined") return;
+    const list = state.notifications || [];
+    if (!list.length) {
+      box.innerHTML = `<p class="text-slate-500 font-sans">No notifications published yet.</p>`;
+      return;
+    }
+    box.innerHTML = list.map(n => `
+      <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-start justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <strong class="text-white">${n.title}</strong>
+            <span class="px-2 py-0.5 rounded text-[10px] ${n.mode === 'PERMANENT_SCREEN' ? 'bg-amber-500/20 text-amber-300' : 'bg-cyan-500/20 text-cyan-300'}">${n.mode}</span>
+            <span class="text-[10px] text-emerald-300">Target: ${n.targetUid || 'ALL'}</span>
+          </div>
+          <p class="text-[11px] font-sans text-slate-400">${n.description}</p>
+        </div>
+        <button type="button" onclick="adminDeleteNotification('${n.id}')" class="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white border border-rose-500/50 text-[11px] font-bold cursor-pointer shrink-0">Delete</button>
+      </div>
+    `).join("");
+  }
+
+  // Expand Crypto Wallet selector with ALL popular wallets
+  function renderAllCryptoWalletGrid() {
+    const connectPanel = document.getElementById("prof-panel-connect");
+    if (!connectPanel) return;
+    const grid = connectPanel.querySelector(".grid.grid-cols-2");
+    if (!grid) return;
+
+    grid.className = "grid grid-cols-2 sm:grid-cols-3 gap-2";
+    grid.innerHTML = ALL_WALLET_NAMES.map(w => `
+      <button type="button" onclick="toggleExternalWallet('${w}')" id="wcard-${w.replace(/\s+/g, '_')}" class="p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 flex items-center justify-between gap-1 cursor-pointer text-left">
+        <span class="font-bold text-[11px] text-white truncate">${w}</span>
+        <span id="wstat-${w.replace(/\s+/g, '_')}" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-bold shrink-0">Connect</span>
+      </button>
+    `).join("");
+  }
+
+  // Enhance wallet provider detection & direct wallet deposit handoff (pre-filled with connected wallet, balance & amount -> Pay completes)
+  function getWalletDeepLink(wName, toAddr, amount, asset) {
+    const cleanAddr = encodeURIComponent(toAddr || "");
+    const cleanAmt = encodeURIComponent(String(amount || ""));
+    switch (wName) {
+      case "SafePal":
+        return `https://link.safepal.io/send?address=${cleanAddr}&amount=${cleanAmt}&symbol=${asset}`;
+      case "Trust Wallet":
+        return `https://link.trustwallet.com/send?coin=20000714&address=${cleanAddr}&amount=${cleanAmt}`;
+      case "Binance Wallet":
+        return `https://app.binance.com/en/my/wallet/account/payment/send?address=${cleanAddr}&amount=${cleanAmt}`;
+      case "OKX Wallet":
+        return `https://www.okx.com/web3/transfer?to=${cleanAddr}&amount=${cleanAmt}`;
+      case "MetaMask":
+        return `https://metamask.app.link/send/${cleanAddr}@56?value=${cleanAmt}`;
+      case "Coinbase Wallet":
+        return `https://go.cb-w.com/send?address=${cleanAddr}&amount=${cleanAmt}`;
+      case "Phantom":
+        return `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}`;
+      default:
+        return `https://link.safepal.io/send?address=${cleanAddr}&amount=${cleanAmt}`;
+    }
+  }
+
+  // Build comprehensive Admin Member Control + A/B/C Team + Plan + Unified Deposit + Searchable Full Transaction History
+  function injectAdminMemberControlSuite() {
+    const adminDash = document.getElementById("admin-dashboard-screen");
+    if (!adminDash || document.getElementById("admin-member-control-suite")) return;
+    const container = adminDash.querySelector(".p-6.space-y-6");
+    if (!container) return;
+
+    const suite = document.createElement("div");
+    suite.id = "admin-member-control-suite";
+    suite.className = "space-y-6";
+    suite.innerHTML = `
+      <!-- 5. MEMBER SEARCH, DIRECTORY & FULL PROFILE/BALANCE/TOKEN/TEAM/PLAN EDITOR -->
+      <div class="cyber-panel rounded-2xl p-5 border border-cyan-400/50 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-base font-extrabold text-cyan-300">5. Member Search, UID/Username, Wallet Connect, A/B/C Team &amp; Plan Control</h3>
+            <p class="text-[11px] text-slate-400">Search by Name, Username, or UID—edit balances, NFX tokens, wallet connection, A/B/C members &amp; plans with instant member sync.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <input type="text" id="adm-member-search-inp" oninput="renderAdminMemberDirectory()" placeholder="Search Name, Username or UID..." class="px-3.5 py-2 rounded-xl bg-slate-950 border border-cyan-500/50 font-mono text-xs text-white w-60" />
+            <button type="button" onclick="openAdminNotificationsDrawer()" class="px-3.5 py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-xs cursor-pointer">+ Send Bell / Screen Notice</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-4 rounded-xl bg-slate-950 border border-slate-800 p-3 space-y-2 max-h-80 overflow-y-auto" id="adm-member-directory-list"></div>
+
+          <form onsubmit="adminSaveSelectedMemberProfile(event)" class="lg:col-span-8 rounded-xl bg-slate-950 border border-cyan-500/35 p-4 space-y-3 font-mono text-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+              <span class="font-sans font-extrabold text-white text-sm">Selected Member Profile Editor</span>
+              <span id="adm-sel-member-badge" class="px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[11px]">No Member Selected</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Member UID</label>
+                <input type="text" id="adm-edit-uid" required class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-cyan-300" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Username</label>
+                <input type="text" id="adm-edit-username" required class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Connected Wallet</label>
+                <select id="adm-edit-wallet-name" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-amber-300">
+                  <option value="">Not Connected</option>
+                  ${ALL_WALLET_NAMES.map(w => `<option value="${w}">${w}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Bound Wallet Address</label>
+                <input type="text" id="adm-edit-wallet-addr" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-emerald-300" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Withdrawal Fee % (Max 7%)</label>
+                <input type="number" step="0.1" min="0" max="7" id="adm-edit-wd-fee" value="7" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-amber-300" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">USDT Balance</label>
+                <input type="number" step="0.01" id="adm-edit-usdt" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-emerald-500/40 text-emerald-400 font-bold" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">BNB Balance</label>
+                <input type="number" step="0.0001" id="adm-edit-bnb" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-amber-500/40 text-amber-300 font-bold" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">NFX Token Balance</label>
+                <input type="number" step="0.0001" id="adm-edit-nfx" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 font-bold" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div>
+                <label class="text-[10px] text-cyan-300 block mb-1">A-Member Count (L1)</label>
+                <input type="number" min="0" id="adm-edit-a-count" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] text-emerald-300 block mb-1">B-Member Count (L2)</label>
+                <input type="number" min="0" id="adm-edit-b-count" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] text-amber-300 block mb-1">C-Member Count (L3)</label>
+                <input type="number" min="0" id="adm-edit-c-count" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Active Plan Name</label>
+                <input type="text" id="adm-edit-plan-name" placeholder="e.g. Growth Fixed Plan" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Plan Principal ($)</label>
+                <input type="number" step="0.01" id="adm-edit-plan-principal" placeholder="0.00" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-amber-300" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Plan Validity (Days)</label>
+                <input type="number" min="1" id="adm-edit-plan-days" placeholder="30" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-cyan-300" />
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-sans font-black text-xs uppercase cursor-pointer">Save &amp; Sync to Member</button>
+              <button type="button" onclick="adminDisconnectSelectedMemberWallet()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white border border-rose-500/40 font-sans font-bold text-xs cursor-pointer">Reset Wallet Link</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 6. UNIFIED MEMBER DEPOSIT DETAILS PANEL (SERIAL / SEQUENTIAL FOR ALL MEMBERS) -->
+      <div class="cyber-panel rounded-2xl p-5 border border-emerald-400/45 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div>
+            <h3 class="text-base font-extrabold text-emerald-300">6. Unified Member Deposit Details Panel (Sequential Feed)</h3>
+            <p class="text-[11px] text-slate-400">Shows Member ID/Username, Deposit Address, Chain, Amount, and Tx Hash together in sequence for every member.</p>
+          </div>
+          <span class="font-mono text-xs text-cyan-300">Total Deposits: <strong id="adm-unified-dep-count">0</strong></span>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-900 text-slate-400">
+              <tr>
+                <th class="py-2.5 px-3">#</th>
+                <th class="py-2.5 px-3">Member &amp; UID</th>
+                <th class="py-2.5 px-3">Deposit Address</th>
+                <th class="py-2.5 px-3">Chain</th>
+                <th class="py-2.5 px-3">Amount</th>
+                <th class="py-2.5 px-3">Tx Hash</th>
+                <th class="py-2.5 px-3 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="adm-unified-deposit-tbody" class="divide-y divide-slate-800/70 bg-slate-950/70"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 7. SEARCHABLE FULL TRANSACTION HISTORY (DEPOSITS, WITHDRAWALS, NFX BUY/SWAP & BONUS) -->
+      <div class="cyber-panel rounded-2xl p-5 border border-amber-400/45 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-2.5">
+          <div>
+            <h3 class="text-base font-extrabold text-amber-300">7. Searchable Member Transaction History (Deposits, Withdrawals &amp; NFX)</h3>
+            <p class="text-[11px] text-slate-400">Search any UID or Username to inspect every deposit, withdrawal request, and NFX token buy/swap record.</p>
+          </div>
+          <input type="text" id="adm-tx-search-inp" oninput="renderAdminUnifiedTxHistory()" placeholder="Filter by UID or Username..." class="px-3.5 py-2 rounded-xl bg-slate-950 border border-amber-500/40 font-mono text-xs text-white w-60" />
+        </div>
+        <div class="overflow-x-auto max-h-64 overflow-y-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-900 text-slate-400 sticky top-0">
+              <tr>
+                <th class="py-2.5 px-3">Type</th>
+                <th class="py-2.5 px-3">Member &amp; UID</th>
+                <th class="py-2.5 px-3">Details / Pair</th>
+                <th class="py-2.5 px-3">Amount</th>
+                <th class="py-2.5 px-3">Status / Hash</th>
+              </tr>
+            </thead>
+            <tbody id="adm-unified-tx-tbody" class="divide-y divide-slate-800/70 bg-slate-950/70"></tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(suite);
+  }
+
+  function collectAllKnownMembers() {
+    const map = new Map();
+    if (typeof state !== "undefined" && state.user && state.user.memberId) {
+      map.set(state.user.memberId.toUpperCase(), { ...state.user });
+    }
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith("nfx_account_")) {
+          const parsed = JSON.parse(localStorage.getItem(k) || "{}");
+          if (parsed && parsed.memberId) {
+            map.set(String(parsed.memberId).toUpperCase(), parsed);
+          }
+        }
+      }
+    } catch (_) {}
+    if (!map.size) {
+      map.set("NFX-550192", {
+        memberId: "NFX-550192",
+        username: "SajibVIP",
+        connectedWallet: "SafePal",
+        extAddress: "0x50b3b104E41F34B4a85d24cFBF24AC7d2CE638cE",
+        usdtBalance: 0,
+        bnbBalance: 0,
+        nfxBalance: 0,
+        withdrawalFeePct: 7
+      });
+    }
+    return Array.from(map.values());
+  }
+
+  window.renderAdminMemberDirectory = function() {
+    const listBox = document.getElementById("adm-member-directory-list");
+    const dl = document.getElementById("admin-member-uid-datalist");
+    if (!listBox) return;
+
+    const q = (document.getElementById("adm-member-search-inp")?.value || "").trim().toLowerCase();
+    const members = collectAllKnownMembers();
+
+    if (dl) {
+      dl.innerHTML = members.map(m => `<option value="${m.memberId}">${m.username || "Member"}</option>`).join("");
+    }
+
+    const filtered = members.filter(m => {
+      if (!q) return true;
+      return String(m.memberId || "").toLowerCase().includes(q) ||
+             String(m.username || "").toLowerCase().includes(q) ||
+             String(m.email || "").toLowerCase().includes(q);
+    });
+
+    listBox.innerHTML = filtered.map(m => {
+      const uid = String(m.memberId || "").toUpperCase();
+      const isActive = state.selectedAdminMemberUid === uid;
+      return `
+        <div onclick="selectAdminMemberProfile('${uid}')" class="p-2.5 rounded-xl cursor-pointer border ${isActive ? 'bg-cyan-500/20 border-cyan-400' : 'bg-slate-900 border-slate-800 hover:border-cyan-500/40'}">
+          <div class="flex items-center justify-between font-mono text-xs">
+            <strong class="text-white">@${m.username || "Member"}</strong>
+            <span class="text-cyan-300">${uid}</span>
+          </div>
+          <p class="font-mono text-[10px] text-emerald-400 mt-0.5">USDT: $${Number(m.usdtBalance || 0).toFixed(2)} • NFX: ${Number(m.nfxBalance || 0).toFixed(2)}</p>
+        </div>
+      `;
+    }).join("") || `<p class="text-xs text-slate-500 p-2">No matching members.</p>`;
+  };
+
+  window.selectAdminMemberProfile = function(uid) {
+    const cleanUid = String(uid || "").trim().toUpperCase();
+    const members = collectAllKnownMembers();
+    const m = members.find(x => String(x.memberId || "").toUpperCase() === cleanUid);
+    if (!m) return;
+
+    state.selectedAdminMemberUid = cleanUid;
+    const badge = document.getElementById("adm-sel-member-badge");
+    if (badge) badge.textContent = `@${m.username || "Member"} (${cleanUid})`;
+
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ""; };
+    setVal("adm-edit-uid", cleanUid);
+    setVal("adm-edit-username", m.username || "");
+    setVal("adm-edit-wallet-name", m.connectedWallet || "");
+    setVal("adm-edit-wallet-addr", m.extAddress || "");
+    setVal("adm-edit-wd-fee", Math.min(7, Math.max(0, Number(m.withdrawalFeePct ?? 7))));
+    setVal("adm-edit-usdt", Number(m.usdtBalance || 0).toFixed(2));
+    setVal("adm-edit-bnb", Number(m.bnbBalance || 0).toFixed(4));
+    setVal("adm-edit-nfx", Number(m.nfxBalance || 0).toFixed(4));
+
+    const tMembers = Array.isArray(m.teamMembers) ? m.teamMembers : [];
+    const aCnt = m.teamACount ?? tMembers.filter(x => x.level === 1).length;
+    const bCnt = m.teamBCount ?? tMembers.filter(x => x.level === 2).length;
+    const cCnt = m.teamCCount ?? tMembers.filter(x => x.level === 3).length;
+    setVal("adm-edit-a-count", aCnt);
+    setVal("adm-edit-b-count", bCnt);
+    setVal("adm-edit-c-count", cCnt);
+
+    const firstPlan = (Array.isArray(m.activePlans) && m.activePlans[0]) ? m.activePlans[0] : null;
+    setVal("adm-edit-plan-name", firstPlan ? firstPlan.planName : "");
+    setVal("adm-edit-plan-principal", firstPlan ? firstPlan.principalUsd : "");
+    setVal("adm-edit-plan-days", firstPlan ? firstPlan.totalDays : "");
+
+    renderAdminMemberDirectory();
+  };
+
+  window.adminDisconnectSelectedMemberWallet = function() {
+    const wSel = document.getElementById("adm-edit-wallet-name");
+    const wAddr = document.getElementById("adm-edit-wallet-addr");
+    if (wSel) wSel.value = "";
+    if (wAddr) wAddr.value = "";
+    triggerSystemPopup("Wallet Link Cleared", "Set to Not Connected — click Save & Sync to Member.");
+  };
+
+  window.adminSaveSelectedMemberProfile = function(e) {
+    e.preventDefault();
+    if (typeof state === "undefined") return;
+    const uid = (document.getElementById("adm-edit-uid")?.value || "").trim().toUpperCase();
+    const username = (document.getElementById("adm-edit-username")?.value || "").trim();
+    const walletName = document.getElementById("adm-edit-wallet-name")?.value || null;
+    const walletAddr = (document.getElementById("adm-edit-wallet-addr")?.value || "").trim();
+    const rawFee = parseFloat(document.getElementById("adm-edit-wd-fee")?.value);
+    const feePct = isNaN(rawFee) ? 7 : Math.min(7, Math.max(0, rawFee));
+
+    const usdtBal = Math.max(0, parseFloat(document.getElementById("adm-edit-usdt")?.value) || 0);
+    const bnbBal = Math.max(0, parseFloat(document.getElementById("adm-edit-bnb")?.value) || 0);
+    const nfxBal = Math.max(0, parseFloat(document.getElementById("adm-edit-nfx")?.value) || 0);
+
+    const aCnt = Math.max(0, parseInt(document.getElementById("adm-edit-a-count")?.value || "0", 10));
+    const bCnt = Math.max(0, parseInt(document.getElementById("adm-edit-b-count")?.value || "0", 10));
+    const cCnt = Math.max(0, parseInt(document.getElementById("adm-edit-c-count")?.value || "0", 10));
+
+    const planName = (document.getElementById("adm-edit-plan-name")?.value || "").trim();
+    const planPrincipal = Math.max(0, parseFloat(document.getElementById("adm-edit-plan-principal")?.value) || 0);
+    const planDays = Math.max(1, parseInt(document.getElementById("adm-edit-plan-days")?.value || "30", 10));
+
+    const existingRaw = localStorage.getItem(`nfx_account_${uid}`);
+    const baseMember = existingRaw ? JSON.parse(existingRaw) : { ...state.user, memberId: uid, registered: true };
+
+    const updatedMember = {
+      ...baseMember,
+      registered: true,
+      memberId: uid,
+      username: username || baseMember.username || "Member",
+      connectedWallet: walletName || null,
+      extAddress: walletAddr || baseMember.extAddress || "",
+      withdrawalFeePct: feePct,
+      usdtBalance: usdtBal,
+      bnbBalance: bnbBal,
+      nfxBalance: nfxBal,
+      teamACount: aCnt,
+      teamBCount: bCnt,
+      teamCCount: cCnt
+    };
+
+    if (planName && planPrincipal > 0) {
+      const dailyPayoutUsd = +(planPrincipal * 0.01).toFixed(4);
+      updatedMember.activePlans = [
+        {
+          id: "PLN-ADM-" + Math.floor(1000 + Math.random() * 9000),
+          planName,
+          asset: "USDT",
+          principalUsd: planPrincipal,
+          dailyPayoutUsd,
+          totalDays: planDays,
+          daysPaid: 0,
+          earnedUsd: 0,
+          unlocked: false
+        }
+      ];
+    }
+
+    localStorage.setItem(`nfx_account_${uid}`, JSON.stringify(updatedMember));
+    if (updatedMember.username) {
+      localStorage.setItem(`nfx_user_${updatedMember.username.toLowerCase()}`, JSON.stringify(updatedMember));
+    }
+
+    if (state.user && String(state.user.memberId || "").toUpperCase() === uid) {
+      Object.assign(state.user, updatedMember);
+      if (Array.isArray(updatedMember.activePlans)) state.activePlans = updatedMember.activePlans;
+      if (typeof renderActivePlansTable === "function") renderActivePlansTable();
+      if (typeof syncUI === "function") syncUI();
+    }
+
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    renderAdminMemberDirectory();
+    triggerSystemPopup("Member Profile Updated!", `@${updatedMember.username} (${uid}) synced with USDT $${usdtBal.toFixed(2)} & NFX ${nfxBal.toFixed(4)}.`);
+  };
+
+  window.renderAdminUnifiedDepositPanel = function() {
+    const tbody = document.getElementById("adm-unified-deposit-tbody");
+    const cntEl = document.getElementById("adm-unified-dep-count");
+    if (!tbody || typeof state === "undefined") return;
+    const deps = state.deposits || [];
+    if (cntEl) cntEl.textContent = String(deps.length);
+
+    if (!deps.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-500 font-sans">No member deposits recorded yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = deps.map((d, idx) => `
+      <tr>
+        <td class="py-2.5 px-3 text-slate-400">${idx + 1}</td>
+        <td class="py-2.5 px-3"><strong class="text-white">@${d.username || "Member"}</strong> <span class="text-cyan-300 block text-[10px]">${d.memberId || ""}</span></td>
+        <td class="py-2.5 px-3 text-amber-200 max-w-[160px] truncate">${d.depositAddress || state.token.vaultAddress || "—"}</td>
+        <td class="py-2.5 px-3 text-cyan-300">${d.chain || "BEP-20"}</td>
+        <td class="py-2.5 px-3 font-bold text-emerald-400">${Number(d.amount || 0).toLocaleString()} ${d.asset || "USDT"}</td>
+        <td class="py-2.5 px-3 text-slate-300 max-w-[150px] truncate">${d.txHash || "—"}</td>
+        <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${d.status === 'Verified' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">${d.status || "Pending"}</span></td>
+      </tr>
+    `).join("");
+  };
+
+  window.renderAdminUnifiedTxHistory = function() {
+    const tbody = document.getElementById("adm-unified-tx-tbody");
+    if (!tbody || typeof state === "undefined") return;
+    const q = (document.getElementById("adm-tx-search-inp")?.value || "").trim().toLowerCase();
+
+    const rows = [];
+    (state.deposits || []).forEach(d => {
+      rows.push({
+        type: "DEPOSIT",
+        who: `@${d.username || "Member"} (${d.memberId || ""})`,
+        detail: `${d.wallet || "Wallet"} • ${d.chain || "BEP-20"}`,
+        amt: `+${Number(d.amount || 0).toLocaleString()} ${d.asset || "USDT"}`,
+        status: `${d.status || ""} • ${d.txHash || ""}`,
+        color: "text-emerald-400"
+      });
+    });
+    (state.withdrawals || []).forEach(w => {
+      rows.push({
+        type: "WITHDRAW",
+        who: `@${w.username || "Member"} (${w.memberId || ""})`,
+        detail: `To: ${w.destination || ""}`,
+        amt: `-${Number(w.amount || 0).toLocaleString()} ${w.asset || "USDT"}`,
+        status: `${w.status || ""} • ${w.reason || ""}`,
+        color: "text-rose-400"
+      });
+    });
+    ((state.gasTreasury && state.gasTreasury.logs) || []).forEach(g => {
+      rows.push({
+        type: "NFX / SWAP",
+        who: `UID: ${g.memberId || ""}`,
+        detail: `${g.pair || "Swap"} • ${g.time || ""}`,
+        amt: `Gas: ${g.bnb || 0} BNB ($${g.usd || 0})`,
+        status: "Completed",
+        color: "text-cyan-300"
+      });
+    });
+
+    const filtered = rows.filter(r => !q || r.who.toLowerCase().includes(q) || r.detail.toLowerCase().includes(q));
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-500 font-sans">No transactions match this filter.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(r => `
+      <tr>
+        <td class="py-2.5 px-3 font-bold ${r.color}">${r.type}</td>
+        <td class="py-2.5 px-3 text-white">${r.who}</td>
+        <td class="py-2.5 px-3 text-slate-300">${r.detail}</td>
+        <td class="py-2.5 px-3 font-bold text-amber-300">${r.amt}</td>
+        <td class="py-2.5 px-3 text-[11px] text-slate-400 max-w-[200px] truncate">${r.status}</td>
+      </tr>
+    `).join("");
+  };
+
+  // Patch Deposit flow: direct connected wallet handoff (pre-filled with connected wallet, balance & amount -> Pay completes) + Admin request/deposit details
+  const origOpenDeposit = window.openDepositGateway;
+  window.openDepositGateway = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (typeof state === "undefined") return;
+    if (!state.user.connectedWallet) {
+      triggerSystemPopup("Connect Crypto Wallet First", "Select SafePal, Trust Wallet, Binance, OKX, or another wallet first.", "error");
+      if (typeof switchProfSub === "function") switchProfSub("connect");
+      return;
+    }
+    const pwdEl = document.getElementById("dep-pwd");
+    if (pwdEl && state.user.password && pwdEl.value !== state.user.password) {
+      triggerSystemPopup("Incorrect Password", "Enter your account password to continue.", "error");
+      return;
+    }
+
+    const asset = document.getElementById("dep-coin")?.value || "USDT";
+    const chain = document.getElementById("dep-net")?.value || "BNB Smart Chain (BEP-20)";
+    const amount = parseFloat(document.getElementById("dep-val")?.value);
+    if (isNaN(amount) || amount <= 0) {
+      triggerSystemPopup("Invalid Amount", "Enter a valid deposit amount.", "error");
+      return;
+    }
+
+    const vaultAddr = (state.token && state.token.vaultAddress) || "0x9F8c42B91eD04A8c771B920E7E4A6B2000884920";
+    const existingBal = asset === "BNB" ? Number(state.user.bnbBalance || 0) : Number(state.user.usdtBalance || 0);
+    const txHash = "0x" + Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+
+    // Record deposit with address, chain & txHash in sequential panel & sync to Admin
+    const depRecord = {
+      id: "DEP-" + Math.floor(10000 + Math.random() * 90000),
+      memberId: state.user.memberId || "NFX-GUEST",
+      username: state.user.username || "Member",
+      wallet: state.user.connectedWallet,
+      fromWallet: state.user.extAddress || "",
+      depositAddress: vaultAddr,
+      asset,
+      chain,
+      amount,
+      txHash,
+      status: "Verified",
+      isCurrentUser: true
+    };
+    state.deposits.unshift(depRecord);
+
+    // Credit member deposit balance immediately upon Pay/Submit
+    if (asset === "USDT") state.user.usdtBalance = +(Number(state.user.usdtBalance || 0) + amount).toFixed(2);
+    if (asset === "BNB") state.user.bnbBalance = +(Number(state.user.bnbBalance || 0) + amount).toFixed(4);
+
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    if (typeof renderMemberHistories === "function") renderMemberHistories();
+    if (typeof renderAdminTables === "function") renderAdminTables();
+    renderAdminUnifiedDepositPanel();
+    renderAdminUnifiedTxHistory();
+    if (typeof syncUI === "function") syncUI();
+
+    pushAdminBellAlert(
+      "New Member Deposit",
+      `@${depRecord.username} (${depRecord.memberId}) deposited ${amount} ${asset} on ${chain} -> ${vaultAddr.slice(0, 12)}...`
+    );
+
+    triggerSystemPopup(
+      "Deposit Payment Complete!",
+      `${state.user.connectedWallet} • Prev Balance: ${existingBal} ${asset} • Paid: ${amount} ${asset} • New Balance: ${asset === "BNB" ? state.user.bnbBalance : state.user.usdtBalance} ${asset}.`
+    );
+
+    // Launch connected wallet send deep-link if user wants external app screen with pre-filled address & amount
+    const deepUrl = getWalletDeepLink(state.user.connectedWallet, vaultAddr, amount, asset);
+    const win = window.open(deepUrl, "_blank", "noopener,noreferrer");
+    if (!win) {
+      const a = document.createElement("a");
+      a.href = deepUrl;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  };
+
+  // Patch Withdrawal flow: enforce max 7% withdrawal charging fee for USDT & NFX Token
+  const origSubmitWd = window.submitMemberWithdrawal;
+  window.submitMemberWithdrawal = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (typeof state === "undefined") return;
+    const pwdEl = document.getElementById("wd-pwd");
+    if (pwdEl && state.user.password && pwdEl.value !== state.user.password) {
+      triggerSystemPopup("Incorrect Password", "Enter your exact account password.", "error");
+      return;
+    }
+
+    const asset = document.getElementById("wd-coin")?.value || "USDT";
+    const amount = parseFloat(document.getElementById("wd-val")?.value);
+    const destination = (document.getElementById("wd-dest")?.value || "").trim();
+    if (isNaN(amount) || amount <= 0 || !destination) {
+      triggerSystemPopup("Invalid Withdrawal", "Enter a valid amount and destination address.", "error");
+      return;
+    }
+
+    const rawFeePct = Number(state.user.withdrawalFeePct ?? 7);
+    const feePct = (asset === "USDT" || asset === "NFX") ? Math.min(7, Math.max(0, rawFeePct)) : 0;
+    const feeAmount = +(amount * (feePct / 100)).toFixed(4);
+    const netReceive = +(amount - feeAmount).toFixed(4);
+
+    if (asset === "USDT" && amount > Number(state.user.usdtBalance || 0)) {
+      triggerSystemPopup("Insufficient USDT", "Not enough USDT balance for this withdrawal.", "error");
+      return;
+    }
+    if (asset === "NFX" && amount > Number(state.user.nfxBalance || 0)) {
+      triggerSystemPopup("Insufficient NFX", "Not enough NFX token balance.", "error");
+      return;
+    }
+    if (asset === "BNB" && amount > Number(state.user.bnbBalance || 0)) {
+      triggerSystemPopup("Insufficient BNB", "Not enough BNB balance.", "error");
+      return;
+    }
+
+    if (asset === "USDT") state.user.usdtBalance = +(Number(state.user.usdtBalance) - amount).toFixed(2);
+    if (asset === "NFX") state.user.nfxBalance = +(Number(state.user.nfxBalance) - amount).toFixed(4);
+    if (asset === "BNB") state.user.bnbBalance = +(Number(state.user.bnbBalance) - amount).toFixed(4);
+
+    const reqId = "WD-" + Math.floor(10000 + Math.random() * 90000);
+    state.withdrawals.unshift({
+      id: reqId,
+      memberId: state.user.memberId || "NFX-GUEST",
+      username: state.user.username || "Member",
+      asset,
+      amount,
+      feePct,
+      feeAmount,
+      netReceive,
+      destination,
+      timestamp: new Date().toLocaleTimeString(),
+      status: "Pending Review",
+      reason: `Fee ${feePct}% (${feeAmount} ${asset}) • Net ${netReceive} ${asset}`,
+      isCurrentUser: true
+    });
+
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    if (typeof renderMemberHistories === "function") renderMemberHistories();
+    if (typeof renderAdminTables === "function") renderAdminTables();
+    renderAdminUnifiedTxHistory();
+    if (typeof syncUI === "function") syncUI();
+
+    pushAdminBellAlert(
+      "Withdrawal Request Submitted",
+      `${reqId}: @${state.user.username || "Member"} requested ${amount} ${asset} (Fee ${feePct}% = ${feeAmount} ${asset}, Net ${netReceive} ${asset}).`
+    );
+
+    triggerSystemPopup(
+      "Withdrawal Request Submitted!",
+      `${amount} ${asset} submitted (${feePct}% fee = ${feeAmount} ${asset}; Net payable: ${netReceive} ${asset}). Request ID: ${reqId}.`
+    );
+  };
+
+  // Hook popups into NFX Buy/Swap & Plan actions too
+  const origExecSwap = window.executeMainSwap;
+  if (typeof origExecSwap === "function") {
+    window.executeMainSwap = function() {
+      const prevNfx = Number(state.user.nfxBalance || 0);
+      const prevUsdt = Number(state.user.usdtBalance || 0);
+      origExecSwap.apply(this, arguments);
+      const diffNfx = +(Number(state.user.nfxBalance || 0) - prevNfx).toFixed(4);
+      const diffUsdt = +(Number(state.user.usdtBalance || 0) - prevUsdt).toFixed(2);
+      if (diffNfx !== 0 || diffUsdt !== 0) {
+        triggerSystemPopup(
+          "Transaction Complete!",
+          `Swap settled • NFX change: ${diffNfx >= 0 ? "+" : ""}${diffNfx} NFX • USDT change: ${diffUsdt >= 0 ? "+" : ""}$${diffUsdt}.`
+        );
+      }
+    };
+  }
+
+  const origEnrollPlan = window.enrollInvestmentPlan;
+  if (typeof origEnrollPlan === "function") {
+    window.enrollInvestmentPlan = function(tierId) {
+      const prevCount = (state.activePlans || []).length;
+      origEnrollPlan.apply(this, arguments);
+      if ((state.activePlans || []).length > prevCount) {
+        const p = state.activePlans[0];
+        triggerSystemPopup(
+          "Investment Plan Activated!",
+          `${p.planName}: $${Number(p.principalUsd).toFixed(2)} locked for ${p.totalDays} days • Daily profit: +$${Number(p.dailyPayoutUsd).toFixed(2)}/day.`
+        );
+      }
+    };
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    renderAllCryptoWalletGrid();
+    injectAdminMemberControlSuite();
+    renderAdminMemberDirectory();
+    renderAdminUnifiedDepositPanel();
+    renderAdminUnifiedTxHistory();
+    renderMemberBellList();
+    renderAdminNotifList();
+    updateBellBadges();
+    checkAndRenderPermanentScreenNotice();
+
+    const origRenderAdmin = window.renderAdminTables;
+    if (typeof origRenderAdmin === "function") {
+      window.renderAdminTables = function() {
+        origRenderAdmin.apply(this, arguments);
+        injectAdminMemberControlSuite();
+        renderAdminMemberDirectory();
+        renderAdminUnifiedDepositPanel();
+        renderAdminUnifiedTxHistory();
+        renderAdminNotifList();
+        updateBellBadges();
+      };
+    }
+
+    const origSync = window.syncUI;
+    if (typeof origSync === "function") {
+      window.syncUI = function() {
+        origSync.apply(this, arguments);
+        updateBellBadges();
+        checkAndRenderPermanentScreenNotice();
+      };
+    }
   });
 })();
 </script>
