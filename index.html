@@ -5520,5 +5520,101 @@
 })();
 </script>
 
+
+<script>
+(function() {
+  const origAdminSave = window.adminSaveSelectedMemberProfile;
+  window.adminSaveSelectedMemberProfile = async function(e) {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    if (typeof state === "undefined") return;
+
+    const uid = (document.getElementById("adm-edit-uid")?.value || "").trim().toUpperCase();
+    const username = (document.getElementById("adm-edit-username")?.value || "").trim();
+    const walletName = document.getElementById("adm-edit-wallet-name")?.value || null;
+    const walletAddr = (document.getElementById("adm-edit-wallet-addr")?.value || "").trim();
+    const rawFee = parseFloat(document.getElementById("adm-edit-wd-fee")?.value);
+    const feePct = isNaN(rawFee) ? 7 : Math.min(7, Math.max(0, rawFee));
+
+    const usdtBal = Math.max(0, parseFloat(document.getElementById("adm-edit-usdt")?.value) || 0);
+    const bnbBal = Math.max(0, parseFloat(document.getElementById("adm-edit-bnb")?.value) || 0);
+    const nfxBal = Math.max(0, parseFloat(document.getElementById("adm-edit-nfx")?.value) || 0);
+
+    const aCnt = Math.max(0, parseInt(document.getElementById("adm-edit-a-count")?.value || "0", 10));
+    const bCnt = Math.max(0, parseInt(document.getElementById("adm-edit-b-count")?.value || "0", 10));
+    const cCnt = Math.max(0, parseInt(document.getElementById("adm-edit-c-count")?.value || "0", 10));
+
+    if (typeof origAdminSave === "function") {
+      origAdminSave.call(this, { preventDefault: () => {}, target: e && e.target });
+    }
+
+    if (!uid) return;
+
+    const existingRaw = localStorage.getItem(`nfx_account_${uid}`);
+    const savedObj = existingRaw ? JSON.parse(existingRaw) : { ...state.user, memberId: uid, registered: true };
+    const existingTeam = Array.isArray(savedObj.teamMembers) ? [...savedObj.teamMembers] : [];
+
+    const syncLevelBuckets = (lvl, targetCnt) => {
+      const others = existingTeam.filter(x => x.level !== lvl);
+      const currentLvl = existingTeam.filter(x => x.level === lvl);
+      if (currentLvl.length < targetCnt) {
+        const needed = targetCnt - currentLvl.length;
+        for (let i = 0; i < needed; i++) {
+          currentLvl.push({
+            uid: `L${lvl}-${uid.slice(-4)}-${i + 1}`,
+            level: lvl,
+            investUsd: 0,
+            active: false,
+            bonusUsd: 0
+          });
+        }
+      } else if (currentLvl.length > targetCnt) {
+        currentLvl.length = targetCnt;
+      }
+      return [...others, ...currentLvl];
+    };
+
+    let mergedTeam = syncLevelBuckets(1, aCnt);
+    mergedTeam = mergedTeam.filter(x => x.level !== 2).concat(syncLevelBuckets(2, bCnt).filter(x => x.level === 2));
+    mergedTeam = mergedTeam.filter(x => x.level !== 3).concat(syncLevelBuckets(3, cCnt).filter(x => x.level === 3));
+
+    const finalMember = {
+      ...savedObj,
+      registered: true,
+      memberId: uid,
+      username: username || savedObj.username || "Member",
+      connectedWallet: walletName || null,
+      extAddress: walletAddr || savedObj.extAddress || "",
+      withdrawalFeePct: feePct,
+      usdtBalance: usdtBal,
+      bnbBalance: bnbBal,
+      nfxBalance: nfxBal,
+      teamACount: aCnt,
+      teamBCount: bCnt,
+      teamCCount: cCnt,
+      teamMembers: mergedTeam
+    };
+
+    localStorage.setItem(`nfx_account_${uid}`, JSON.stringify(finalMember));
+    if (finalMember.username) {
+      localStorage.setItem(`nfx_user_${finalMember.username.toLowerCase()}`, JSON.stringify(finalMember));
+    }
+
+    if (!state.user.memberId || String(state.user.memberId).toUpperCase() === uid) {
+      Object.assign(state.user, finalMember);
+      state.teamMembers = mergedTeam;
+      if (typeof renderTeamHub === "function") renderTeamHub();
+      if (typeof refreshWalletConnectCards === "function") refreshWalletConnectCards();
+      if (typeof syncUI === "function") syncUI();
+    }
+
+    if (typeof window.syncExchangeUserToCloud === "function") {
+      try {
+        await window.syncExchangeUserToCloud();
+      } catch (_) {}
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
