@@ -104,41 +104,6 @@
     .orbital-stage { perspective: 900px; }
     .orbital-tilt-ring { transform: rotateX(58deg) rotateY(-14deg); transform-style: preserve-3d; }
 
-    /* Forced Desktop Layout Grid Overrides when Mobile Preview Toggle is Active */
-    body.desktop-preview-forced .dp-hero-grid {
-      grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
-    }
-    body.desktop-preview-forced .dp-col-3 {
-      grid-column: span 3 / span 3 !important;
-    }
-    body.desktop-preview-forced .dp-col-6 {
-      grid-column: span 6 / span 6 !important;
-    }
-    body.desktop-preview-forced .dp-col-8 {
-      grid-column: span 8 / span 8 !important;
-    }
-    body.desktop-preview-forced .dp-col-4 {
-      grid-column: span 4 / span 4 !important;
-    }
-    body.desktop-preview-forced .dp-col-5 {
-      grid-column: span 5 / span 5 !important;
-    }
-    body.desktop-preview-forced .dp-col-7 {
-      grid-column: span 7 / span 7 !important;
-    }
-    body.desktop-preview-forced .dp-grid-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    }
-    body.desktop-preview-forced .dp-grid-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    }
-    body.desktop-preview-forced .dp-side-bar {
-      display: block !important;
-    }
-    body.desktop-preview-forced .dp-xl-flex {
-      display: flex !important;
-    }
-
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #040912; }
     ::-webkit-scrollbar-thumb { background: #1e334a; border-radius: 999px; }
@@ -150,12 +115,6 @@
   <!-- GLOBAL TOAST NOTIFICATIONS -->
   <div id="toast-container" class="fixed top-5 right-5 z-[220] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
 
-  <!-- FLOATING MOBILE PREVIEW HELPER PILL (AUTO-HIDDEN ON REAL DESKTOP SCREENS >= 1024px) -->
-  <button id="mobile-desktop-toggle-btn" onclick="toggleMobileDesktopPreview()" class="lg:hidden fixed bottom-4 left-4 z-[210] px-4 py-2.5 rounded-full bg-slate-950/95 hover:bg-slate-900 border-2 border-cyan-400/80 shadow-[0_0_24px_rgba(0,242,254,0.5)] text-xs font-extrabold text-cyan-200 flex items-center gap-2 backdrop-blur-md transition active:scale-95 cursor-pointer">
-    <span id="mobile-desktop-toggle-icon">🖥️</span>
-    <span id="mobile-desktop-toggle-label">Desktop View</span>
-  </button>
-
   <!-- SCALING WRAPPER FOR SEAMLESS 1380px DESKTOP PREVIEW ON ANDROID PHONES -->
   <div id="chassis-scale-wrapper" class="w-full max-w-[1540px] flex justify-center">
 
@@ -165,8 +124,8 @@
     <div id="metallic-chassis" class="metallic-chassis relative w-full max-w-[1540px] rounded-[24px] p-2.5 sm:p-3.5 lg:p-4">
       <div class="neon-bar-h absolute -top-[2px] left-1/2 -translate-x-1/2 w-56 sm:w-80 h-[4px] rounded-full"></div>
       <div class="neon-bar-h absolute -bottom-[2px] left-1/2 -translate-x-1/2 w-56 sm:w-80 h-[4px] rounded-full"></div>
-      <div class="neon-bar-v dp-side-bar hidden sm:block absolute top-1/2 -left-[2px] -translate-y-1/2 w-[4px] h-44 rounded-full"></div>
-      <div class="neon-bar-v dp-side-bar hidden sm:block absolute top-1/2 -right-[2px] -translate-y-1/2 w-[4px] h-44 rounded-full"></div>
+      <div class="neon-bar-v hidden sm:block absolute top-1/2 -left-[2px] -translate-y-1/2 w-[4px] h-44 rounded-full"></div>
+      <div class="neon-bar-v hidden sm:block absolute top-1/2 -right-[2px] -translate-y-1/2 w-[4px] h-44 rounded-full"></div>
 
       <!-- INNER SCREEN BEZEL -->
       <div class="inner-screen-bezel relative rounded-[18px] overflow-hidden min-h-[760px] flex flex-col justify-between">
@@ -205,15 +164,15 @@
               <div class="flex items-center gap-2.5 text-xs font-mono">
                 <span class="px-3.5 py-1.5 rounded-lg holo-card-cyan text-cyan-300 flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                  NFX Token (BEP-20): <strong class="text-emerald-400 landing-nfx-price">$7.0000</strong>
+                  NFX Token (BEP-20): <strong class="text-emerald-400 landing-nfx-price">$1.2500</strong>
                 </span>
               </div>
             </header>
 
             <!-- Center 3-Column Hero -->
-            <div class="dp-hero-grid grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-4 z-20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-4 z-20">
               <!-- Left: Market Liquidity Stats -->
-              <div class="dp-col-3 lg:col-span-3 space-y-3">
+              <div class="lg:col-span-3 space-y-3">
                 <h3 class="font-tech font-bold text-base tracking-wider uppercase text-slate-200 pl-1">Market Liquidity Stats</h3>
                 <div class="holo-card-cyan rounded-xl p-3.5">
                   <p class="font-tech text-xs font-semibold text-slate-300">NFX/USDT 24h Volume:</p>
@@ -238,7 +197,7 @@
               </div>
 
               <!-- Center: WELCOME TO NFX + Rotating 3D Orb + Get Started -->
-              <div class="dp-col-6 lg:col-span-6 flex flex-col items-center justify-center text-center space-y-5">
+              <div class="lg:col-span-6 flex flex-col items-center justify-center text-center space-y-5">
                 <h1 class="font-display font-black text-3xl sm:text-4xl lg:text-[42px] tracking-[0.14em] text-cyan-100 neon-cyan-text uppercase">
                   WELCOME TO NFX
                 </h1>
@@ -279,7 +238,7 @@
               </div>
 
               <!-- Right: Platform Features -->
-              <div class="dp-col-3 lg:col-span-3 space-y-3">
+              <div class="lg:col-span-3 space-y-3">
                 <h3 class="font-tech font-bold text-base tracking-wider uppercase text-slate-200 pl-1">Platform Features</h3>
                 <div class="holo-card-cyan rounded-xl p-3.5 flex items-center gap-3.5">
                   <div class="w-10 h-10 rounded-lg bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0">
@@ -330,10 +289,10 @@
                     <span class="font-display font-black text-xl text-white neon-cyan-text">NFX</span>
                     <div>
                       <span class="font-tech font-bold text-sm text-cyan-200 block leading-none">NFX Trading Exchange</span>
-                      <span class="font-mono text-[10px] text-emerald-400">BEP-20 • <span class="nav-nfx-price">$7.0000</span></span>
+                      <span class="font-mono text-[10px] text-emerald-400">BEP-20 • <span class="nav-nfx-price">$1.2500</span></span>
                     </div>
                   </div>
-                  <div class="dp-xl-flex hidden xl:flex items-center gap-3 pl-3 border-l border-slate-800 text-[11px] font-mono">
+                  <div class="hidden xl:flex items-center gap-3 pl-3 border-l border-slate-800 text-[11px] font-mono">
                     <span class="text-slate-400">Liquidity TVL: <strong class="text-cyan-300 nav-tvl-full">$18,500,000,000</strong></span>
                   </div>
                 </div>
@@ -377,7 +336,7 @@
 
               <!-- TAB 1: PRO TRADING WITH LIVE SEARCHABLE ALL-WORLD TOKEN GRAPH -->
               <div id="tab-pro-trading" class="main-tab-panel space-y-4">
-                <div class="dp-grid-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div onclick="openProfileModal('holdings')" class="cyber-panel rounded-xl p-3 border-l-4 border-l-cyan-400 flex items-center justify-between cursor-pointer hover:border-cyan-300">
                     <div>
                       <span class="text-[10px] uppercase text-slate-400 font-bold">My NFX &amp; Wallet Holdings</span>
@@ -390,7 +349,7 @@
                       <span class="text-[10px] uppercase text-slate-400 font-bold">Buy / Sell NFX (BEP-20)</span>
                       <p class="text-xs font-bold text-amber-300 mt-0.5">Instant USDT &harr; NFX Swap</p>
                     </div>
-                    <span class="font-mono text-xs font-bold text-amber-300 nav-nfx-price">$7.0000</span>
+                    <span class="font-mono text-xs font-bold text-amber-300 nav-nfx-price">$1.2500</span>
                   </div>
                   <div onclick="switchMainTab('tab-markets')" class="cyber-panel rounded-xl p-3 border-l-4 border-l-purple-400 flex items-center justify-between cursor-pointer hover:border-purple-300">
                     <div>
@@ -408,8 +367,8 @@
                   </div>
                 </div>
 
-                <div class="dp-hero-grid grid grid-cols-1 lg:grid-cols-12 gap-4">
-                  <div class="dp-col-8 lg:col-span-8 space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                  <div class="lg:col-span-8 space-y-4">
                     <div class="cyber-panel rounded-2xl p-3.5 space-y-3">
                       <div class="flex flex-wrap items-center justify-between gap-3">
                         <div class="flex flex-wrap items-center gap-1.5" id="pair-selector-bar"></div>
@@ -423,7 +382,7 @@
                         <div class="flex items-center gap-4">
                           <div>
                             <span class="text-[10px] text-slate-400 block">Original Live Price</span>
-                            <span id="chart-live-price" class="font-extrabold text-sm text-emerald-400">$7.0000</span>
+                            <span id="chart-live-price" class="font-extrabold text-sm text-emerald-400">$1.2500</span>
                           </div>
                           <div>
                             <span class="text-[10px] text-slate-400 block">24h Change</span>
@@ -447,6 +406,7 @@
                           <button onclick="changeTimeframe('1m', this)" class="tf-pill px-2.5 py-1 rounded text-[11px] font-mono bg-slate-800 text-slate-400 cursor-pointer">1m</button>
                           <button onclick="changeTimeframe('1h', this)" class="tf-pill px-2.5 py-1 rounded text-[11px] font-mono bg-slate-800 text-slate-400 cursor-pointer">1h</button>
                           <button onclick="changeTimeframe('1d', this)" class="tf-pill px-2.5 py-1 rounded text-[11px] font-mono bg-slate-800 text-slate-400 cursor-pointer">1d</button>
+                          <button onclick="changeTimeframe('1w', this)" class="tf-pill px-2.5 py-1 rounded text-[11px] font-mono bg-slate-800 text-slate-400 cursor-pointer">1w</button>
                         </div>
                       </div>
                       <div id="chart-container" class="w-full h-[320px]">
@@ -470,7 +430,7 @@
                     </div>
                   </div>
 
-                  <div class="dp-col-4 lg:col-span-4 space-y-4">
+                  <div class="lg:col-span-4 space-y-4">
                     <div class="cyber-panel rounded-2xl p-4 space-y-3.5">
                       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                         <h3 class="text-sm font-extrabold text-white">Place Order</h3>
@@ -485,7 +445,7 @@
                       </div>
                       <div>
                         <label class="text-[11px] text-slate-400 block mb-1">Order Price (USDT)</label>
-                        <input type="number" step="0.0001" id="trade-price-inp" value="7.0000" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-sm text-white" />
+                        <input type="number" step="0.0001" id="trade-price-inp" value="1.2500" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-sm text-white" />
                       </div>
                       <div>
                         <div class="flex justify-between text-[11px] text-slate-400 mb-1">
@@ -507,7 +467,7 @@
                       </div>
                       <div id="ob-asks-box" class="space-y-1 font-mono text-[11px]"></div>
                       <div class="py-1.5 px-2.5 rounded bg-slate-900 border border-cyan-500/25 flex justify-between font-mono text-xs">
-                        <span id="ob-center-price" class="font-bold text-emerald-400">$7.0000</span>
+                        <span id="ob-center-price" class="font-bold text-emerald-400">$1.2500</span>
                         <span class="text-slate-400 text-[10px]">LIVE SYNC</span>
                       </div>
                       <div id="ob-bids-box" class="space-y-1 font-mono text-[11px]"></div>
@@ -518,8 +478,8 @@
 
               <!-- TAB 2: GLOBAL MARKETS & PRICE HISTORY (LEFT TOKENS + RIGHT LIVE GRAPH & BUY/SELL + BOTTOM LIST) -->
               <div id="tab-markets" class="main-tab-panel hidden space-y-4">
-                <div class="dp-hero-grid grid grid-cols-1 lg:grid-cols-12 gap-4">
-                  <div class="dp-col-4 lg:col-span-4 cyber-panel rounded-2xl p-4 space-y-2.5">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                  <div class="lg:col-span-4 cyber-panel rounded-2xl p-4 space-y-2.5">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                       <h3 class="text-sm font-extrabold text-cyan-300">World Tokens (Left Selector)</h3>
                       <span class="text-[10px] font-mono text-emerald-400 animate-pulse">LIVE 1s</span>
@@ -527,11 +487,11 @@
                     <div id="markets-left-token-list" class="space-y-1.5 max-h-[340px] overflow-y-auto pr-1 font-mono text-xs"></div>
                   </div>
 
-                  <div class="dp-col-5 lg:col-span-5 cyber-panel rounded-2xl p-4 space-y-2.5">
+                  <div class="lg:col-span-5 cyber-panel rounded-2xl p-4 space-y-2.5">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                       <div>
                         <span id="mkt-mini-pair-title" class="font-bold text-sm text-white">NFX/USDT</span>
-                        <span id="mkt-mini-pair-price" class="ml-2 font-mono font-extrabold text-xs text-emerald-400">$7.0000</span>
+                        <span id="mkt-mini-pair-price" class="ml-2 font-mono font-extrabold text-xs text-emerald-400">$1.2500</span>
                       </div>
                       <span class="text-[10px] font-mono text-cyan-300">LIVE GRAPH</span>
                     </div>
@@ -540,7 +500,7 @@
                     </div>
                   </div>
 
-                  <div class="dp-col-3 lg:col-span-3 cyber-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between">
+                  <div class="lg:col-span-3 cyber-panel rounded-2xl p-4 space-y-3 flex flex-col justify-between">
                     <div class="space-y-3">
                       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                         <h3 class="text-sm font-extrabold text-white">Buy / Sell</h3>
@@ -636,7 +596,7 @@
                     <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
                       <div class="flex justify-between text-xs text-slate-400">
                         <span>To (Receive)</span>
-                        <span id="main-swap-rate-label" class="font-mono text-emerald-400">1 NFX = $7.0000</span>
+                        <span id="main-swap-rate-label" class="font-mono text-emerald-400">1 NFX = $1.2500</span>
                       </div>
                       <div class="flex items-center gap-3">
                         <input type="text" id="main-swap-to-amt" readonly value="200.0000" class="w-full bg-transparent font-mono text-2xl font-black text-emerald-400 focus:outline-none" />
@@ -670,7 +630,7 @@
 
               <!-- TAB 4: NFT MARKETPLACE WITH 3 TIER CARDS + PRICE TIER SELECTOR ($5 MINIMUM) -->
               <div id="tab-nft" class="main-tab-panel hidden space-y-5">
-                <div class="dp-grid-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div onclick="setNftTierFilter('LOWEST')" class="cyber-panel rounded-2xl p-4 border-t-4 border-t-emerald-400 hover:border-emerald-300 transition cursor-pointer">
                     <div class="flex items-center justify-between">
                       <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase">Starter Tier</span>
@@ -722,22 +682,76 @@
                   </div>
                 </div>
 
-                <div id="nft-grid" class="dp-grid-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <div id="nft-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
               </div>
 
-              <!-- TAB 6: INVESTMENT PLANS (30%/MO DAILY SPLIT + LOCKED PRINCIPAL) & 3-LEVEL TEAM SYSTEM -->
+              <!-- TAB 5: 24-HOUR COMPANY AUTO-TRADING VAULT -->
+              <div id="tab-autotrading" class="main-tab-panel hidden grid-cols-1 lg:grid-cols-12 gap-5">
+                <div class="lg:col-span-5 cyber-panel rounded-2xl p-6 space-y-4 border-t-4 border-t-emerald-400">
+                  <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase">24-Hour Automated Cycle</span>
+                  <h2 class="text-xl font-black text-white">Company Auto-Trading Vault</h2>
+                  <p class="text-xs text-slate-400 leading-relaxed">
+                    Invest USDT from your wallet—NFX Company executes institutional trades once every <strong class="text-white">24 hours</strong>. Daily profit (+3.50%) is credited after 24 hours when profitable; if no profit is made, 0% is added and capital remains safe.
+                  </p>
+                  <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs space-y-1.5">
+                    <div class="flex justify-between"><span class="text-slate-400">Available USDT:</span><span class="text-white font-bold ui-usdt-bal">$0.00</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Cycle Period:</span><span class="text-cyan-300">24 Hours (1 Cycle/Day)</span></div>
+                  </div>
+                  <input type="number" id="auto-amt-inp" value="250" min="10" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 font-mono text-sm text-white" />
+                  <button onclick="startAutoTrading()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
+                    Invest &amp; Start 24h Auto-Trading
+                  </button>
+                </div>
+
+                <div class="lg:col-span-7 cyber-panel rounded-2xl p-6 space-y-4">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                      <h3 class="text-base font-extrabold text-white">Live 24h Trading Cycle Monitor</h3>
+                      <p id="auto-status-text" class="text-xs font-mono text-emerald-400">Cycle Status: Active Institutional Strategy</p>
+                    </div>
+                    <button onclick="simulate24hCycle()" class="px-3.5 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-bold cursor-pointer">
+                      Simulate 24h Cycle Complete
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-3 gap-3 font-mono">
+                    <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span class="text-[10px] text-slate-400 block">Invested Capital</span>
+                      <span id="auto-cap-val" class="text-lg font-black text-white">$0.00</span>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span class="text-[10px] text-slate-400 block">24h Timer</span>
+                      <span id="auto-timer-val" class="text-lg font-black text-cyan-300">23:59:59</span>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                      <span class="text-[10px] text-slate-400 block">Total Profit</span>
+                      <span id="auto-profit-val" class="text-lg font-black text-emerald-400">+$0.00</span>
+                    </div>
+                  </div>
+                  <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                      <thead class="text-slate-400 border-b border-slate-800">
+                        <tr><th class="py-2">Cycle</th><th class="py-2">Capital</th><th class="py-2">Outcome</th><th class="py-2 text-right">Profit</th></tr>
+                      </thead>
+                      <tbody id="auto-log-tbody" class="divide-y divide-slate-800/60"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- TAB 6: INVESTMENT PLANS (30, 60, 90 ... 1000 DAYS VALIDITY) & 3-LEVEL TEAM HUB -->
               <div id="tab-plans-team" class="main-tab-panel hidden space-y-5">
                 <div class="cyber-panel rounded-2xl p-4 sm:p-5 border-l-4 border-l-amber-400 flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <div class="flex items-center gap-2">
-                      <h2 class="text-lg sm:text-xl font-black text-white">NFX Investment Plans &amp; 3-Level Team Hub</h2>
+                      <h2 class="text-lg sm:text-xl font-black text-white">NFX Fixed Validity Investment Plans &amp; 3-Level Team Hub</h2>
                       <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">AUTO-CALCULATED ENGINE</span>
                     </div>
-                    <p class="text-xs text-slate-400 mt-0.5">30% monthly ROI split daily into your wallet • Principal locked until selected validity (30–1000 days) ends • Automated deposit, withdraw, invest &amp; referral payouts.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Fixed validity plans (30, 60, 90, 150, 240, 365, 520, 690, 880, 1000 days) • Daily ROI credited to wallet • Principal locked until validity ends.</p>
                   </div>
 
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="text-[11px] font-bold text-cyan-300">Validity:</span>
+                    <span class="text-[11px] font-bold text-cyan-300">Select Validity:</span>
                     <select id="plan-validity-select" onchange="setPlanValidityDays(+this.value)" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-cyan-400/60 text-xs font-mono font-bold text-cyan-200 cursor-pointer">
                       <option value="30">30 Days (30% ROI • 1.00%/Day)</option>
                       <option value="60">60 Days (60% ROI • 1.00%/Day)</option>
@@ -756,8 +770,8 @@
                 <!-- Validity Quick Pills (30 to 1000 Days) -->
                 <div class="flex flex-wrap gap-1.5" id="plan-validity-pills"></div>
 
-                <!-- 3 Tiered Investment Plan Cards -->
-                <div class="dp-grid-3 grid grid-cols-1 md:grid-cols-3 gap-4" id="investment-plan-cards"></div>
+                <!-- 3 Fixed Tier Investment Plan Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="investment-plan-cards"></div>
 
                 <!-- Auto-Calculated Locked Principal & Daily Payout Ledger -->
                 <div class="cyber-panel rounded-2xl p-4 sm:p-5 space-y-3">
@@ -779,7 +793,7 @@
                           <th class="py-2 px-2">Plan &amp; Asset</th>
                           <th class="py-2 px-2">Locked Principal</th>
                           <th class="py-2 px-2">Daily Payout</th>
-                          <th class="py-2 px-2">Progress</th>
+                          <th class="py-2 px-2">Validity Progress</th>
                           <th class="py-2 px-2">Earned</th>
                           <th class="py-2 px-2 text-right">Principal Status</th>
                         </tr>
@@ -792,8 +806,8 @@
                 </div>
 
                 <!-- 3-Level Team System (L1 5%, L2 2%, L3 1%) -->
-                <div class="dp-hero-grid grid grid-cols-1 lg:grid-cols-12 gap-4">
-                  <div class="dp-col-7 lg:col-span-7 cyber-panel rounded-2xl p-5 space-y-4 border-t-4 border-t-cyan-400">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                  <div class="lg:col-span-7 cyber-panel rounded-2xl p-5 space-y-4 border-t-4 border-t-cyan-400">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
                       <div>
                         <h3 class="text-base font-extrabold text-white">3-Level Team &amp; Referral Count</h3>
@@ -850,11 +864,11 @@
                     </div>
                   </div>
 
-                  <form onsubmit="addTeamMemberSimulation(event)" class="dp-col-5 lg:col-span-5 cyber-panel rounded-2xl p-5 space-y-3.5 border-t-4 border-t-emerald-400">
-                    <h4 class="text-sm font-extrabold text-white">Test Referral Joining &amp; Auto-Commission</h4>
-                    <p class="text-xs text-slate-400">Simulate a new member joining via referral link &amp; investing so you can see automatic L1/L2/L3 counting and bonus calculation.</p>
+                  <form onsubmit="addTeamMemberSimulation(event)" class="lg:col-span-5 cyber-panel rounded-2xl p-5 space-y-3.5 border-t-4 border-t-emerald-400">
+                    <h4 class="text-sm font-extrabold text-white">Add / Track Team Referral Member</h4>
+                    <p class="text-xs text-slate-400">Add a downline UID and investment to automatically count L1/L2/L3 members and credit referral bonus.</p>
                     <div>
-                      <label class="text-[11px] text-slate-400 block mb-1">New Member UID</label>
+                      <label class="text-[11px] text-slate-400 block mb-1">Member UID</label>
                       <input type="text" id="sim-ref-uid" value="NFX-309182" required class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
                     </div>
                     <div class="grid grid-cols-2 gap-2.5">
@@ -872,62 +886,9 @@
                       </div>
                     </div>
                     <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
-                      Join &amp; Auto-Credit Commission
+                      Add &amp; Auto-Credit Commission
                     </button>
                   </form>
-                </div>
-              </div>
-
-                            <!-- TAB 5: 24-HOUR COMPANY AUTO-TRADING VAULT -->
-              <div id="tab-autotrading" class="main-tab-panel dp-hero-grid hidden grid-cols-1 lg:grid-cols-12 gap-5">
-                <div class="dp-col-5 lg:col-span-5 cyber-panel rounded-2xl p-6 space-y-4 border-t-4 border-t-emerald-400">
-                  <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase">24-Hour Automated Cycle</span>
-                  <h2 class="text-xl font-black text-white">Company Auto-Trading Vault</h2>
-                  <p class="text-xs text-slate-400 leading-relaxed">
-                    Invest USDT from your wallet—NFX Company executes institutional trades once every <strong class="text-white">24 hours</strong>. Daily profit (+3.50%) is credited after 24 hours when profitable; if no profit is made, 0% is added and capital remains safe.
-                  </p>
-                  <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs space-y-1.5">
-                    <div class="flex justify-between"><span class="text-slate-400">Available USDT:</span><span class="text-white font-bold ui-usdt-bal">$0.00</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Cycle Period:</span><span class="text-cyan-300">24 Hours (1 Cycle/Day)</span></div>
-                  </div>
-                  <input type="number" id="auto-amt-inp" value="250" min="10" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 font-mono text-sm text-white" />
-                  <button onclick="startAutoTrading()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
-                    Invest &amp; Start 24h Auto-Trading
-                  </button>
-                </div>
-
-                <div class="dp-col-7 lg:col-span-7 cyber-panel rounded-2xl p-6 space-y-4">
-                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                      <h3 class="text-base font-extrabold text-white">Live 24h Trading Cycle Monitor</h3>
-                      <p id="auto-status-text" class="text-xs font-mono text-emerald-400">Cycle Status: Active Institutional Strategy</p>
-                    </div>
-                    <button onclick="simulate24hCycle()" class="px-3.5 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-bold cursor-pointer">
-                      Simulate 24h Cycle Complete
-                    </button>
-                  </div>
-                  <div class="grid grid-cols-3 gap-3 font-mono">
-                    <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-                      <span class="text-[10px] text-slate-400 block">Invested Capital</span>
-                      <span id="auto-cap-val" class="text-lg font-black text-white">$0.00</span>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-                      <span class="text-[10px] text-slate-400 block">24h Timer</span>
-                      <span id="auto-timer-val" class="text-lg font-black text-cyan-300">23:59:59</span>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-                      <span class="text-[10px] text-slate-400 block">Total Profit</span>
-                      <span id="auto-profit-val" class="text-lg font-black text-emerald-400">+$0.00</span>
-                    </div>
-                  </div>
-                  <div class="overflow-x-auto max-h-48 overflow-y-auto">
-                    <table class="w-full text-left text-xs font-mono">
-                      <thead class="text-slate-400 border-b border-slate-800">
-                        <tr><th class="py-2">Cycle</th><th class="py-2">Capital</th><th class="py-2">Outcome</th><th class="py-2 text-right">Profit</th></tr>
-                      </thead>
-                      <tbody id="auto-log-tbody" class="divide-y divide-slate-800/60"></tbody>
-                    </table>
-                  </div>
                 </div>
               </div>
 
@@ -1018,8 +979,8 @@
                 </div>
               </div>
 
-              <div class="dp-hero-grid grid grid-cols-1 lg:grid-cols-12 gap-5">
-                <div class="dp-col-7 lg:col-span-7 cyber-panel rounded-2xl p-5 border border-amber-500/35 space-y-2.5">
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                <div class="lg:col-span-7 cyber-panel rounded-2xl p-5 border border-amber-500/35 space-y-2.5">
                   <h3 class="text-base font-extrabold text-amber-300">3. Swap Gas Fee Treasury Ledger</h3>
                   <p class="text-[11px] font-mono text-cyan-300">Treasury Address: 0xNFX_MASTER_TREASURY_999884201</p>
                   <div class="overflow-x-auto max-h-44 overflow-y-auto">
@@ -1032,7 +993,7 @@
                   </div>
                 </div>
 
-                <div class="dp-col-5 lg:col-span-5 cyber-panel rounded-2xl p-5 border border-cyan-500/35 space-y-3.5">
+                <div class="lg:col-span-5 cyber-panel rounded-2xl p-5 border border-cyan-500/35 space-y-3.5">
                   <h3 class="text-base font-extrabold text-cyan-300">4. Token Liquidity &amp; Price Control</h3>
                   <div class="grid grid-cols-3 gap-2 font-mono">
                     <button onclick="adminInjectLiquidity(100000000)" class="py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 font-bold text-xs cursor-pointer">+$100M</button>
@@ -1040,7 +1001,7 @@
                     <button onclick="adminInjectLiquidity(2000000000)" class="py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-bold text-xs cursor-pointer">+$2.0B</button>
                   </div>
                   <div class="flex gap-2">
-                    <input type="number" step="0.01" id="admin-price-inp" value="7.00" class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-xs text-white" />
+                    <input type="number" step="0.01" id="admin-price-inp" value="1.25" class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-xs text-white" />
                     <button onclick="adminUpdateTokenPrice()" class="px-4 py-2 rounded-xl bg-emerald-400 text-slate-950 font-black text-xs uppercase cursor-pointer">Set NFX Price</button>
                   </div>
                   <div class="space-y-1.5 pt-2 border-t border-slate-800">
@@ -1056,24 +1017,6 @@
                   </div>
                 </div>
               </div>
-
-              <div class="cyber-panel rounded-2xl p-5 border border-cyan-500/40 space-y-3">
-                <h3 class="text-base font-extrabold text-white">5. Live Cloud Members Directory &amp; Instant Wallet Sync</h3>
-                <p class="text-xs text-slate-400">Edits saved here push directly via Cloud Firestore to the member's phone in real time.</p>
-                <div class="overflow-x-auto rounded-xl border border-slate-800">
-                  <table class="w-full text-left text-xs font-mono">
-                    <thead class="bg-slate-900 text-slate-400">
-                      <tr>
-                        <th class="py-3 px-3">UID &amp; Username</th><th class="py-3 px-3">Email</th><th class="py-3 px-3">USDT Balance</th><th class="py-3 px-3">NFX Balance</th><th class="py-3 px-3 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody id="admin-cloud-members-tbody" class="divide-y divide-slate-800/70 bg-slate-950/70">
-                      <tr><td colspan="5" class="py-4 text-center text-slate-500 font-sans">Syncing live members from Cloud Firestore...</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
             </div>
           </section>
         </div>
@@ -1228,7 +1171,7 @@
                 </div>
                 <div class="text-right">
                   <span class="text-[10px] text-slate-400 block">Live NFX Unit Price</span>
-                  <span class="text-base font-black text-emerald-400 nav-nfx-price">$7.0000</span>
+                  <span class="text-base font-black text-emerald-400 nav-nfx-price">$1.2500</span>
                 </div>
               </div>
 
@@ -1270,7 +1213,7 @@
           <div class="lg:col-span-5 p-4 rounded-2xl bg-slate-950 border border-amber-400/50 space-y-3">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
               <h4 class="text-sm font-extrabold text-amber-300">Live Buy / Sell NFX Calculator</h4>
-              <span class="font-mono text-[11px] text-emerald-400 nav-nfx-price">$7.0000</span>
+              <span class="font-mono text-[11px] text-emerald-400 nav-nfx-price">$1.2500</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -1534,7 +1477,7 @@
         </div>
         <div class="p-3 rounded-xl bg-slate-900 border border-emerald-500/40">
           <span class="text-[10px] text-slate-400 block">Live Market Price</span>
-          <strong id="liq-price-val" class="text-base text-emerald-400">$7.0000</strong>
+          <strong id="liq-price-val" class="text-base text-emerald-400">$1.2500</strong>
         </div>
         <div class="p-3 rounded-xl bg-slate-900 border border-amber-500/40">
           <span class="text-[10px] text-slate-400 block">Max Single Order</span>
@@ -1566,370 +1509,9 @@
   <script>
     const STORAGE_KEY = 'nfx_exchange_prod_state_v2';
 
-
-    // ==================== AUTOMATED CALCULATION ENGINE (PLANS + 3-LEVEL TEAM + AUTO-SETTLEMENT) ====================
-    const VALIDITY_OPTIONS = [30, 60, 90, 150, 240, 365, 520, 690, 880, 1000];
-    const INVESTMENT_TIERS = [
-      { id: 'starter', name: 'Starter Lock Plan', badge: 'Tier 1', min: 10, max: 499, mult: 1.0, accent: 'border-t-emerald-400' },
-      { id: 'growth', name: 'Growth Lock Plan', badge: 'Tier 2', min: 500, max: 4999, mult: 1.15, accent: 'border-t-cyan-400' },
-      { id: 'vip', name: 'VIP Sovereign Vault', badge: 'Tier 3', min: 5000, max: 100000, mult: 1.3, accent: 'border-t-amber-400' }
-    ];
-
-    state.selectedPlanDays = 30;
-    state.activePlans = [];
-    state.teamMembers = [];
-    state.teamCommissionEarned = 0;
-
-    function setPlanValidityDays(days) {
-      if (!VALIDITY_OPTIONS.includes(days)) days = 30;
-      state.selectedPlanDays = days;
-      const sel = document.getElementById('plan-validity-select');
-      if (sel) sel.value = String(days);
-      renderValidityPills();
-      renderInvestmentPlanCards();
-    }
-
-    function renderValidityPills() {
-      const box = document.getElementById('plan-validity-pills');
-      if (!box) return;
-      box.innerHTML = VALIDITY_OPTIONS.map(d => {
-        const active = d === state.selectedPlanDays;
-        return `<button type="button" onclick="setPlanValidityDays(${d})" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold cursor-pointer ${active ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-cyan-400/50'}">${d}D</button>`;
-      }).join('');
-    }
-
-    function computePlanMetrics(baseMult, amount) {
-      const days = state.selectedPlanDays;
-      const dailyPct = +(1.00 * baseMult).toFixed(2);
-      const totalRoiPct = +(dailyPct * days).toFixed(1);
-      const dailyPayout = +(amount * (dailyPct / 100)).toFixed(4);
-      const totalProfit = +(dailyPayout * days).toFixed(2);
-      return { days, dailyPct, totalRoiPct, dailyPayout, totalProfit };
-    }
-
-    function renderInvestmentPlanCards() {
-      const box = document.getElementById('investment-plan-cards');
-      if (!box) return;
-      box.innerHTML = INVESTMENT_TIERS.map(t => {
-        const defaultAmt = t.min;
-        const m = computePlanMetrics(t.mult, defaultAmt);
-        return `
-          <div class="cyber-panel rounded-2xl p-5 border-t-4 ${t.accent} space-y-3.5 flex flex-col justify-between">
-            <div class="space-y-2.5">
-              <div class="flex items-center justify-between">
-                <span class="px-2.5 py-0.5 rounded bg-slate-900 text-cyan-300 text-[10px] font-bold uppercase">${t.badge}</span>
-                <span class="font-mono text-xs font-extrabold text-emerald-400">${m.dailyPct}% / Day (${m.totalRoiPct}% Total)</span>
-              </div>
-              <h3 class="text-base font-black text-white">${t.name}</h3>
-              <p class="text-[11px] text-slate-400">Range: <strong class="text-white">$${t.min} – $${t.max.toLocaleString()}</strong> • Validity: <strong class="text-cyan-300">${m.days} Days</strong></p>
-
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <div>
-                  <label class="text-[10px] text-slate-400 block mb-1">Amount</label>
-                  <input type="number" id="plan-amt-${t.id}" value="${defaultAmt}" min="${t.min}" max="${t.max}" oninput="updateSinglePlanPreview('${t.id}', ${t.mult}, ${t.min}, ${t.max})" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
-                </div>
-                <div>
-                  <label class="text-[10px] text-slate-400 block mb-1">Pay With</label>
-                  <select id="plan-asset-${t.id}" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-amber-300">
-                    <option value="USDT">USDT</option>
-                    <option value="NFX">NFX ($7.00)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div id="plan-preview-${t.id}" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 font-mono text-[11px] space-y-1">
-                <div class="flex justify-between"><span class="text-slate-400">Daily Wallet Payout:</span><span class="text-emerald-400 font-bold">+$${m.dailyPayout.toFixed(2)}/day</span></div>
-                <div class="flex justify-between"><span class="text-slate-400">Total Profit (${m.days}d):</span><span class="text-cyan-300 font-bold">+$${m.totalProfit.toFixed(2)}</span></div>
-                <div class="flex justify-between"><span class="text-slate-400">Principal (${m.days}d Lock):</span><span class="text-amber-300">Locked &rarr; Returned at End</span></div>
-              </div>
-            </div>
-
-            <button type="button" onclick="enrollInvestmentPlan('${t.id}')" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
-              Lock Principal &amp; Start Daily Payout
-            </button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function updateSinglePlanPreview(tierId, mult, minAmt, maxAmt) {
-      const rawVal = parseFloat(document.getElementById(`plan-amt-${tierId}`)?.value) || minAmt;
-      const clamped = Math.max(minAmt, Math.min(maxAmt, rawVal));
-      const m = computePlanMetrics(mult, clamped);
-      const box = document.getElementById(`plan-preview-${tierId}`);
-      if (!box) return;
-      box.innerHTML = `
-        <div class="flex justify-between"><span class="text-slate-400">Daily Wallet Payout:</span><span class="text-emerald-400 font-bold">+$${m.dailyPayout.toFixed(2)}/day</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Total Profit (${m.days}d):</span><span class="text-cyan-300 font-bold">+$${m.totalProfit.toFixed(2)}</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Principal (${m.days}d Lock):</span><span class="text-amber-300">Locked &rarr; Returned at End</span></div>
-      `;
-    }
-
-    function enrollInvestmentPlan(tierId) {
-      const tier = INVESTMENT_TIERS.find(x => x.id === tierId);
-      if (!tier) return;
-      const amt = parseFloat(document.getElementById(`plan-amt-${tierId}`)?.value);
-      const asset = document.getElementById(`plan-asset-${tierId}`)?.value || 'USDT';
-
-      if (isNaN(amt) || amt < tier.min || amt > tier.max) {
-        return notify('Invalid Plan Range', `${tier.name} requires $${tier.min} to $${tier.max.toLocaleString()}.`, 'error');
-      }
-
-      if (asset === 'USDT' && state.user.usdtBalance < amt) {
-        if (!state.user.registered) { openProfileModal(); return notify('Create Account First', 'Create your account to auto-calculate balances.', 'info'); }
-        return notify('Insufficient USDT', `Available: $${state.user.usdtBalance.toFixed(2)} USDT.`, 'error');
-      }
-      if (asset === 'NFX') {
-        const neededNfx = amt / state.token.price;
-        if (state.user.nfxBalance < neededNfx) {
-          return notify('Insufficient NFX', `Need ${neededNfx.toFixed(4)} NFX at $${state.token.price.toFixed(2)}/NFX.`, 'error');
-        }
-        state.user.nfxBalance -= neededNfx;
-      } else {
-        state.user.usdtBalance -= amt;
-      }
-
-      const m = computePlanMetrics(tier.mult, amt);
-      state.activePlans.unshift({
-        id: 'PLN-' + Math.floor(10000 + Math.random() * 90000),
-        planName: tier.name,
-        asset,
-        principalUsd: amt,
-        dailyPayoutUsd: m.dailyPayout,
-        totalDays: m.days,
-        daysPaid: 0,
-        earnedUsd: 0,
-        unlocked: false
-      });
-
-      distributeAutomaticReferralBonus(amt);
-      persistSharedState();
-      renderActivePlansTable();
-      renderTeamHub();
-      syncUI();
-      notify('Plan Activated & Principal Locked!', `$${amt.toFixed(2)} locked for ${m.days} days • +$${m.dailyPayout.toFixed(2)}/day auto-payout.`);
-    }
-
-    function runAutoDailyPayoutAll() {
-      let creditedTotal = 0;
-      state.activePlans.forEach(p => {
-        if (p.daysPaid < p.totalDays) {
-          p.daysPaid += 1;
-          p.earnedUsd = +(p.earnedUsd + p.dailyPayoutUsd).toFixed(2);
-          state.user.usdtBalance = +(state.user.usdtBalance + p.dailyPayoutUsd).toFixed(2);
-          creditedTotal = +(creditedTotal + p.dailyPayoutUsd).toFixed(2);
-          if (p.daysPaid >= p.totalDays && !p.unlocked) {
-            p.unlocked = true;
-            state.user.usdtBalance = +(state.user.usdtBalance + p.principalUsd).toFixed(2);
-          }
-        }
-      });
-      if (creditedTotal <= 0) return notify('No Active Daily Cycles', 'All active plans completed or none running.', 'info');
-      persistSharedState();
-      renderActivePlansTable();
-      syncUI();
-      notify('Daily Profit Credited!', `+$${creditedTotal.toFixed(2)} USDT added automatically to your wallet.`);
-    }
-
-    function fastForwardMaturityAll() {
-      let released = 0;
-      state.activePlans.forEach(p => {
-        if (!p.unlocked) {
-          const remainingDays = Math.max(0, p.totalDays - p.daysPaid);
-          const remProfit = +(remainingDays * p.dailyPayoutUsd).toFixed(2);
-          p.daysPaid = p.totalDays;
-          p.earnedUsd = +(p.earnedUsd + remProfit).toFixed(2);
-          p.unlocked = true;
-          const totalReturn = +(p.principalUsd + remProfit).toFixed(2);
-          state.user.usdtBalance = +(state.user.usdtBalance + totalReturn).toFixed(2);
-          released = +(released + p.principalUsd).toFixed(2);
-        }
-      });
-      if (released <= 0) return notify('Nothing to Unlock', 'No locked principal remaining.', 'info');
-      persistSharedState();
-      renderActivePlansTable();
-      syncUI();
-      notify('Principal Unlocked & Returned!', `$${released.toFixed(2)} locked principal returned to your wallet.`);
-    }
-
-    function renderActivePlansTable() {
-      const tbody = document.getElementById('active-plans-tbody');
-      if (!tbody) return;
-      const lockedSum = state.activePlans.filter(p => !p.unlocked).reduce((s, p) => s + p.principalUsd, 0);
-      const dailySum = state.activePlans.filter(p => !p.unlocked).reduce((s, p) => s + p.dailyPayoutUsd, 0);
-
-      const lockEl = document.getElementById('total-locked-principal-val');
-      const dayEl = document.getElementById('total-daily-payout-val');
-      if (lockEl) lockEl.textContent = formatMoney(lockedSum);
-      if (dayEl) dayEl.textContent = `+${formatMoney(dailySum)}/day`;
-
-      if (!state.activePlans.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No active investment plans yet. Choose a plan above to lock principal and earn daily profit.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = state.activePlans.map(p => `
-        <tr>
-          <td class="py-2.5 px-2 font-bold text-white">${p.planName} <span class="text-[10px] text-cyan-300">(${p.asset})</span></td>
-          <td class="py-2.5 px-2 text-amber-300 font-bold">$${p.principalUsd.toFixed(2)}</td>
-          <td class="py-2.5 px-2 text-emerald-400">+$${p.dailyPayoutUsd.toFixed(2)}/d</td>
-          <td class="py-2.5 px-2">${p.daysPaid}/${p.totalDays}d</td>
-          <td class="py-2.5 px-2 text-cyan-300 font-bold">+$${p.earnedUsd.toFixed(2)}</td>
-          <td class="py-2.5 px-2 text-right">${p.unlocked ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Unlocked ✓</span>' : '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">Locked</span>'}</td>
-        </tr>
-      `).join('');
-    }
-
-    function distributeAutomaticReferralBonus(volumeUsd) {
-      const rates = { 1: 0.05, 2: 0.02, 3: 0.01 };
-      let totalBonus = 0;
-      state.teamMembers.forEach(m => {
-        if (m.investUsd > 0) {
-          const r = rates[m.level] || 0;
-          const b = +(volumeUsd * r * 0.1).toFixed(2);
-          if (b > 0) {
-            m.bonusUsd = +(m.bonusUsd + b).toFixed(2);
-            totalBonus = +(totalBonus + b).toFixed(2);
-          }
-        }
-      });
-      if (totalBonus > 0) {
-        state.teamCommissionEarned = +(state.teamCommissionEarned + totalBonus).toFixed(2);
-        state.user.usdtBalance = +(state.user.usdtBalance + totalBonus).toFixed(2);
-      }
-    }
-
-    function addTeamMemberSimulation(e) {
-      e.preventDefault();
-      const uid = (document.getElementById('sim-ref-uid')?.value || '').trim().toUpperCase();
-      const level = parseInt(document.getElementById('sim-ref-level')?.value || '1', 10);
-      const investUsd = Math.max(0, parseFloat(document.getElementById('sim-ref-invest')?.value) || 0);
-      if (!uid) return;
-
-      if (state.teamMembers.some(m => m.uid === uid)) {
-        return notify('Duplicate UID Blocked', `UID ${uid} is already counted in your team.`, 'error');
-      }
-
-      const rates = { 1: 0.05, 2: 0.02, 3: 0.01 };
-      const bonusUsd = +(investUsd * (rates[level] || 0)).toFixed(2);
-
-      state.teamMembers.unshift({
-        uid,
-        level,
-        investUsd,
-        active: investUsd > 0,
-        bonusUsd
-      });
-
-      if (bonusUsd > 0) {
-        state.teamCommissionEarned = +(state.teamCommissionEarned + bonusUsd).toFixed(2);
-        state.user.usdtBalance = +(state.user.usdtBalance + bonusUsd).toFixed(2);
-      }
-
-      persistSharedState();
-      renderTeamHub();
-      syncUI();
-      notify('Team Member Counted!', `${uid} added to Level ${level} • +$${bonusUsd.toFixed(2)} bonus credited automatically.`);
-    }
-
-    function renderTeamHub() {
-      const l1 = state.teamMembers.filter(m => m.level === 1);
-      const l2 = state.teamMembers.filter(m => m.level === 2);
-      const l3 = state.teamMembers.filter(m => m.level === 3);
-      const activeCount = state.teamMembers.filter(m => m.active).length;
-      const inactiveCount = state.teamMembers.length - activeCount;
-      const teamVol = state.teamMembers.reduce((s, m) => s + m.investUsd, 0);
-
-      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      setTxt('team-total-count', String(state.teamMembers.length));
-      setTxt('team-active-count', String(activeCount));
-      setTxt('team-inactive-count', String(inactiveCount));
-      setTxt('team-volume-val', formatMoney(teamVol));
-      setTxt('team-commission-val', formatMoney(state.teamCommissionEarned));
-      setTxt('team-l1-count', `${l1.length} Members`);
-      setTxt('team-l2-count', `${l2.length} Members`);
-      setTxt('team-l3-count', `${l3.length} Members`);
-
-      const tbody = document.getElementById('team-members-tbody');
-      if (!tbody) return;
-      if (!state.teamMembers.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-500 font-sans">No downline members joined yet.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = state.teamMembers.map(m => `
-        <tr>
-          <td class="py-2 font-bold text-white">${m.uid}</td>
-          <td class="py-2 text-cyan-300">L${m.level}</td>
-          <td class="py-2 text-slate-200">$${m.investUsd.toFixed(2)}</td>
-          <td class="py-2">${m.active ? '<span class="text-emerald-400 font-bold">Active</span>' : '<span class="text-amber-300">Inactive</span>'}</td>
-          <td class="py-2 text-right text-emerald-400 font-bold">+$${m.bonusUsd.toFixed(2)}</td>
-        </tr>
-      `).join('');
-    }
-
-    // ==================== MOBILE PREVIEW DESKTOP VIEW TOGGLE ====================
-    let isMobileDesktopPreview = false;
-
-    function toggleMobileDesktopPreview() {
-      isMobileDesktopPreview = !isMobileDesktopPreview;
-      const label = document.getElementById('mobile-desktop-toggle-label');
-      const icon = document.getElementById('mobile-desktop-toggle-icon');
-
-      if (isMobileDesktopPreview) {
-        document.body.classList.add('desktop-preview-forced');
-        if (label) label.textContent = 'Mobile Fit';
-        if (icon) icon.textContent = '📱';
-      } else {
-        document.body.classList.remove('desktop-preview-forced');
-        if (label) label.textContent = 'Desktop View';
-        if (icon) icon.textContent = '🖥️';
-      }
-      applyMobileDesktopScaling();
-      if (!document.getElementById('view-dashboard').classList.contains('hidden')) {
-        setTimeout(resizeCanvas, 60);
-      }
-    }
-
-    function applyMobileDesktopScaling() {
-      const wrapper = document.getElementById('chassis-scale-wrapper');
-      const chassis = document.getElementById('metallic-chassis');
-      if (!wrapper || !chassis) return;
-
-      if (!isMobileDesktopPreview || window.innerWidth >= 1024) {
-        if (window.innerWidth >= 1024 && isMobileDesktopPreview) {
-          isMobileDesktopPreview = false;
-          document.body.classList.remove('desktop-preview-forced');
-        }
-        chassis.style.width = '';
-        chassis.style.minWidth = '';
-        chassis.style.transform = '';
-        chassis.style.transformOrigin = '';
-        wrapper.style.height = '';
-        wrapper.style.overflow = '';
-        return;
-      }
-
-      const targetDesktopWidth = 1380;
-      const availableWidth = Math.max(280, window.innerWidth - 16);
-      const scaleFactor = Math.min(1, availableWidth / targetDesktopWidth);
-
-      chassis.style.width = `${targetDesktopWidth}px`;
-      chassis.style.minWidth = `${targetDesktopWidth}px`;
-      chassis.style.transformOrigin = 'top left';
-      chassis.style.transform = `scale(${scaleFactor})`;
-
-      wrapper.style.overflow = 'hidden';
-      requestAnimationFrame(() => {
-        const scaledHeight = chassis.getBoundingClientRect().height;
-        wrapper.style.height = `${Math.ceil(scaledHeight)}px`;
-      });
-    }
-
-    window.addEventListener('resize', applyMobileDesktopScaling);
-
     // ==================== 250+ GLOBAL TOKENS DATASET ====================
     const BASE_COINS = [
-      { sym: 'NFX', name: 'NFX Token (BEP-20)', price: 7.0000, chg1h: 1.45, chg24h: 14.80, vol: 1420850900, bep20: true },
+      { sym: 'NFX', name: 'NFX Token (BEP-20)', price: 1.2500, chg1h: 1.45, chg24h: 14.80, vol: 1420850900, bep20: true },
       { sym: 'BTC', name: 'Bitcoin', price: 96420.50, chg1h: 0.32, chg24h: 3.15, vol: 38420000000, bep20: true },
       { sym: 'ETH', name: 'Ethereum', price: 3680.10, chg1h: 0.48, chg24h: 4.20, vol: 19200000000, bep20: true },
       { sym: 'BNB', name: 'BNB Smart Chain', price: 685.40, chg1h: 0.25, chg24h: 2.85, vol: 2850000000, bep20: true },
@@ -2047,7 +1629,7 @@
         nfxBalance: 0.00,
       },
       token: {
-        price: 7.0000,
+        price: 1.2500,
         tvl: 18500000000,
         vol24h: 1420850900,
         vaultAddress: '0x9F8c42B91eD04A8c771B920E7E4A6B2000884920',
@@ -2272,14 +1854,12 @@
       state.portal = 'admin';
       document.getElementById('portal-member-root').classList.add('hidden');
       document.getElementById('portal-admin-root').classList.remove('hidden');
-      applyMobileDesktopScaling();
     }
 
     function exitAdminPortal() {
       state.portal = 'member';
       document.getElementById('portal-admin-root').classList.add('hidden');
       document.getElementById('portal-member-root').classList.remove('hidden');
-      applyMobileDesktopScaling();
     }
 
     document.addEventListener('keydown', (e) => {
@@ -2299,7 +1879,6 @@
       document.getElementById('admin-dashboard-screen').classList.remove('hidden');
       renderAdminTables();
       syncUI();
-      applyMobileDesktopScaling();
       notify('Admin Master Authenticated', `Welcome ${uname}. Full exchange governance active.`);
     }
 
@@ -2313,7 +1892,6 @@
       renderMarketsTable();
       renderNftGrid();
       syncUI();
-      applyMobileDesktopScaling();
     }
 
     function switchMainTab(tabId) {
@@ -2334,7 +1912,6 @@
       if (tabId === 'tab-pro-trading') setTimeout(resizeCanvas, 40);
       if (tabId === 'tab-markets') setTimeout(() => { renderMarketsTable(); drawMarketMiniChart(); }, 40);
       if (tabId === 'tab-swap') recalcMainSwap();
-      applyMobileDesktopScaling();
     }
 
     function openProfileModal(sub = 'holdings') {
@@ -3113,7 +2690,7 @@
       const mTitle = document.getElementById('mkt-mini-pair-title');
       const mPrice = document.getElementById('mkt-mini-pair-price');
       if (mTitle) mTitle.textContent = pair;
-      if (mPrice) mPrice.textContent = formatPriceSmart(state.markets[pair]?.price || 7.00);
+      if (mPrice) mPrice.textContent = formatPriceSmart(state.markets[pair]?.price || 1.25);
       renderMarketsTable();
       drawMarketMiniChart();
     }
@@ -3126,7 +2703,7 @@
       c.height = box.clientHeight;
       const mTitle = document.getElementById('mkt-mini-pair-title');
       const mPrice = document.getElementById('mkt-mini-pair-price');
-      const curPrice = state.markets[state.selectedPair]?.price || 7.00;
+      const curPrice = state.markets[state.selectedPair]?.price || 1.25;
       if (mTitle) mTitle.textContent = state.selectedPair;
       if (mPrice) mPrice.textContent = formatPriceSmart(curPrice);
       drawChart(c);
@@ -3177,7 +2754,7 @@
     function selectPair(p) {
       state.selectedPair = p;
       renderPairButtons();
-      const info = state.markets[p] || { chain: 'Global Network', price: 7.00, change: 0 };
+      const info = state.markets[p] || { chain: 'Global Network', price: 1.25, change: 0 };
       document.getElementById('chart-pair-heading').textContent = `${p} (${info.chain})`;
       document.getElementById('chart-live-price').textContent = formatPriceSmart(info.price);
       document.getElementById('chart-live-change').textContent = `${info.change >= 0 ? '+' : ''}${info.change.toFixed(2)}%`;
@@ -3191,7 +2768,7 @@
       state.timeframe = tf;
       document.querySelectorAll('.tf-pill').forEach(b => { b.classList.remove('bg-cyan-500/25', 'text-cyan-300', 'font-bold'); b.classList.add('bg-slate-800', 'text-slate-400'); });
       btn.classList.remove('bg-slate-800', 'text-slate-400'); btn.classList.add('bg-cyan-500/25', 'text-cyan-300', 'font-bold');
-      buildCandles(state.markets[state.selectedPair]?.price || 7.00);
+      buildCandles(state.markets[state.selectedPair]?.price || 1.25);
       resizeCanvas();
     }
 
@@ -3258,7 +2835,7 @@
     }
 
     function renderOrderBook() {
-      const p = state.markets[state.selectedPair]?.price || 7.00;
+      const p = state.markets[state.selectedPair]?.price || 1.25;
       document.getElementById('ob-center-price').textContent = formatPriceSmart(p);
       let asks = '', bids = '';
       for (let i = 4; i >= 1; i--) asks += `<div class="flex justify-between px-2 py-1 bg-rose-500/10 rounded"><span class="text-rose-400">${formatPriceSmart(p * (1 + i * 0.0008))}</span><span class="text-slate-300">${(14500 + i * 4200).toLocaleString()}</span></div>`;
@@ -3272,13 +2849,9 @@
       const amt = parseFloat(document.getElementById('trade-amt-inp').value);
       if (isNaN(amt) || amt <= 0 || amt > state.user.usdtBalance) return notify('Insufficient USDT', 'Deposit USDT via Profile first.', 'error');
       state.user.usdtBalance -= amt;
-      const p = state.markets[state.selectedPair]?.price || 7.00;
+      const p = state.markets[state.selectedPair]?.price || 1.25;
       state.positions.unshift({ id: Date.now(), pair: state.selectedPair, side, size: amt * state.leverage, entry: p, pnl: +(amt * 0.018).toFixed(2) });
       persistSharedState();
-      renderValidityPills();
-      renderInvestmentPlanCards();
-      renderActivePlansTable();
-      renderTeamHub();
       renderPositionsTable();
       syncUI();
       notify(`${side} Position Opened`, `$${(amt * state.leverage).toLocaleString()} ${state.selectedPair}`);
@@ -3298,10 +2871,6 @@
       state.user.usdtBalance += (pos.size / state.leverage) + pos.pnl;
       state.positions.splice(idx, 1);
       persistSharedState();
-      renderValidityPills();
-      renderInvestmentPlanCards();
-      renderActivePlansTable();
-      renderTeamHub();
       renderPositionsTable();
       syncUI();
       notify('Position Settled', `Credited +$${pos.pnl.toFixed(2)} profit.`);
@@ -3358,7 +2927,7 @@
     function openAuditModal(pair) {
       document.getElementById('audit-pair-title').textContent = pair;
       document.getElementById('audit-modal').classList.remove('hidden');
-      const base = state.markets[pair]?.price || 7.00;
+      const base = state.markets[pair]?.price || 1.25;
       let rows = '', cur = base;
       for (let i = 0; i < 12; i++) {
         const c = cur;
@@ -3473,13 +3042,8 @@
           notify('Direct Account Link Active', `Logged in automatically as @${state.user.username} (${state.user.memberId}).`);
         }
       }
-      renderValidityPills();
-      renderInvestmentPlanCards();
-      renderActivePlansTable();
-      renderTeamHub();
       renderPositionsTable();
       syncUI();
-      applyMobileDesktopScaling();
     });
 
     setInterval(() => {
@@ -3489,8 +3053,7 @@
         const pctMove = stepScale * dir;
         t.price = Math.max(0.0000001, t.price * (1 + pctMove));
         if (index === 0) {
-          t.price = +(7.00 + Math.sin(Date.now() / 1500) * 0.035 + (Math.random() - 0.5) * 0.015).toFixed(4);
-          state.token.price = t.price;
+          state.token.price = +t.price.toFixed(4);
           state.token.vol24h += Math.floor(Math.random() * 14500);
         }
         t.poolLiq = (index === 0 ? state.token.tvl : (t.poolLiq || t.vol * 0.42)) * (1 + pctMove * 0.15);
@@ -3536,54 +3099,323 @@
     }, 1000);
   </script>
 
-  <!-- EmailJS SDK v4 -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <!-- FIXED VALIDITY PLANS (30..1000 DAYS) + 3-LEVEL TEAM + REAL-TIME FIREBASE SYNC -->
   <script>
-    const NFX_EMAILJS = {
-      publicKey: "ysKMwDEztjk8NxSQm",
-      serviceId: "service_nfxtreading",
-      otpTemplateId: "template_6sblo3i",
-      withdrawTemplateId: "template_dx9qil4"
-    };
-    if (window.emailjs && typeof window.emailjs.init === "function") {
-      window.emailjs.init({ publicKey: NFX_EMAILJS.publicKey });
+    const VALIDITY_OPTIONS = [30, 60, 90, 150, 240, 365, 520, 690, 880, 1000];
+    const INVESTMENT_TIERS = [
+      { id: 'starter', name: 'Starter Fixed Plan', badge: 'Tier 1', min: 10, max: 499, mult: 1.0, accent: 'border-t-emerald-400' },
+      { id: 'growth', name: 'Growth Fixed Plan', badge: 'Tier 2', min: 500, max: 4999, mult: 1.15, accent: 'border-t-cyan-400' },
+      { id: 'vip', name: 'VIP Sovereign Fixed Plan', badge: 'Tier 3', min: 5000, max: 100000, mult: 1.3, accent: 'border-t-amber-400' }
+    ];
+
+    state.selectedPlanDays = 30;
+    state.activePlans = Array.isArray(state.activePlans) ? state.activePlans : [];
+    state.teamMembers = Array.isArray(state.teamMembers) ? state.teamMembers : [];
+    state.teamCommissionEarned = Number(state.teamCommissionEarned || 0);
+
+    function setPlanValidityDays(days) {
+      if (!VALIDITY_OPTIONS.includes(days)) days = 30;
+      state.selectedPlanDays = days;
+      const sel = document.getElementById('plan-validity-select');
+      if (sel) sel.value = String(days);
+      renderValidityPills();
+      renderInvestmentPlanCards();
     }
-    window.sendNfxEmailOtp = async function(toEmail, purpose, userName) {
-      if (!window.emailjs || !toEmail || !toEmail.includes("@")) return null;
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      try {
-        await window.emailjs.send(NFX_EMAILJS.serviceId, NFX_EMAILJS.otpTemplateId, {
-          to_email: toEmail.trim(),
-          email: toEmail.trim(),
-          user_name: (userName || "Member").trim(),
-          otp_code: code,
-          passcode: code,
-          purpose: purpose || "Verification",
-          brand_name: "NFX Trading Exchange"
-        });
-        return code;
-      } catch (e) {
-        console.warn("EmailJS OTP send:", e);
-        return code;
+
+    function renderValidityPills() {
+      const box = document.getElementById('plan-validity-pills');
+      if (!box) return;
+      box.innerHTML = VALIDITY_OPTIONS.map(d => {
+        const active = d === state.selectedPlanDays;
+        return `<button type="button" onclick="setPlanValidityDays(${d})" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold cursor-pointer ${active ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-cyan-400/50'}">${d}D</button>`;
+      }).join('');
+    }
+
+    function computePlanMetrics(baseMult, amount) {
+      const days = state.selectedPlanDays;
+      const dailyPct = +(1.00 * baseMult).toFixed(2);
+      const totalRoiPct = +(dailyPct * days).toFixed(1);
+      const dailyPayout = +(amount * (dailyPct / 100)).toFixed(4);
+      const totalProfit = +(dailyPayout * days).toFixed(2);
+      return { days, dailyPct, totalRoiPct, dailyPayout, totalProfit };
+    }
+
+    function renderInvestmentPlanCards() {
+      const box = document.getElementById('investment-plan-cards');
+      if (!box) return;
+      box.innerHTML = INVESTMENT_TIERS.map(t => {
+        const defaultAmt = t.min;
+        const m = computePlanMetrics(t.mult, defaultAmt);
+        return `
+          <div class="cyber-panel rounded-2xl p-5 border-t-4 ${t.accent} space-y-3.5 flex flex-col justify-between">
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded bg-slate-900 text-cyan-300 text-[10px] font-bold uppercase">${t.badge}</span>
+                <span class="font-mono text-xs font-extrabold text-emerald-400">${m.dailyPct}% / Day (${m.totalRoiPct}% Total)</span>
+              </div>
+              <h3 class="text-base font-black text-white">${t.name}</h3>
+              <p class="text-[11px] text-slate-400">Range: <strong class="text-white">$${t.min} – $${t.max.toLocaleString()}</strong> • Validity: <strong class="text-cyan-300">${m.days} Days</strong></p>
+
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-1">Amount</label>
+                  <input type="number" id="plan-amt-${t.id}" value="${defaultAmt}" min="${t.min}" max="${t.max}" oninput="updateSinglePlanPreview('${t.id}', ${t.mult}, ${t.min}, ${t.max})" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-1">Pay With</label>
+                  <select id="plan-asset-${t.id}" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-amber-300">
+                    <option value="USDT">USDT</option>
+                    <option value="NFX">NFX ($${state.token.price.toFixed(2)})</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="plan-preview-${t.id}" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 font-mono text-[11px] space-y-1">
+                <div class="flex justify-between"><span class="text-slate-400">Daily Wallet Payout:</span><span class="text-emerald-400 font-bold">+$${m.dailyPayout.toFixed(2)}/day</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Total Profit (${m.days}d):</span><span class="text-cyan-300 font-bold">+$${m.totalProfit.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Principal (${m.days}d Lock):</span><span class="text-amber-300">Locked &rarr; Returned at End</span></div>
+              </div>
+            </div>
+
+            <button type="button" onclick="enrollInvestmentPlan('${t.id}')" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
+              Lock Principal &amp; Start Daily Payout
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateSinglePlanPreview(tierId, mult, minAmt, maxAmt) {
+      const rawVal = parseFloat(document.getElementById(`plan-amt-${tierId}`)?.value) || minAmt;
+      const clamped = Math.max(minAmt, Math.min(maxAmt, rawVal));
+      const m = computePlanMetrics(mult, clamped);
+      const box = document.getElementById(`plan-preview-${tierId}`);
+      if (!box) return;
+      box.innerHTML = `
+        <div class="flex justify-between"><span class="text-slate-400">Daily Wallet Payout:</span><span class="text-emerald-400 font-bold">+$${m.dailyPayout.toFixed(2)}/day</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Total Profit (${m.days}d):</span><span class="text-cyan-300 font-bold">+$${m.totalProfit.toFixed(2)}</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Principal (${m.days}d Lock):</span><span class="text-amber-300">Locked &rarr; Returned at End</span></div>
+      `;
+    }
+
+    function enrollInvestmentPlan(tierId) {
+      const tier = INVESTMENT_TIERS.find(x => x.id === tierId);
+      if (!tier) return;
+      const amt = parseFloat(document.getElementById(`plan-amt-${tierId}`)?.value);
+      const asset = document.getElementById(`plan-asset-${tierId}`)?.value || 'USDT';
+
+      if (isNaN(amt) || amt < tier.min || amt > tier.max) {
+        return notify('Invalid Plan Range', `${tier.name} requires $${tier.min} to $${tier.max.toLocaleString()}.`, 'error');
       }
-    };
+
+      if (asset === 'USDT' && state.user.usdtBalance < amt) {
+        if (!state.user.registered) { openProfileModal(); return notify('Create Account First', 'Create your account to auto-calculate balances.', 'info'); }
+        return notify('Insufficient USDT', `Available: $${state.user.usdtBalance.toFixed(2)} USDT.`, 'error');
+      }
+      if (asset === 'NFX') {
+        const neededNfx = amt / state.token.price;
+        if (state.user.nfxBalance < neededNfx) {
+          return notify('Insufficient NFX', `Need ${neededNfx.toFixed(4)} NFX at $${state.token.price.toFixed(2)}/NFX.`, 'error');
+        }
+        state.user.nfxBalance -= neededNfx;
+      } else {
+        state.user.usdtBalance -= amt;
+      }
+
+      const m = computePlanMetrics(tier.mult, amt);
+      state.activePlans.unshift({
+        id: 'PLN-' + Math.floor(10000 + Math.random() * 90000),
+        planName: tier.name,
+        asset,
+        principalUsd: amt,
+        dailyPayoutUsd: m.dailyPayout,
+        totalDays: m.days,
+        daysPaid: 0,
+        earnedUsd: 0,
+        unlocked: false
+      });
+
+      distributeAutomaticReferralBonus(amt);
+      persistSharedState();
+      renderActivePlansTable();
+      renderTeamHub();
+      syncUI();
+      notify('Fixed Plan Activated!', `$${amt.toFixed(2)} locked for ${m.days} days • +$${m.dailyPayout.toFixed(2)}/day auto-payout.`);
+    }
+
+    function runAutoDailyPayoutAll() {
+      let creditedTotal = 0;
+      state.activePlans.forEach(p => {
+        if (p.daysPaid < p.totalDays) {
+          p.daysPaid += 1;
+          p.earnedUsd = +(p.earnedUsd + p.dailyPayoutUsd).toFixed(2);
+          state.user.usdtBalance = +(state.user.usdtBalance + p.dailyPayoutUsd).toFixed(2);
+          creditedTotal = +(creditedTotal + p.dailyPayoutUsd).toFixed(2);
+          if (p.daysPaid >= p.totalDays && !p.unlocked) {
+            p.unlocked = true;
+            state.user.usdtBalance = +(state.user.usdtBalance + p.principalUsd).toFixed(2);
+          }
+        }
+      });
+      if (creditedTotal <= 0) return notify('No Active Daily Cycles', 'All active plans completed or none running.', 'info');
+      persistSharedState();
+      renderActivePlansTable();
+      syncUI();
+      notify('Daily Profit Credited!', `+$${creditedTotal.toFixed(2)} USDT added automatically to your wallet.`);
+    }
+
+    function fastForwardMaturityAll() {
+      let released = 0;
+      state.activePlans.forEach(p => {
+        if (!p.unlocked) {
+          const remainingDays = Math.max(0, p.totalDays - p.daysPaid);
+          const remProfit = +(remainingDays * p.dailyPayoutUsd).toFixed(2);
+          p.daysPaid = p.totalDays;
+          p.earnedUsd = +(p.earnedUsd + remProfit).toFixed(2);
+          p.unlocked = true;
+          const totalReturn = +(p.principalUsd + remProfit).toFixed(2);
+          state.user.usdtBalance = +(state.user.usdtBalance + totalReturn).toFixed(2);
+          released = +(released + p.principalUsd).toFixed(2);
+        }
+      });
+      if (released <= 0) return notify('Nothing to Unlock', 'No locked principal remaining.', 'info');
+      persistSharedState();
+      renderActivePlansTable();
+      syncUI();
+      notify('Principal Unlocked & Returned!', `$${released.toFixed(2)} locked principal returned to your wallet.`);
+    }
+
+    function renderActivePlansTable() {
+      const tbody = document.getElementById('active-plans-tbody');
+      if (!tbody) return;
+      const lockedSum = state.activePlans.filter(p => !p.unlocked).reduce((s, p) => s + p.principalUsd, 0);
+      const dailySum = state.activePlans.filter(p => !p.unlocked).reduce((s, p) => s + p.dailyPayoutUsd, 0);
+
+      const lockEl = document.getElementById('total-locked-principal-val');
+      const dayEl = document.getElementById('total-daily-payout-val');
+      if (lockEl) lockEl.textContent = formatMoney(lockedSum);
+      if (dayEl) dayEl.textContent = `+${formatMoney(dailySum)}/day`;
+
+      if (!state.activePlans.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No active investment plans yet. Choose a plan above to lock principal and earn daily profit.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = state.activePlans.map(p => `
+        <tr>
+          <td class="py-2.5 px-2 font-bold text-white">${p.planName} <span class="text-[10px] text-cyan-300">(${p.asset})</span></td>
+          <td class="py-2.5 px-2 text-amber-300 font-bold">$${p.principalUsd.toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-emerald-400">+$${p.dailyPayoutUsd.toFixed(2)}/d</td>
+          <td class="py-2.5 px-2">${p.daysPaid}/${p.totalDays}d</td>
+          <td class="py-2.5 px-2 text-cyan-300 font-bold">+$${p.earnedUsd.toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-right">${p.unlocked ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Unlocked ✓</span>' : '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">Locked</span>'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function distributeAutomaticReferralBonus(volumeUsd) {
+      const rates = { 1: 0.05, 2: 0.02, 3: 0.01 };
+      let totalBonus = 0;
+      state.teamMembers.forEach(m => {
+        if (m.investUsd > 0) {
+          const r = rates[m.level] || 0;
+          const b = +(volumeUsd * r * 0.1).toFixed(2);
+          if (b > 0) {
+            m.bonusUsd = +(m.bonusUsd + b).toFixed(2);
+            totalBonus = +(totalBonus + b).toFixed(2);
+          }
+        }
+      });
+      if (totalBonus > 0) {
+        state.teamCommissionEarned = +(state.teamCommissionEarned + totalBonus).toFixed(2);
+        state.user.usdtBalance = +(state.user.usdtBalance + totalBonus).toFixed(2);
+      }
+    }
+
+    function addTeamMemberSimulation(e) {
+      e.preventDefault();
+      const uid = (document.getElementById('sim-ref-uid')?.value || '').trim().toUpperCase();
+      const level = parseInt(document.getElementById('sim-ref-level')?.value || '1', 10);
+      const investUsd = Math.max(0, parseFloat(document.getElementById('sim-ref-invest')?.value) || 0);
+      if (!uid) return;
+
+      if (state.teamMembers.some(m => m.uid === uid)) {
+        return notify('Duplicate UID Blocked', `UID ${uid} is already counted in your team.`, 'error');
+      }
+
+      const rates = { 1: 0.05, 2: 0.02, 3: 0.01 };
+      const bonusUsd = +(investUsd * (rates[level] || 0)).toFixed(2);
+
+      state.teamMembers.unshift({
+        uid,
+        level,
+        investUsd,
+        active: investUsd > 0,
+        bonusUsd
+      });
+
+      if (bonusUsd > 0) {
+        state.teamCommissionEarned = +(state.teamCommissionEarned + bonusUsd).toFixed(2);
+        state.user.usdtBalance = +(state.user.usdtBalance + bonusUsd).toFixed(2);
+      }
+
+      persistSharedState();
+      renderTeamHub();
+      syncUI();
+      notify('Team Member Counted!', `${uid} added to Level ${level} • +$${bonusUsd.toFixed(2)} bonus credited automatically.`);
+    }
+
+    function renderTeamHub() {
+      const l1 = state.teamMembers.filter(m => m.level === 1);
+      const l2 = state.teamMembers.filter(m => m.level === 2);
+      const l3 = state.teamMembers.filter(m => m.level === 3);
+      const activeCount = state.teamMembers.filter(m => m.active).length;
+      const inactiveCount = state.teamMembers.length - activeCount;
+      const teamVol = state.teamMembers.reduce((s, m) => s + m.investUsd, 0);
+
+      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setTxt('team-total-count', String(state.teamMembers.length));
+      setTxt('team-active-count', String(activeCount));
+      setTxt('team-inactive-count', String(inactiveCount));
+      setTxt('team-volume-val', formatMoney(teamVol));
+      setTxt('team-commission-val', formatMoney(state.teamCommissionEarned));
+      setTxt('team-l1-count', `${l1.length} Members`);
+      setTxt('team-l2-count', `${l2.length} Members`);
+      setTxt('team-l3-count', `${l3.length} Members`);
+
+      const tbody = document.getElementById('team-members-tbody');
+      if (!tbody) return;
+      if (!state.teamMembers.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-500 font-sans">No downline members joined yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = state.teamMembers.map(m => `
+        <tr>
+          <td class="py-2 font-bold text-white">${m.uid}</td>
+          <td class="py-2 text-cyan-300">L${m.level}</td>
+          <td class="py-2 text-slate-200">$${m.investUsd.toFixed(2)}</td>
+          <td class="py-2">${m.active ? '<span class="text-emerald-400 font-bold">Active</span>' : '<span class="text-amber-300">Inactive</span>'}</td>
+          <td class="py-2 text-right text-emerald-400 font-bold">+$${m.bonusUsd.toFixed(2)}</td>
+        </tr>
+      `).join('');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderValidityPills();
+      renderInvestmentPlanCards();
+      renderActivePlansTable();
+      renderTeamHub();
+    });
   </script>
 
-  <!-- Firebase Modular SDK (v13.4.0) Real-Time Cloud Firestore Sync -->
+  <!-- Firebase Modular SDK (v13.4.0) — Instant Real-Time Sync between Admin Master & Member Phones -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
     import {
       getFirestore,
       doc,
       getDoc,
       setDoc,
-      collection,
       onSnapshot,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
@@ -3598,459 +3430,459 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
+    let activeMemberListenerUnsub = null;
+    let isApplyingRemoteSnapshot = false;
 
-    // 1. Sync Global Platform Settings (NFX Price $7.00, TVL, Deposit Vault Address, Auto-Trade Mode) across ALL phones
-    const globalSettingsRef = doc(db, "platformSettings", "nfxExchangeGlobal");
-
-    async function pushGlobalSettingsToCloud() {
-      try {
-        await setDoc(globalSettingsRef, {
-          nfxPrice: Number(state.token.price || 7.00),
-          tvl: Number(state.token.tvl || 18500000000),
-          vol24h: Number(state.token.vol24h || 1420850900),
-          vaultAddress: String(state.token.vaultAddress || "0x9F8c42B91eD04A8c771B920E7E4A6B2000884920"),
-          profitableMode: Boolean(state.autoTrading.profitableMode),
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      } catch (e) {
-        console.warn("Global settings cloud push:", e);
-      }
-    }
-
-    onSnapshot(globalSettingsRef, (snap) => {
-      if (!snap.exists()) return;
-      const d = snap.data();
-      if (d.nfxPrice && Number(d.nfxPrice) > 0) {
-        state.token.price = Number(d.nfxPrice);
-        if (state.allTokens && state.allTokens[0]) state.allTokens[0].price = state.token.price;
-      }
-      if (d.tvl && Number(d.tvl) > 0) state.token.tvl = Number(d.tvl);
-      if (d.vaultAddress) state.token.vaultAddress = String(d.vaultAddress);
-      if (typeof d.profitableMode === "boolean") state.autoTrading.profitableMode = d.profitableMode;
-      if (typeof persistSharedState === "function") persistSharedState();
-      if (typeof syncUI === "function") syncUI();
-    }, () => {});
-
-    // 2. Real-Time Member Profile, Balances, Plans & Team Sync to Firestore
-    function generate8AlnumUid() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let id = "";
-      for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
-      return id;
-    }
-
-    async function pushMemberStateToCloud(overrideMemberId) {
-      const uid = String(overrideMemberId || state.user.memberId || "").trim().toUpperCase();
-      if (!uid) return;
-      const myDeposits = (state.deposits || []).filter(d => d.isCurrentUser || String(d.memberId || "").toUpperCase() === uid);
-      const myWithdrawals = (state.withdrawals || []).filter(w => w.isCurrentUser || String(w.memberId || "").toUpperCase() === uid);
-
-      const payload = {
-        uid,
-        memberId: uid,
+    function buildMemberPayload() {
+      return {
+        registered: Boolean(state.user.registered),
         username: state.user.username || "",
         email: state.user.email || "",
+        password: state.user.password || "",
+        memberId: state.user.memberId || "",
         connectedWallet: state.user.connectedWallet || null,
         extAddress: state.user.extAddress || "",
         usdtBalance: Number(state.user.usdtBalance || 0),
         bnbBalance: Number(state.user.bnbBalance || 0),
         nfxBalance: Number(state.user.nfxBalance || 0),
-        activePlans: Array.isArray(state.activePlans) ? state.activePlans : [],
-        teamMembers: Array.isArray(state.teamMembers) ? state.teamMembers : [],
+        activePlans: state.activePlans || [],
+        teamMembers: state.teamMembers || [],
         teamCommissionEarned: Number(state.teamCommissionEarned || 0),
-        autoCapital: Number(state.autoTrading.capital || 0),
-        autoProfit: Number(state.autoTrading.profit || 0),
-        deposits: myDeposits,
-        withdrawals: myWithdrawals,
+        autoTrading: state.autoTrading || { capital: 0, profit: 0, profitableMode: true, secLeft: 86399 },
+        ownedNfts: state.ownedNfts || [],
         updatedAt: serverTimestamp()
       };
-
-      try {
-        await setDoc(doc(db, "users", uid), payload, { merge: true });
-        if (state.user.email && state.user.email.includes("@")) {
-          await setDoc(doc(db, "users_by_email", state.user.email.trim().toLowerCase()), payload, { merge: true });
-        }
-      } catch (e) {
-        console.warn("Member cloud sync:", e);
-      }
     }
 
-    // Listen to live changes for the active member (so Admin edits reflect immediately on Member's phone)
-    let unsubscribeMemberListener = null;
-    function attachMemberCloudListener(memberUid) {
-      const uid = String(memberUid || "").trim().toUpperCase();
-      if (!uid) return;
-      if (unsubscribeMemberListener) {
-        try { unsubscribeMemberListener(); } catch (_) {}
-      }
-      unsubscribeMemberListener = onSnapshot(doc(db, "users", uid), (snap) => {
-        if (!snap.exists()) return;
-        const d = snap.data();
-        if (d.username) state.user.username = d.username;
-        if (d.email) state.user.email = d.email;
-        if (typeof d.usdtBalance === "number") state.user.usdtBalance = d.usdtBalance;
-        if (typeof d.bnbBalance === "number") state.user.bnbBalance = d.bnbBalance;
-        if (typeof d.nfxBalance === "number") state.user.nfxBalance = d.nfxBalance;
-        if (Array.isArray(d.activePlans)) state.activePlans = d.activePlans;
-        if (Array.isArray(d.teamMembers)) state.teamMembers = d.teamMembers;
-        if (typeof d.teamCommissionEarned === "number") state.teamCommissionEarned = d.teamCommissionEarned;
-        if (typeof d.autoCapital === "number") state.autoTrading.capital = d.autoCapital;
-        if (typeof d.autoProfit === "number") state.autoTrading.profit = d.autoProfit;
+    function applyCloudUserDataToLocal(data) {
+      if (!data) return;
+      isApplyingRemoteSnapshot = true;
+      try {
+        Object.assign(state.user, data);
+        if (Array.isArray(data.activePlans)) state.activePlans = data.activePlans;
+        if (Array.isArray(data.teamMembers)) state.teamMembers = data.teamMembers;
+        if (data.teamCommissionEarned !== undefined) state.teamCommissionEarned = Number(data.teamCommissionEarned) || 0;
+        if (data.autoTrading) Object.assign(state.autoTrading, data.autoTrading);
+        if (Array.isArray(data.ownedNfts)) state.ownedNfts = data.ownedNfts;
+        state.user.registered = Boolean(data.registered || data.memberId);
 
-        if (Array.isArray(d.deposits)) {
-          const others = (state.deposits || []).filter(x => !x.isCurrentUser && String(x.memberId || "").toUpperCase() !== uid);
-          const mine = d.deposits.map(x => ({ ...x, isCurrentUser: true }));
-          state.deposits = [...mine, ...others];
-        }
-        if (Array.isArray(d.withdrawals)) {
-          const others = (state.withdrawals || []).filter(x => !x.isCurrentUser && String(x.memberId || "").toUpperCase() !== uid);
-          const mine = d.withdrawals.map(x => ({ ...x, isCurrentUser: true }));
-          state.withdrawals = [...mine, ...others];
-        }
-
-        if (typeof persistSharedState === "function") persistSharedState();
+        if (typeof origPersist === "function") origPersist();
         if (typeof renderActivePlansTable === "function") renderActivePlansTable();
         if (typeof renderTeamHub === "function") renderTeamHub();
         if (typeof renderMemberHistories === "function") renderMemberHistories();
         if (typeof syncUI === "function") syncUI();
-      }, () => {});
-    }
-
-    // Listen to ALL members in Admin Portal so Admin sees every registered member across all phones
-    window.cloudAllMembers = [];
-    onSnapshot(collection(db, "users"), (colSnap) => {
-      const list = [];
-      colSnap.forEach((docSnap) => {
-        const d = docSnap.data();
-        if (d && (d.uid || docSnap.id)) {
-          list.push({ uid: d.uid || docSnap.id, ...d });
-        }
-      });
-      window.cloudAllMembers = list;
-
-      // Merge any pending deposits/withdrawals from cloud members into Admin queues
-      list.forEach((m) => {
-        if (Array.isArray(m.deposits)) {
-          m.deposits.forEach((dep) => {
-            if (!state.deposits.some(x => x.id === dep.id)) {
-              state.deposits.unshift({ ...dep, isCurrentUser: String(dep.memberId || "").toUpperCase() === String(state.user.memberId || "").toUpperCase() });
-            } else {
-              const idx = state.deposits.findIndex(x => x.id === dep.id);
-              if (idx >= 0 && dep.status) state.deposits[idx].status = dep.status;
-            }
-          });
-        }
-        if (Array.isArray(m.withdrawals)) {
-          m.withdrawals.forEach((wd) => {
-            if (!state.withdrawals.some(x => x.id === wd.id)) {
-              state.withdrawals.unshift({ ...wd, isCurrentUser: String(wd.memberId || "").toUpperCase() === String(state.user.memberId || "").toUpperCase() });
-            } else {
-              const idx = state.withdrawals.findIndex(x => x.id === wd.id);
-              if (idx >= 0 && wd.status) {
-                state.withdrawals[idx].status = wd.status;
-                if (wd.reason) state.withdrawals[idx].reason = wd.reason;
-              }
-            }
-          });
-        }
-      });
-
-      if (typeof renderAdminTables === "function") renderAdminTables();
-      if (typeof renderAdminCloudMembersDirectory === "function") renderAdminCloudMembersDirectory();
-    }, () => {});
-
-    // 3. Automatic 24-Hour Daily Plan Profit Settlement on Load & Every Minute
-    const DAY_MS = 24 * 60 * 60 * 1000;
-    function settleDueDailyPlanPayouts() {
-      if (!state.user.registered || !Array.isArray(state.activePlans) || !state.activePlans.length) return;
-      const now = Date.now();
-      let credited = 0;
-      state.activePlans.forEach((p) => {
-        if (p.unlocked || p.daysPaid >= p.totalDays) return;
-        if (!p.lastPayoutAt) {
-          p.lastPayoutAt = now;
-          return;
-        }
-        const dueDays = Math.min(p.totalDays - p.daysPaid, Math.floor((now - Number(p.lastPayoutAt)) / DAY_MS));
-        if (dueDays > 0) {
-          const profitAdd = +(dueDays * Number(p.dailyPayoutUsd || 0)).toFixed(2);
-          p.daysPaid += dueDays;
-          p.lastPayoutAt = Number(p.lastPayoutAt) + dueDays * DAY_MS;
-          p.earnedUsd = +(Number(p.earnedUsd || 0) + profitAdd).toFixed(2);
-          state.user.usdtBalance = +(Number(state.user.usdtBalance || 0) + profitAdd).toFixed(2);
-          credited = +(credited + profitAdd).toFixed(2);
-          if (p.daysPaid >= p.totalDays && !p.unlocked) {
-            p.unlocked = true;
-            state.user.usdtBalance = +(Number(state.user.usdtBalance || 0) + Number(p.principalUsd || 0)).toFixed(2);
-          }
-        }
-      });
-      if (credited > 0) {
-        persistSharedState();
-        pushMemberStateToCloud();
-        if (typeof renderActivePlansTable === "function") renderActivePlansTable();
-        if (typeof syncUI === "function") syncUI();
+      } finally {
+        isApplyingRemoteSnapshot = false;
       }
     }
-    setInterval(settleDueDailyPlanPayouts, 60000);
 
-    // 4. Hook Registration, Sign-In, Persist & Admin Actions to Cloud Firestore
+    function attachRealtimeMemberListener(uid) {
+      const cleanUid = String(uid || "").trim().toUpperCase();
+      if (!cleanUid) return;
+      if (activeMemberListenerUnsub) {
+        try { activeMemberListenerUnsub(); } catch (_) {}
+      }
+      activeMemberListenerUnsub = onSnapshot(doc(db, "users", cleanUid), (snap) => {
+        if (snap.exists()) {
+          applyCloudUserDataToLocal(snap.data());
+        }
+      }, (err) => console.warn("Realtime member listener:", err));
+    }
+
+    window.syncExchangeUserToCloud = async function() {
+      if (isApplyingRemoteSnapshot) return;
+      try {
+        if (state.user && state.user.registered && state.user.memberId) {
+          const uid = state.user.memberId.trim().toUpperCase();
+          const payload = buildMemberPayload();
+          await setDoc(doc(db, "users", uid), payload, { merge: true });
+          if (state.user.email) {
+            const emailKey = encodeURIComponent(state.user.email.trim().toLowerCase());
+            await setDoc(doc(db, "users_by_email", emailKey), {
+              uid,
+              email: state.user.email.trim().toLowerCase(),
+              updatedAt: serverTimestamp()
+            }, { merge: true });
+          }
+          if (state.user.username) {
+            const unameKey = state.user.username.trim().toLowerCase();
+            await setDoc(doc(db, "usernames", unameKey), {
+              uid,
+              username: state.user.username.trim(),
+              updatedAt: serverTimestamp()
+            }, { merge: true });
+          }
+        }
+      } catch (err) {
+        console.warn("Firestore user sync notice:", err);
+      }
+    };
+
+    window.syncPlatformSettingsToCloud = async function() {
+      try {
+        await setDoc(doc(db, "platformSettings", "nfx_token"), {
+          price: Number(state.token.price || 1.25),
+          tvl: Number(state.token.tvl || 18500000000),
+          vol24h: Number(state.token.vol24h || 1420850900),
+          vaultAddress: state.token.vaultAddress || "",
+          profitableMode: Boolean(state.autoTrading && state.autoTrading.profitableMode),
+          withdrawals: state.withdrawals || [],
+          deposits: state.deposits || [],
+          gasTreasury: state.gasTreasury || { bnb: 0, usd: 0, logs: [] },
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (err) {
+        console.warn("Firestore platformSettings sync:", err);
+      }
+    };
+
+    window.fetchExchangeUserFromCloud = async function(identifier) {
+      try {
+        const raw = String(identifier || "").trim();
+        if (!raw) return null;
+        let targetUid = raw.toUpperCase();
+
+        if (!targetUid.startsWith("NFX-")) {
+          if (raw.includes("@")) {
+            const emSnap = await getDoc(doc(db, "users_by_email", encodeURIComponent(raw.toLowerCase())));
+            if (emSnap.exists() && emSnap.data().uid) targetUid = String(emSnap.data().uid).toUpperCase();
+          } else {
+            const unSnap = await getDoc(doc(db, "usernames", raw.toLowerCase()));
+            if (unSnap.exists() && unSnap.data().uid) targetUid = String(unSnap.data().uid).toUpperCase();
+          }
+        }
+
+        const uSnap = await getDoc(doc(db, "users", targetUid));
+        if (uSnap.exists()) {
+          return uSnap.data();
+        }
+        return null;
+      } catch (err) {
+        console.warn("Firestore fetch notice:", err);
+        return null;
+      }
+    };
+
+    // Wrap persistSharedState so every member & admin action immediately syncs to Firestore
     const origPersist = window.persistSharedState;
     window.persistSharedState = function() {
       if (typeof origPersist === "function") origPersist();
-      if (state.user && state.user.registered && state.user.memberId) {
-        pushMemberStateToCloud(state.user.memberId);
+      if (!isApplyingRemoteSnapshot) {
+        window.syncExchangeUserToCloud();
+        if (state.portal === "admin") {
+          window.syncPlatformSettingsToCloud();
+        }
       }
     };
 
-    window.completeUserRegistration = async function(e) {
-      e.preventDefault();
-      const u = document.getElementById('reg-user').value.trim();
-      const m = document.getElementById('reg-mail').value.trim();
-      const p = document.getElementById('reg-pass').value;
-      const code = document.getElementById('reg-totp').value.trim();
+    // Wrap Admin actions so any Admin edit updates Firestore immediately and reflects on every member's phone in real time
+    const adminFnsToSync = [
+      "adminApproveWithdrawal",
+      "confirmAdminRejectWithdrawal",
+      "adminVerifyDeposit",
+      "adminInjectLiquidity",
+      "adminUpdateTokenPrice",
+      "adminUpdateVaultAddress",
+      "toggleAdminCycleMode"
+    ];
+    adminFnsToSync.forEach(fnName => {
+      const origFn = window[fnName];
+      if (typeof origFn === "function") {
+        window[fnName] = async function(...args) {
+          const res = origFn.apply(this, args);
+          await window.syncPlatformSettingsToCloud();
+          // Also sync affected member balance directly to their users/{uid} document
+          if (state.user && state.user.memberId) {
+            await window.syncExchangeUserToCloud();
+          }
+          return res;
+        };
+      }
+    });
 
-      const isValidTotp = await verifyGoogleAuthenticatorCode(code);
-      if (!isValidTotp) {
-        notify('Invalid Google Authenticator Code', 'Copy the Setup Key into your Google Authenticator app and enter the live 6-digit code.', 'error');
+    // Multi-device Sign In using UID, Username, or Email
+    const origSignIn = window.submitMemberSignIn;
+    window.submitMemberSignIn = async function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const idOrUser = (document.getElementById("signin-id")?.value || "").trim();
+      const pass = document.getElementById("signin-pass")?.value || "";
+      const cloudDoc = await window.fetchExchangeUserFromCloud(idOrUser);
+      if (cloudDoc) {
+        if (cloudDoc.password && cloudDoc.password !== pass) {
+          if (typeof notify === "function") notify("Invalid Password", "The password entered does not match this account.", "error");
+          return;
+        }
+        applyCloudUserDataToLocal(cloudDoc);
+        attachRealtimeMemberListener(state.user.memberId);
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        const accEl = document.getElementById("member-account-link");
+        const refEl = document.getElementById("member-referral-link");
+        if (accEl) accEl.textContent = `${baseUrl}?uid=${state.user.memberId}`;
+        if (refEl) refEl.textContent = `${baseUrl}?ref=${state.user.memberId}`;
+
+        document.getElementById("prof-step-register")?.classList.add("hidden");
+        document.getElementById("prof-step-member")?.classList.remove("hidden");
+        if (typeof switchProfSub === "function") switchProfSub("holdings");
+        if (typeof syncUI === "function") syncUI();
+        if (typeof notify === "function") notify("Signed In!", `Live cloud sync active for @${state.user.username} (${state.user.memberId}).`);
         return;
       }
+      if (typeof origSignIn === "function") origSignIn(e);
+    };
 
-      const uid = generate8AlnumUid();
+    // Real-time listener for Admin Master updates -> instant update on every Member phone!
+    window.addEventListener("DOMContentLoaded", async () => {
       try {
-        await createUserWithEmailAndPassword(auth, m, p);
-      } catch (_) {}
-
-      state.user.registered = true;
-      state.user.username = u;
-      state.user.email = m;
-      state.user.password = p;
-      state.user.memberId = uid;
-
-      // Credit referral inviter in Firestore if ?ref= is present in URL
-      const refParam = new URLSearchParams(window.location.search).get('ref');
-      if (refParam && refParam.toUpperCase() !== uid) {
-        try {
-          const invSnap = await getDoc(doc(db, "users", refParam.toUpperCase()));
-          if (invSnap.exists()) {
-            const invData = invSnap.data();
-            const invTeam = Array.isArray(invData.teamMembers) ? invData.teamMembers : [];
-            if (!invTeam.some(x => x.uid === uid)) {
-              invTeam.unshift({ uid, level: 1, investUsd: 0, active: false, bonusUsd: 0 });
-              await setDoc(doc(db, "users", refParam.toUpperCase()), { teamMembers: invTeam }, { merge: true });
+        onSnapshot(doc(db, "platformSettings", "nfx_token"), (snap) => {
+          if (!snap.exists()) return;
+          const d = snap.data();
+          let changed = false;
+          if (d.price !== undefined && Number(d.price) > 0) {
+            state.token.price = Number(d.price);
+            if (state.allTokens && state.allTokens[0]) state.allTokens[0].price = state.token.price;
+            changed = true;
+          }
+          if (d.tvl !== undefined) {
+            state.token.tvl = Number(d.tvl);
+            changed = true;
+          }
+          if (d.vol24h !== undefined) {
+            state.token.vol24h = Number(d.vol24h);
+            changed = true;
+          }
+          if (d.vaultAddress) {
+            state.token.vaultAddress = d.vaultAddress;
+            changed = true;
+          }
+          if (d.profitableMode !== undefined && state.autoTrading) {
+            state.autoTrading.profitableMode = Boolean(d.profitableMode);
+          }
+          if (Array.isArray(d.withdrawals)) {
+            state.withdrawals = d.withdrawals;
+            if (state.user && state.user.memberId) {
+              state.withdrawals.forEach(w => {
+                if (w.memberId === state.user.memberId) w.isCurrentUser = true;
+              });
             }
           }
-        } catch (_) {}
+          if (Array.isArray(d.deposits)) {
+            state.deposits = d.deposits;
+            if (state.user && state.user.memberId) {
+              state.deposits.forEach(dep => {
+                if (dep.memberId === state.user.memberId) dep.isCurrentUser = true;
+              });
+            }
+          }
+          if (d.gasTreasury) Object.assign(state.gasTreasury, d.gasTreasury);
+
+          if (changed) {
+            if (typeof syncMarketsMap === "function") syncMarketsMap();
+            if (typeof renderInvestmentPlanCards === "function") renderInvestmentPlanCards();
+            if (typeof renderMemberHistories === "function") renderMemberHistories();
+            if (typeof renderAdminTables === "function") renderAdminTables();
+            if (typeof syncUI === "function") syncUI();
+          }
+        });
+      } catch (err) {
+        console.warn("Platform listener error:", err);
       }
 
-      await pushMemberStateToCloud(uid);
-      attachMemberCloudListener(uid);
-      if (typeof origPersist === "function") origPersist();
-
-      const baseUrl = window.location.origin + window.location.pathname;
-      document.getElementById('member-account-link').textContent = `${baseUrl}?uid=${uid}`;
-      document.getElementById('member-referral-link').textContent = `${baseUrl}?ref=${uid}`;
-      document.getElementById('prof-step-register').classList.add('hidden');
-      document.getElementById('prof-step-member').classList.remove('hidden');
-      document.getElementById('prof-modal-title').textContent = 'NFX Member Profile & Token Wallet';
-      document.getElementById('prof-modal-sub').textContent = `UID: ${uid} • Cloud Synced & 2FA Verified`;
-
-      switchProfSub('holdings');
-      syncUI();
-      notify('Account Created & Live Synced!', `Your 8-Character UID is ${uid}.`);
-    };
-
-    window.submitMemberSignIn = async function(e) {
-      e.preventDefault();
-      const idOrUser = document.getElementById('signin-id').value.trim();
-      const pass = document.getElementById('signin-pass').value;
-
-      // Check Firestore first so member can log in from any phone
-      try {
-        const snap = await getDoc(doc(db, "users", idOrUser.toUpperCase()));
-        if (snap.exists()) {
-          const d = snap.data();
-          state.user.registered = true;
-          state.user.memberId = d.uid || idOrUser.toUpperCase();
-          state.user.username = d.username || idOrUser;
-          state.user.email = d.email || "";
-          state.user.password = pass;
-          state.user.usdtBalance = Number(d.usdtBalance || 0);
-          state.user.bnbBalance = Number(d.bnbBalance || 0);
-          state.user.nfxBalance = Number(d.nfxBalance || 0);
-          if (Array.isArray(d.activePlans)) state.activePlans = d.activePlans;
-          if (Array.isArray(d.teamMembers)) state.teamMembers = d.teamMembers;
-          state.teamCommissionEarned = Number(d.teamCommissionEarned || 0);
-
-          attachMemberCloudListener(state.user.memberId);
-          settleDueDailyPlanPayouts();
-          if (typeof origPersist === "function") origPersist();
-
+      // Check URL ?uid= or existing local memberId and bind real-time user doc listener
+      const params = new URLSearchParams(window.location.search);
+      const uidParam = params.get("uid");
+      if (uidParam) {
+        const cloudDoc = await window.fetchExchangeUserFromCloud(uidParam);
+        if (cloudDoc) {
+          applyCloudUserDataToLocal(cloudDoc);
+          if (typeof enterExchangeDashboard === "function") enterExchangeDashboard();
           const baseUrl = window.location.origin + window.location.pathname;
-          document.getElementById('member-account-link').textContent = `${baseUrl}?uid=${state.user.memberId}`;
-          document.getElementById('member-referral-link').textContent = `${baseUrl}?ref=${state.user.memberId}`;
-          document.getElementById('prof-step-register').classList.add('hidden');
-          document.getElementById('prof-step-member').classList.remove('hidden');
-          switchProfSub('holdings');
-          syncUI();
-          return notify('Signed In!', `Welcome back @${state.user.username} (${state.user.memberId}).`);
+          const accEl = document.getElementById("member-account-link");
+          const refEl = document.getElementById("member-referral-link");
+          if (accEl) accEl.textContent = `${baseUrl}?uid=${state.user.memberId}`;
+          if (refEl) refEl.textContent = `${baseUrl}?ref=${state.user.memberId}`;
+          attachRealtimeMemberListener(state.user.memberId);
         }
-      } catch (_) {}
-
-      const savedRaw = localStorage.getItem(`nfx_account_${idOrUser.toUpperCase()}`) || localStorage.getItem(`nfx_user_${idOrUser.toLowerCase()}`);
-      if (!savedRaw) {
-        return notify('Account Not Found', 'No account found for this UID or Username.', 'error');
+      } else if (state.user && state.user.registered && state.user.memberId) {
+        attachRealtimeMemberListener(state.user.memberId);
       }
-      const parsed = JSON.parse(savedRaw);
-      if (parsed.password !== pass) {
-        return notify('Invalid Password', 'The password entered does not match this account.', 'error');
-      }
-      Object.assign(state.user, parsed);
-      state.user.registered = true;
-      attachMemberCloudListener(state.user.memberId);
-      if (typeof origPersist === "function") origPersist();
-      const baseUrl = window.location.origin + window.location.pathname;
-      document.getElementById('member-account-link').textContent = `${baseUrl}?uid=${state.user.memberId}`;
-      document.getElementById('member-referral-link').textContent = `${baseUrl}?ref=${state.user.memberId}`;
-      document.getElementById('prof-step-register').classList.add('hidden');
-      document.getElementById('prof-step-member').classList.remove('hidden');
-      switchProfSub('holdings');
-      syncUI();
-      notify('Signed In!', `Welcome back @${state.user.username} (${state.user.memberId}).`);
-    };
-
-    // Wrap Admin actions so every Admin edit pushes immediately to Firestore for ALL member phones
-    const origAdminApproveWd = window.adminApproveWithdrawal;
-    window.adminApproveWithdrawal = async function(id) {
-      const req = state.withdrawals.find(w => w.id === id);
-      if (typeof origAdminApproveWd === "function") origAdminApproveWd(id);
-      if (req && req.memberId) {
-        const m = (window.cloudAllMembers || []).find(x => String(x.uid).toUpperCase() === String(req.memberId).toUpperCase());
-        if (m && Array.isArray(m.withdrawals)) {
-          m.withdrawals.forEach(w => { if (w.id === id) { w.status = 'Successful'; w.reason = 'Approved & Settled'; } });
-          await setDoc(doc(db, "users", m.uid), { withdrawals: m.withdrawals, updatedAt: serverTimestamp() }, { merge: true });
-        }
-      }
-    };
-
-    const origConfirmRejectWd = window.confirmAdminRejectWithdrawal;
-    window.confirmAdminRejectWithdrawal = async function() {
-      const req = state.withdrawals.find(w => w.id === state.rejectTargetId);
-      if (typeof origConfirmRejectWd === "function") origConfirmRejectWd();
-      if (req && req.memberId) {
-        const m = (window.cloudAllMembers || []).find(x => String(x.uid).toUpperCase() === String(req.memberId).toUpperCase());
-        if (m) {
-          const nextUsdt = req.asset === 'USDT' ? +(Number(m.usdtBalance || 0) + Number(req.amount || 0)).toFixed(2) : Number(m.usdtBalance || 0);
-          const nextNfx = req.asset === 'NFX' ? +(Number(m.nfxBalance || 0) + Number(req.amount || 0)).toFixed(4) : Number(m.nfxBalance || 0);
-          const nextBnb = req.asset === 'BNB' ? +(Number(m.bnbBalance || 0) + Number(req.amount || 0)).toFixed(4) : Number(m.bnbBalance || 0);
-          if (Array.isArray(m.withdrawals)) {
-            m.withdrawals.forEach(w => { if (w.id === req.id) { w.status = 'Withdrawal Failed / Rejected'; w.reason = req.reason; } });
-          }
-          await setDoc(doc(db, "users", m.uid), {
-            usdtBalance: nextUsdt,
-            nfxBalance: nextNfx,
-            bnbBalance: nextBnb,
-            withdrawals: m.withdrawals || [],
-            updatedAt: serverTimestamp()
-          }, { merge: true });
-        }
-      }
-    };
-
-    const origAdminVerifyDep = window.adminVerifyDeposit;
-    window.adminVerifyDeposit = async function(id) {
-      const dep = state.deposits.find(d => d.id === id);
-      if (typeof origAdminVerifyDep === "function") origAdminVerifyDep(id);
-      if (dep && dep.memberId) {
-        const m = (window.cloudAllMembers || []).find(x => String(x.uid).toUpperCase() === String(dep.memberId).toUpperCase());
-        if (m) {
-          const nextUsdt = dep.asset === 'USDT' ? +(Number(m.usdtBalance || 0) + Number(dep.amount || 0)).toFixed(2) : Number(m.usdtBalance || 0);
-          const nextBnb = dep.asset === 'BNB' ? +(Number(m.bnbBalance || 0) + Number(dep.amount || 0)).toFixed(4) : Number(m.bnbBalance || 0);
-          if (Array.isArray(m.deposits)) {
-            m.deposits.forEach(d => { if (d.id === id) d.status = 'Verified'; });
-          }
-          await setDoc(doc(db, "users", m.uid), {
-            usdtBalance: nextUsdt,
-            bnbBalance: nextBnb,
-            deposits: m.deposits || [],
-            updatedAt: serverTimestamp()
-          }, { merge: true });
-        }
-      }
-    };
-
-    const origAdminInjectLiq = window.adminInjectLiquidity;
-    window.adminInjectLiquidity = function(amt) {
-      if (typeof origAdminInjectLiq === "function") origAdminInjectLiq(amt);
-      pushGlobalSettingsToCloud();
-    };
-
-    const origAdminSetPrice = window.adminUpdateTokenPrice;
-    window.adminUpdateTokenPrice = function() {
-      if (typeof origAdminSetPrice === "function") origAdminSetPrice();
-      pushGlobalSettingsToCloud();
-    };
-
-    const origAdminSetVault = window.adminUpdateVaultAddress;
-    window.adminUpdateVaultAddress = function() {
-      if (typeof origAdminSetVault === "function") origAdminSetVault();
-      pushGlobalSettingsToCloud();
-    };
-
-    const origAdminToggleCycle = window.toggleAdminCycleMode;
-    window.toggleAdminCycleMode = function() {
-      if (typeof origAdminToggleCycle === "function") origAdminToggleCycle();
-      pushGlobalSettingsToCloud();
-    };
-
-    // Direct Admin Member Balance / Plan / Team Editor in Cloud Firestore
-    window.adminSaveCloudMemberEdit = async function(uid) {
-      if (state.portal !== 'admin') return;
-      const usdtVal = parseFloat(document.getElementById(`adm-m-usdt-${uid}`)?.value);
-      const nfxVal = parseFloat(document.getElementById(`adm-m-nfx-${uid}`)?.value);
-      if (isNaN(usdtVal) || isNaN(nfxVal)) return;
-      await setDoc(doc(db, "users", uid), {
-        uid,
-        usdtBalance: +usdtVal.toFixed(2),
-        nfxBalance: +nfxVal.toFixed(4),
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-      if (String(state.user.memberId || "").toUpperCase() === uid.toUpperCase()) {
-        state.user.usdtBalance = +usdtVal.toFixed(2);
-        state.user.nfxBalance = +nfxVal.toFixed(4);
-        syncUI();
-      }
-      notify('Member Updated Live!', `${uid} balances pushed to member device immediately.`);
-    };
-
-    window.renderAdminCloudMembersDirectory = function() {
-      const box = document.getElementById("admin-cloud-members-tbody");
-      if (!box) return;
-      const list = window.cloudAllMembers || [];
-      if (!list.length) {
-        box.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-500 font-sans">No cloud members registered yet.</td></tr>`;
-        return;
-      }
-      box.innerHTML = list.map(m => `
-        <tr>
-          <td class="py-2.5 px-3 font-bold text-white">${m.uid} <span class="block text-[10px] text-cyan-300">@${m.username || 'Member'}</span></td>
-          <td class="py-2.5 px-3 text-slate-300">${m.email || '-'}</td>
-          <td class="py-2.5 px-3"><input type="number" step="0.01" id="adm-m-usdt-${m.uid}" value="${Number(m.usdtBalance || 0).toFixed(2)}" class="w-28 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-emerald-300 font-mono text-xs" /></td>
-          <td class="py-2.5 px-3"><input type="number" step="0.0001" id="adm-m-nfx-${m.uid}" value="${Number(m.nfxBalance || 0).toFixed(4)}" class="w-28 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-cyan-300 font-mono text-xs" /></td>
-          <td class="py-2.5 px-3 text-right"><button type="button" onclick="adminSaveCloudMemberEdit('${m.uid}')" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] cursor-pointer">Save &amp; Sync</button></td>
-        </tr>
-      `).join("");
-    };
-
-    // Attach listener if member is already registered on load or opened via ?uid=
-    const initUid = new URLSearchParams(window.location.search).get('uid') || state.user.memberId;
-    if (initUid) {
-      attachMemberCloudListener(initUid);
-      settleDueDailyPlanPayouts();
-    }
+    });
   </script>
+
+
+<script>
+(function() {
+  function generateDistinctRefCode(uidStr) {
+    const cleanUid = String(uidStr || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let attempt = 0; attempt < 30; attempt++) {
+      code = "REF";
+      for (let i = 0; i < 6; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+      }
+      if (code !== cleanUid && !cleanUid.endsWith(code)) return code;
+    }
+    return "REF" + String(Math.floor(100000 + Math.random() * 899999));
+  }
+
+  function ensureSeparateUidAndReferralCode() {
+    if (typeof state === "undefined" || !state.user) return;
+    if (state.user.memberId && !state.user.uid) {
+      state.user.uid = state.user.memberId;
+    }
+    const uidVal = String(state.user.memberId || state.user.uid || "").trim().toUpperCase();
+    const curRef = String(state.user.referralCode || "").trim().toUpperCase();
+    if (!curRef || curRef === uidVal || curRef === uidVal.replace(/^NFX-/, "")) {
+      state.user.referralCode = generateDistinctRefCode(uidVal);
+    }
+  }
+
+  function updateSeparateUidAndRefLinks() {
+    ensureSeparateUidAndReferralCode();
+    if (typeof state === "undefined" || !state.user || !state.user.registered) return;
+    const uidVal = state.user.memberId || "";
+    const refCodeVal = state.user.referralCode || generateDistinctRefCode(uidVal);
+    const baseUrl = window.location.origin + window.location.pathname;
+    const refLinkVal = `${baseUrl}?ref=${encodeURIComponent(refCodeVal)}`;
+
+    const uidEl = document.getElementById("member-id-label");
+    if (uidEl && uidVal) uidEl.textContent = uidVal;
+
+    // Insert or update a dedicated Referral Code box right alongside Referral Link
+    const refLinkEl = document.getElementById("member-referral-link");
+    if (refLinkEl) {
+      refLinkEl.textContent = refLinkVal;
+      const parentBox = refLinkEl.closest(".p-3");
+      if (parentBox && !document.getElementById("member-separate-ref-code")) {
+        const codeRow = document.createElement("div");
+        codeRow.className = "flex items-center justify-between gap-2 pb-1.5 mb-1.5 border-b border-slate-800";
+        codeRow.innerHTML = `
+          <span class="text-[11px] text-amber-300 font-bold">Referral Code: <strong id="member-separate-ref-code" class="text-white">${refCodeVal}</strong></span>
+          <button type="button" onclick="copyTextValue('member-separate-ref-code', 'Referral Code copied!')" class="px-2 py-0.5 rounded bg-amber-400/20 hover:bg-amber-400/35 text-amber-200 border border-amber-400/50 font-sans font-bold text-[10px] cursor-pointer">Copy Code</button>
+        `;
+        parentBox.insertBefore(codeRow, parentBox.firstChild);
+      } else {
+        const codeTextEl = document.getElementById("member-separate-ref-code");
+        if (codeTextEl) codeTextEl.textContent = refCodeVal;
+      }
+    }
+  }
+
+  // Multi-timeframe support ('1s', '1m', '1h', '1d', '1w') for all tokens
+  const origChangeTf = window.changeTimeframe;
+  window.changeTimeframe = function(tf, btn) {
+    if (typeof state !== "undefined") state.timeframe = tf;
+    document.querySelectorAll(".tf-pill").forEach(b => {
+      b.classList.remove("bg-cyan-500/25", "text-cyan-300", "font-bold");
+      b.classList.add("bg-slate-800", "text-slate-400");
+    });
+    if (btn) {
+      btn.classList.remove("bg-slate-800", "text-slate-400");
+      btn.classList.add("bg-cyan-500/25", "text-cyan-300", "font-bold");
+    }
+    const tfScaleMap = { "1s": 0.008, "1m": 0.025, "1h": 0.06, "1d": 0.14, "1w": 0.28 };
+    const spread = tfScaleMap[tf] || 0.012;
+    if (typeof state !== "undefined" && typeof window.candleData !== "undefined") {
+      const base = (state.markets && state.markets[state.selectedPair] && state.markets[state.selectedPair].price) || (state.token && state.token.price) || 1.25;
+      window.candleData = [];
+      let cur = base * (1 - spread);
+      for (let i = 0; i < 42; i++) {
+        const vol = base * spread;
+        const o = cur;
+        const c = i === 41 ? base : o + (Math.random() - 0.47) * vol;
+        window.candleData.push({ o, c, h: Math.max(o, c) + Math.random() * vol * 0.4, l: Math.min(o, c) - Math.random() * vol * 0.4 });
+        cur = c;
+      }
+      if (typeof resizeCanvas === "function") resizeCanvas();
+      if (typeof drawMarketMiniChart === "function") drawMarketMiniChart();
+    } else if (typeof origChangeTf === "function") {
+      origChangeTf(tf, btn);
+    }
+  };
+
+  // Add Low-to-High / High-to-Low sort selector to NFT Marketplace while preserving tiers
+  window.addEventListener("DOMContentLoaded", () => {
+    state.nftSortOrder = state.nftSortOrder || "LOW_TO_HIGH";
+    const nftTierSel = document.getElementById("nft-tier-select");
+    if (nftTierSel && nftTierSel.parentElement && !document.getElementById("nft-price-sort-select")) {
+      const wrap = document.createElement("div");
+      wrap.className = "flex items-center gap-2";
+      wrap.innerHTML = `
+        <label for="nft-price-sort-select" class="text-xs font-bold text-slate-300">Sort:</label>
+        <select id="nft-price-sort-select" onchange="state.nftSortOrder=this.value; renderNftGrid();" class="px-3 py-2 rounded-xl bg-slate-950 border border-purple-400/60 text-xs font-bold text-purple-200 focus:outline-none cursor-pointer">
+          <option value="LOW_TO_HIGH" selected>Low to High</option>
+          <option value="HIGH_TO_LOW">High to Low</option>
+        </select>
+      `;
+      nftTierSel.parentElement.parentElement.insertBefore(wrap, nftTierSel.parentElement.nextSibling);
+    }
+
+    const origRenderNft = window.renderNftGrid;
+    if (typeof origRenderNft === "function") {
+      window.renderNftGrid = function() {
+        const filtered = state.nftTierFilter === "ALL"
+          ? [...state.nfts]
+          : state.nfts.filter(n => n.tier === state.nftTierFilter);
+        filtered.sort((a, b) => (state.nftSortOrder === "HIGH_TO_LOW" ? (b.price - a.price) : (a.price - b.price)));
+        const gridEl = document.getElementById("nft-grid");
+        if (gridEl) {
+          gridEl.innerHTML = filtered.map(n => `
+            <div class="cyber-panel rounded-2xl overflow-hidden flex flex-col justify-between border border-slate-800 hover:border-purple-400/60 transition">
+              <div class="h-28 bg-gradient-to-br ${n.color} p-3.5 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded bg-slate-950/75 text-[10px] font-bold text-white">${n.market}</span>
+                  <span class="px-2 py-0.5 rounded bg-slate-950/75 text-[10px] font-mono text-cyan-300">${n.tier}</span>
+                </div>
+                <span class="font-display font-black text-white text-sm">#${n.id}</span>
+              </div>
+              <div class="p-4 space-y-2.5">
+                <h4 class="font-bold text-sm text-white">${n.name}</h4>
+                <div class="flex justify-between font-mono text-xs">
+                  <span class="text-slate-400">Invest Price</span>
+                  <span class="text-emerald-400 font-extrabold">$${n.price.toLocaleString()} USDT</span>
+                </div>
+                <button onclick="buyNftItem(${n.id})" class="w-full py-2 rounded-xl bg-purple-500/25 hover:bg-purple-500 text-purple-200 hover:text-white border border-purple-400/50 font-bold text-xs cursor-pointer">
+                  Buy NFT ($${n.price})
+                </button>
+              </div>
+            </div>
+          `).join("");
+        }
+      };
+    }
+
+    // Handle incoming ?ref= link to auto-register referral in 3-Level Team
+    const params = new URLSearchParams(window.location.search);
+    const refParam = params.get("ref");
+    if (refParam && Array.isArray(state.teamMembers)) {
+      const cleanRefUid = "REF-" + String(refParam).trim().toUpperCase().slice(0, 8);
+      if (!state.teamMembers.some(m => m.uid === cleanRefUid)) {
+        state.teamMembers.unshift({
+          uid: cleanRefUid,
+          level: 1,
+          investUsd: 0,
+          active: false,
+          bonusUsd: 0
+        });
+        if (typeof renderTeamHub === "function") renderTeamHub();
+      }
+    }
+
+    // Keep UID and Referral Code distinct on registration, sign-in, and UI sync
+    const origSyncUI = window.syncUI;
+    if (typeof origSyncUI === "function") {
+      window.syncUI = function() {
+        origSyncUI();
+        updateSeparateUidAndRefLinks();
+        if (typeof refreshWalletConnectCards === "function") refreshWalletConnectCards();
+      };
+    }
+    setTimeout(updateSeparateUidAndRefLinks, 150);
+  });
+})();
+</script>
 
 </body>
 </html>
