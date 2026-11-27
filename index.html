@@ -1040,6 +1040,24 @@
                       <button onclick="adminUpdateVaultAddress()" class="px-3.5 py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-[11px] uppercase cursor-pointer shrink-0">Save Address</button>
                     </div>
                   </div>
+                  <div class="space-y-2 pt-2 border-t border-slate-800">
+                    <label class="block text-[10px] font-bold uppercase text-cyan-300">Chain Deposit Addresses / Links (BEP-20, TRC-20, Ethereum — Syncs to All Members)</label>
+                    <div>
+                      <span class="text-[10px] font-mono text-amber-300 block mb-0.5">BEP-20 (BNB Smart Chain) Address / Link</span>
+                      <input type="text" id="admin-chain-bep20-inp" placeholder="BEP-20 deposit address or link" class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/40 font-mono text-[11px] text-amber-200" />
+                    </div>
+                    <div>
+                      <span class="text-[10px] font-mono text-rose-300 block mb-0.5">TRC-20 (TRON) Address / Link</span>
+                      <input type="text" id="admin-chain-trc20-inp" placeholder="TRC-20 deposit address or link" class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-rose-500/40 font-mono text-[11px] text-rose-200" />
+                    </div>
+                    <div class="flex gap-2 items-end">
+                      <div class="flex-1">
+                        <span class="text-[10px] font-mono text-indigo-300 block mb-0.5">Ethereum (ERC-20) Address / Link</span>
+                        <input type="text" id="admin-chain-erc20-inp" placeholder="Ethereum deposit address or link" class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-indigo-500/40 font-mono text-[11px] text-indigo-200" />
+                      </div>
+                      <button type="button" onclick="adminSaveChainDepositAddresses()" class="px-3.5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black text-[11px] uppercase cursor-pointer shrink-0">Save Chains</button>
+                    </div>
+                  </div>
 
                   <div class="space-y-2 pt-2 border-t border-slate-800">
                     <label class="block text-[10px] font-bold uppercase text-cyan-300">Telegram Channel &amp; Support Team Links (Syncs to All Members)</label>
@@ -1360,6 +1378,13 @@
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">Deposit Amount</label>
               <input type="number" step="0.01" id="dep-val" value="500" min="5" required class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-sm text-white" />
+              <div id="member-chain-deposit-box" class="mt-2.5 p-3 rounded-xl bg-slate-950 border border-cyan-400/50 space-y-1.5 font-mono text-xs">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[10px] font-sans font-bold uppercase text-cyan-300">Deposit Address (<span id="dep-selected-chain-label">BNB Smart Chain (BEP-20)</span>)</span>
+                  <button type="button" onclick="copySelectedChainDepositAddress()" class="px-2.5 py-1 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-sans font-black text-[10px] uppercase cursor-pointer shrink-0">Copy</button>
+                </div>
+                <div id="dep-chain-address-text" class="text-[11px] text-amber-200 break-all select-all">0x9F8c42B91eD04A8c771B920E7E4A6B2000884920</div>
+              </div>
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">Account Password</label>
@@ -5613,6 +5638,172 @@
       } catch (_) {}
     }
   };
+})();
+</script>
+
+
+<script>
+(function() {
+  const DEFAULT_CHAIN_ADDRS = {
+    BEP20: "0x9F8c42B91eD04A8c771B920E7E4A6B2000884920",
+    TRC20: "TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL",
+    ERC20: "0x9F8c42B91eD04A8c771B920E7E4A6B2000884920"
+  };
+
+  function ensureChainAddressesState() {
+    if (typeof state === "undefined") return DEFAULT_CHAIN_ADDRS;
+    if (!state.token) state.token = {};
+    const fallbackBase = state.token.vaultAddress || DEFAULT_CHAIN_ADDRS.BEP20;
+    if (!state.token.chainAddresses || typeof state.token.chainAddresses !== "object") {
+      state.token.chainAddresses = {
+        BEP20: fallbackBase,
+        TRC20: DEFAULT_CHAIN_ADDRS.TRC20,
+        ERC20: fallbackBase
+      };
+    } else {
+      state.token.chainAddresses.BEP20 = state.token.chainAddresses.BEP20 || fallbackBase;
+      state.token.chainAddresses.TRC20 = state.token.chainAddresses.TRC20 || DEFAULT_CHAIN_ADDRS.TRC20;
+      state.token.chainAddresses.ERC20 = state.token.chainAddresses.ERC20 || fallbackBase;
+    }
+    return state.token.chainAddresses;
+  }
+
+  function mapChainSelectionToKey(chainLabel) {
+    const low = String(chainLabel || "").toLowerCase();
+    if (low.includes("tron") || low.includes("trc-20") || low.includes("trc20")) return "TRC20";
+    if (low.includes("ethereum") || low.includes("erc-20") || low.includes("erc20") || low.includes("eth")) return "ERC20";
+    return "BEP20";
+  }
+
+  window.getActiveChainDepositAddress = function(chainLabel) {
+    const addrs = ensureChainAddressesState();
+    const selChain = chainLabel || document.getElementById("dep-net")?.value || "BNB Smart Chain (BEP-20)";
+    const key = mapChainSelectionToKey(selChain);
+    return addrs[key] || state.token.vaultAddress || DEFAULT_CHAIN_ADDRS.BEP20;
+  };
+
+  window.refreshMemberChainDepositBox = function() {
+    const addrs = ensureChainAddressesState();
+    const chainSel = document.getElementById("dep-net");
+    const chainVal = chainSel?.value || "BNB Smart Chain (BEP-20)";
+    const key = mapChainSelectionToKey(chainVal);
+    const addr = addrs[key] || state.token.vaultAddress || DEFAULT_CHAIN_ADDRS.BEP20;
+
+    const lblEl = document.getElementById("dep-selected-chain-label");
+    const txtEl = document.getElementById("dep-chain-address-text");
+    if (lblEl) lblEl.textContent = chainVal;
+    if (txtEl) txtEl.textContent = addr;
+
+    if (typeof state !== "undefined" && state.token) {
+      state.token.vaultAddress = addr;
+    }
+    const gwVaultEl = document.getElementById("gw-vault-addr-display");
+    if (gwVaultEl) gwVaultEl.textContent = addr;
+  };
+
+  window.copySelectedChainDepositAddress = function() {
+    const addr = window.getActiveChainDepositAddress();
+    const chainVal = document.getElementById("dep-net")?.value || "BEP-20";
+    const ta = document.createElement("textarea");
+    ta.value = addr;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Deposit Address Copied!", `${chainVal} address copied: ${addr}`);
+    } else if (typeof notify === "function") {
+      notify("Deposit Address Copied!", `${chainVal} address copied.`);
+    }
+  };
+
+  function hydrateAdminChainInputs() {
+    const addrs = ensureChainAddressesState();
+    const bepInp = document.getElementById("admin-chain-bep20-inp");
+    const trcInp = document.getElementById("admin-chain-trc20-inp");
+    const ercInp = document.getElementById("admin-chain-erc20-inp");
+    if (bepInp && document.activeElement !== bepInp) bepInp.value = addrs.BEP20 || "";
+    if (trcInp && document.activeElement !== trcInp) trcInp.value = addrs.TRC20 || "";
+    if (ercInp && document.activeElement !== ercInp) ercInp.value = addrs.ERC20 || "";
+  }
+
+  window.adminSaveChainDepositAddresses = function() {
+    const addrs = ensureChainAddressesState();
+    const bepVal = (document.getElementById("admin-chain-bep20-inp")?.value || "").trim();
+    const trcVal = (document.getElementById("admin-chain-trc20-inp")?.value || "").trim();
+    const ercVal = (document.getElementById("admin-chain-erc20-inp")?.value || "").trim();
+
+    if (bepVal) addrs.BEP20 = bepVal;
+    if (trcVal) addrs.TRC20 = trcVal;
+    if (ercVal) addrs.ERC20 = ercVal;
+
+    if (bepVal && typeof state !== "undefined" && state.token) {
+      state.token.vaultAddress = bepVal;
+      const vaultInp = document.getElementById("admin-vault-addr-inp");
+      if (vaultInp) vaultInp.value = bepVal;
+    }
+
+    window.refreshMemberChainDepositBox();
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Chain Addresses Synced!", "BEP-20, TRC-20 & Ethereum deposit addresses/links saved for all members.");
+    }
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    ensureChainAddressesState();
+    hydrateAdminChainInputs();
+    window.refreshMemberChainDepositBox();
+
+    const chainSel = document.getElementById("dep-net");
+    if (chainSel) {
+      chainSel.addEventListener("change", window.refreshMemberChainDepositBox);
+    }
+
+    const origSync = window.syncUI;
+    if (typeof origSync === "function") {
+      window.syncUI = function() {
+        origSync.apply(this, arguments);
+        hydrateAdminChainInputs();
+        window.refreshMemberChainDepositBox();
+      };
+    }
+
+    const origPersist = window.persistSharedState;
+    if (typeof origPersist === "function") {
+      window.persistSharedState = function() {
+        origPersist.apply(this, arguments);
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw && typeof state !== "undefined" && state.token && state.token.chainAddresses) {
+            const snap = JSON.parse(raw);
+            snap.token = snap.token || {};
+            snap.token.chainAddresses = state.token.chainAddresses;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(snap));
+          }
+        } catch (_) {}
+      };
+    }
+
+    const origLoad = window.loadSharedState;
+    if (typeof origLoad === "function") {
+      window.loadSharedState = function() {
+        origLoad.apply(this, arguments);
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw && typeof state !== "undefined" && state.token) {
+            const snap = JSON.parse(raw);
+            if (snap.token && snap.token.chainAddresses) {
+              state.token.chainAddresses = { ...ensureChainAddressesState(), ...snap.token.chainAddresses };
+            }
+          }
+        } catch (_) {}
+        hydrateAdminChainInputs();
+        window.refreshMemberChainDepositBox();
+      };
+    }
+  });
 })();
 </script>
 
