@@ -330,6 +330,11 @@
                 </div>
 
                 
+                
+                <button type="button" onclick="openTermsAndPolicyModal()" class="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/60 text-amber-200 text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                  <span>Terms &amp; Policy</span>
+                </button>
+
                 <button type="button" onclick="openMemberNotificationsModal()" class="relative px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-cyan-500/20 border border-cyan-400/60 text-cyan-200 text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer" title="Notifications">
                   <span>🔔</span>
                   <span class="hidden sm:inline">Alerts</span>
@@ -1154,7 +1159,7 @@
                 <h3 id="member-name-label" class="text-lg font-black text-white">@Member</h3>
                 <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">2FA VERIFIED ✓</span>
               </div>
-              <p class="text-xs font-mono text-cyan-300 mt-0.5">Member UID: <strong id="member-id-label">NFX-884920</strong> • External Wallet: <strong id="member-wallet-label" class="text-amber-300">Not Connected</strong></p>
+              <p class="text-xs font-mono text-cyan-300 mt-0.5">Member UID: <strong id="member-id-label">NFX-884920</strong> <button type="button" onclick="copyMemberUidAction()" class="ml-1.5 px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/50 text-cyan-200 font-sans font-bold text-[10px] cursor-pointer">Copy UID</button> • External Wallet: <strong id="member-wallet-label" class="text-amber-300">Not Connected</strong></p>
             </div>
             <div class="text-right font-mono">
               <span class="text-[10px] uppercase text-slate-400 block">Total Wallet Portfolio Value</span>
@@ -1393,7 +1398,21 @@
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">Destination Wallet Address</label>
-              <input type="text" id="wd-dest" required value="0x71C948B20E4F1A9A4E" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-xs text-cyan-300" />
+              
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <span class="text-[10px] text-amber-300 font-bold">Saved Withdraw Address: <strong id="saved-wd-addr-display" class="text-white">None Saved</strong></span>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="autofillWithdrawAddressFromConnected()" class="px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-200 border border-cyan-400/50 text-[10px] font-bold cursor-pointer">Auto-Fill Wallet</button>
+                  <button type="button" onclick="saveCurrentWithdrawAddress()" class="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-200 border border-emerald-400/50 text-[10px] font-bold cursor-pointer">Save Address</button>
+                </div>
+              </div>
+              <input type="text" id="wd-dest" required value="0x71C948B20E4F1A9A4E" oninput="updateWithdrawFeeBreakdown()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 font-mono text-xs text-cyan-300" />
+              <div id="wd-fee-breakdown-box" class="p-2.5 rounded-xl bg-slate-900 border border-amber-500/35 font-mono text-[11px] space-y-1 mt-2">
+                <div class="flex justify-between"><span class="text-slate-400">Withdrawal Amount:</span><span id="wd-prev-amt" class="text-white font-bold">100.00 USDT</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Charge Fee (7%):</span><span id="wd-prev-fee" class="text-rose-400 font-bold">-7.0000 USDT</span></div>
+                <div class="flex justify-between border-t border-slate-800 pt-1"><span class="text-slate-300 font-bold">You Will Receive:</span><span id="wd-prev-net" class="text-emerald-400 font-black">93.0000 USDT</span></div>
+              </div>
+
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">Account Password</label>
@@ -5112,6 +5131,389 @@
         origSync.apply(this, arguments);
         updateBellBadges();
         checkAndRenderPermanentScreenNotice();
+      };
+    }
+  });
+})();
+</script>
+
+
+  <!-- TERMS & RISK POLICY MODAL (THEME SWITCH + NO 100% PROFIT GUARANTEE WARNING) -->
+  <div id="terms-policy-modal" class="hidden fixed inset-0 z-[190] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-2xl w-full cyber-panel border-2 border-amber-400/70 rounded-3xl p-6 space-y-4 my-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase">Official Platform Terms &amp; Risk Disclosure</span>
+          <h3 class="text-lg font-black text-white mt-0.5">Terms, Theme &amp; Risk Policy</h3>
+        </div>
+        <button type="button" onclick="document.getElementById('terms-policy-modal').classList.add('hidden')" class="p-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">✕</button>
+      </div>
+
+      <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+        <div>
+          <span class="font-bold text-white block">Terminal Theme Mode</span>
+          <span class="text-[11px] text-slate-400">Switch between Cyber Neon Dark and Midnight Slate</span>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" onclick="applyExchangeTheme('CYBER')" id="theme-btn-cyber" class="px-3 py-1.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs cursor-pointer">Cyber Neon</button>
+          <button type="button" onclick="applyExchangeTheme('SLATE')" id="theme-btn-slate" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 font-bold text-xs cursor-pointer">Midnight Slate</button>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/40 space-y-2.5 text-xs text-slate-200 leading-relaxed max-h-[55vh] overflow-y-auto">
+        <p class="font-extrabold text-rose-300 text-sm">⚠️ Strict Risk Warning — No 100% Profit Guarantee</p>
+        <p><strong>1. No 100% Guarantee:</strong> There is <strong>no 100% guarantee</strong> of profit, return, or earnings anywhere on this platform. Crypto trading, token swaps, NFTs, and market activity involve market risk and volatility.</p>
+        <p><strong>2. Profit &amp; Loss Can Happen:</strong> In trading and investment activity, <strong>both profit (লাভ) and loss (লস) can happen at any time</strong>. Never assume 100% profit or guaranteed returns.</p>
+        <p><strong>3. Capital &amp; Fee Responsibility:</strong> Only use funds you can afford to risk. Network/platform charges (including up to 7% withdrawal fee where applicable) and blockchain confirmations apply per platform rules.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  // Golden NFX Token SVG Emblem (matches golden NFX coin emblem)
+  const NFX_GOLD_LOGO_SVG = `
+    <svg class="w-6 h-6 shrink-0 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.5)]" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="17" fill="url(#nfxGoldCoin)" stroke="#FDE68A" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="13.5" stroke="#78350F" stroke-width="1" stroke-dasharray="2 2"/>
+      <text x="18" y="22" text-anchor="middle" fill="#1E1B08" font-family="Orbitron, sans-serif" font-weight="900" font-size="9.5">NFX</text>
+      <defs>
+        <linearGradient id="nfxGoldCoin" x1="2" y1="2" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#FDE047"/><stop offset="0.5" stop-color="#F59E0B"/><stop offset="1" stop-color="#B45309"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  `;
+
+  function getWalletBadgeHtml(wName) {
+    const map = {
+      "SafePal": { bg: "bg-indigo-500/20 text-indigo-300 border-indigo-400/50", code: "SP" },
+      "Trust Wallet": { bg: "bg-sky-500/20 text-sky-300 border-sky-400/50", code: "TW" },
+      "Binance Wallet": { bg: "bg-amber-500/20 text-amber-300 border-amber-400/50", code: "BN" },
+      "OKX Wallet": { bg: "bg-slate-200/15 text-white border-slate-400/50", code: "OKX" },
+      "Bybit Wallet": { bg: "bg-orange-500/20 text-orange-300 border-orange-400/50", code: "BB" },
+      "Bitget Wallet": { bg: "bg-teal-500/20 text-teal-300 border-teal-400/50", code: "BG" },
+      "MetaMask": { bg: "bg-amber-600/20 text-amber-200 border-amber-500/50", code: "MM" },
+      "Coinbase Wallet": { bg: "bg-blue-500/20 text-blue-300 border-blue-400/50", code: "CB" },
+      "Phantom": { bg: "bg-purple-500/20 text-purple-300 border-purple-400/50", code: "PH" }
+    };
+    const m = map[wName] || { bg: "bg-cyan-500/20 text-cyan-300 border-cyan-400/50", code: "W" };
+    return `<span class="w-6 h-6 rounded-lg border ${m.bg} font-mono text-[9px] font-black flex items-center justify-center shrink-0">${m.code}</span>`;
+  }
+
+  function getTokenLogoHtml(sym) {
+    const u = String(sym || "").toUpperCase();
+    if (u === "NFX") return NFX_GOLD_LOGO_SVG;
+    const colors = {
+      "BTC": "bg-amber-500/20 text-amber-300 border-amber-400/50",
+      "ETH": "bg-indigo-500/20 text-indigo-300 border-indigo-400/50",
+      "BNB": "bg-yellow-500/20 text-yellow-300 border-yellow-400/50",
+      "USDT": "bg-emerald-500/20 text-emerald-300 border-emerald-400/50",
+      "SOL": "bg-purple-500/20 text-purple-300 border-purple-400/50",
+      "XRP": "bg-cyan-500/20 text-cyan-300 border-cyan-400/50"
+    };
+    const cls = colors[u] || "bg-slate-800 text-cyan-200 border-slate-700";
+    return `<span class="w-6 h-6 rounded-full border ${cls} font-mono text-[9px] font-extrabold flex items-center justify-center shrink-0">${u.slice(0, 3)}</span>`;
+  }
+
+  window.copyMemberUidAction = function() {
+    if (typeof state === "undefined" || !state.user || !state.user.memberId) return;
+    const uid = state.user.memberId;
+    const ta = document.createElement("textarea");
+    ta.value = uid;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("UID Copied!", `Copied Member UID: ${uid}`);
+    } else if (typeof notify === "function") {
+      notify("UID Copied!", `Copied Member UID: ${uid}`);
+    }
+  };
+
+  window.openTermsAndPolicyModal = function() {
+    const m = document.getElementById("terms-policy-modal");
+    if (m) m.classList.remove("hidden");
+  };
+
+  window.applyExchangeTheme = function(mode) {
+    if (typeof state !== "undefined") state.themeMode = mode;
+    const body = document.body;
+    const bCyber = document.getElementById("theme-btn-cyber");
+    const bSlate = document.getElementById("theme-btn-slate");
+    if (mode === "SLATE") {
+      body.style.backgroundColor = "#070b12";
+      body.style.backgroundImage = "radial-gradient(circle at 50% 35%, rgba(148, 163, 184, 0.10) 0%, rgba(7, 11, 18, 0.98) 70%)";
+      if (bSlate) bSlate.className = "px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs cursor-pointer";
+      if (bCyber) bCyber.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 font-bold text-xs cursor-pointer";
+    } else {
+      body.style.backgroundColor = "#03070d";
+      body.style.backgroundImage = "radial-gradient(circle at 50% 45%, rgba(0, 210, 255, 0.14) 0%, rgba(4, 11, 22, 0.96) 62%, #02050a 100%)";
+      if (bCyber) bCyber.className = "px-3 py-1.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs cursor-pointer";
+      if (bSlate) bSlate.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 font-bold text-xs cursor-pointer";
+    }
+    if (typeof persistSharedState === "function") persistSharedState();
+  };
+
+  function refreshSavedWithdrawAddressUI() {
+    if (typeof state === "undefined" || !state.user) return;
+    const saved = String(state.user.savedWithdrawAddress || "").trim();
+    const disp = document.getElementById("saved-wd-addr-display");
+    if (disp) disp.textContent = saved || "None Saved";
+  }
+
+  window.saveCurrentWithdrawAddress = function() {
+    if (typeof state === "undefined" || !state.user) return;
+    const inp = document.getElementById("wd-dest");
+    const addr = (inp?.value || "").trim();
+    if (!addr || addr.length < 6) {
+      if (typeof triggerSystemPopup === "function") triggerSystemPopup("Invalid Address", "Enter a valid withdrawal address first.", "error");
+      return;
+    }
+    state.user.savedWithdrawAddress = addr;
+    refreshSavedWithdrawAddressUI();
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Withdraw Address Saved!", `Saved ${addr} — you can edit or replace it anytime before withdrawing.`);
+    }
+  };
+
+  window.autofillWithdrawAddressFromConnected = function() {
+    if (typeof state === "undefined" || !state.user) return;
+    const candidate = String(state.user.savedWithdrawAddress || state.user.extAddress || "").trim();
+    const inp = document.getElementById("wd-dest");
+    if (inp && candidate) {
+      inp.value = candidate;
+      updateWithdrawFeeBreakdown();
+      if (typeof triggerSystemPopup === "function") {
+        triggerSystemPopup("Address Auto-Filled", `Filled ${candidate} into Withdraw box.`);
+      }
+    }
+  };
+
+  window.updateWithdrawFeeBreakdown = function() {
+    const asset = document.getElementById("wd-coin")?.value || "USDT";
+    const rawAmt = parseFloat(document.getElementById("wd-val")?.value);
+    const amt = isNaN(rawAmt) ? 0 : Math.max(0, rawAmt);
+    const feePct = 7;
+    const feeAmt = +(amt * (feePct / 100)).toFixed(4);
+    const netAmt = +(amt - feeAmt).toFixed(4);
+
+    const aEl = document.getElementById("wd-prev-amt");
+    const fEl = document.getElementById("wd-prev-fee");
+    const nEl = document.getElementById("wd-prev-net");
+    if (aEl) aEl.textContent = `${amt.toFixed(2)} ${asset}`;
+    if (fEl) fEl.textContent = `-${feeAmt.toFixed(4)} ${asset} (7%)`;
+    if (nEl) nEl.textContent = `${netAmt.toFixed(4)} ${asset}`;
+  };
+
+  // Inject logos into wallet cards & NFX holdings
+  function enhanceWalletAndTokenVisuals() {
+    document.querySelectorAll('[id^="wcard-"]').forEach(btn => {
+      const wLabel = btn.querySelector("span.font-bold")?.textContent?.trim();
+      if (wLabel && !btn.querySelector(".w-logo-badge")) {
+        const logoWrap = document.createElement("span");
+        logoWrap.className = "w-logo-badge inline-flex items-center gap-1.5";
+        logoWrap.innerHTML = getWalletBadgeHtml(wLabel);
+        btn.insertBefore(logoWrap, btn.firstChild);
+      }
+    });
+
+    const holdingsPanel = document.getElementById("prof-panel-holdings");
+    if (holdingsPanel && !document.getElementById("nfx-gold-coin-hero")) {
+      const h5 = holdingsPanel.querySelector("h5");
+      if (h5) {
+        const badge = document.createElement("span");
+        badge.id = "nfx-gold-coin-hero";
+        badge.className = "inline-flex items-center gap-2 align-middle mr-2";
+        badge.innerHTML = NFX_GOLD_LOGO_SVG;
+        h5.parentElement.insertBefore(badge, h5);
+      }
+    }
+  }
+
+  // Add Search Box + SEARCH MEMBER button + per-field Edit & Save buttons inside Selected Member Profile Editor
+  function upgradeSelectedMemberEditorWithSearchAndRowButtons() {
+    const form = document.querySelector('#admin-member-control-suite form');
+    if (!form || document.getElementById("adm-editor-search-row")) return;
+
+    const searchRow = document.createElement("div");
+    searchRow.id = "adm-editor-search-row";
+    searchRow.className = "flex flex-wrap items-center gap-2 pb-3 border-b border-slate-800";
+    searchRow.innerHTML = `
+      <input type="text" id="adm-editor-lookup-inp" list="admin-member-uid-datalist" placeholder="Search Member by UID or Username..." class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl bg-slate-900 border border-cyan-400/60 font-mono text-xs text-white" />
+      <button type="button" onclick="adminLookupAndLoadMember()" class="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-sans font-black text-xs uppercase cursor-pointer shrink-0">SEARCH MEMBER</button>
+    `;
+    form.insertBefore(searchRow, form.children[1]);
+
+    // Add per-field Edit & Save buttons next to input/select fields inside the editor
+    const inputs = form.querySelectorAll("input:not([type='hidden']), select");
+    inputs.forEach(inp => {
+      if (inp.id === "adm-editor-lookup-inp") return;
+      if (inp.parentElement && inp.parentElement.dataset.rowEnhanced) return;
+      if (inp.parentElement) {
+        inp.parentElement.dataset.rowEnhanced = "1";
+        const rowFlex = document.createElement("div");
+        rowFlex.className = "flex items-center gap-1.5";
+        inp.parentNode.insertBefore(rowFlex, inp);
+        rowFlex.appendChild(inp);
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.textContent = "Edit";
+        editBtn.className = "px-2 py-1 rounded bg-slate-800 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-200 font-sans font-bold text-[10px] cursor-pointer shrink-0";
+        editBtn.onclick = () => {
+          inp.focus();
+          if (typeof inp.select === "function") inp.select();
+        };
+
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "button";
+        saveBtn.textContent = "Save";
+        saveBtn.className = "px-2 py-1 rounded bg-emerald-500/20 hover:bg-emerald-400 text-emerald-200 hover:text-slate-950 border border-emerald-400/50 font-sans font-bold text-[10px] cursor-pointer shrink-0";
+        saveBtn.onclick = () => {
+          if (typeof window.adminSaveSelectedMemberProfile === "function") {
+            window.adminSaveSelectedMemberProfile({ preventDefault: () => {}, target: form });
+          }
+        };
+
+        rowFlex.appendChild(editBtn);
+        rowFlex.appendChild(saveBtn);
+      }
+    });
+
+    // Add SEARCH HISTORY button next to bottom Transaction History search input
+    const txInp = document.getElementById("adm-tx-search-inp");
+    if (txInp && txInp.parentElement && !document.getElementById("adm-tx-search-btn")) {
+      const btn = document.createElement("button");
+      btn.id = "adm-tx-search-btn";
+      btn.type = "button";
+      btn.textContent = "SEARCH HISTORY";
+      btn.className = "px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-sans font-black text-xs uppercase cursor-pointer shrink-0";
+      btn.onclick = () => {
+        if (typeof window.renderAdminUnifiedTxHistory === "function") window.renderAdminUnifiedTxHistory();
+      };
+      txInp.parentElement.appendChild(btn);
+    }
+  }
+
+  // Universal Member Lookup across state, localStorage, and Firestore
+  window.adminLookupAndLoadMember = async function() {
+    const rawQ = (document.getElementById("adm-editor-lookup-inp")?.value || "").trim();
+    if (!rawQ) return;
+    const qLower = rawQ.toLowerCase().replace(/^@/, "");
+
+    let found = null;
+    if (typeof state !== "undefined") {
+      if (state.user && (String(state.user.memberId || "").toLowerCase() === qLower || String(state.user.username || "").toLowerCase() === qLower)) {
+        found = { ...state.user };
+      }
+    }
+
+    if (!found) {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith("nfx_account_") || k.startsWith("nfx_user_"))) {
+            const parsed = JSON.parse(localStorage.getItem(k) || "{}");
+            if (parsed && (String(parsed.memberId || "").toLowerCase() === qLower || String(parsed.username || "").toLowerCase() === qLower)) {
+              found = parsed;
+              break;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (!found && typeof window.fetchExchangeUserFromCloud === "function") {
+      found = await window.fetchExchangeUserFromCloud(rawQ);
+    }
+
+    if (found && found.memberId) {
+      const uid = String(found.memberId).toUpperCase();
+      localStorage.setItem(`nfx_account_${uid}`, JSON.stringify(found));
+      if (typeof window.renderAdminMemberDirectory === "function") window.renderAdminMemberDirectory();
+      if (typeof window.selectAdminMemberProfile === "function") window.selectAdminMemberProfile(uid);
+      if (typeof triggerSystemPopup === "function") {
+        triggerSystemPopup("Member Found!", `Loaded @${found.username || "Member"} (${uid}) into profile editor.`);
+      }
+    } else if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Not Found", `No member matched "${rawQ}" in local or cloud records.`, "error");
+    }
+  };
+
+  // Enhance Deposit table in Admin with Date/Time, From/To Address, Chain, TxHash & Approve/Reject buttons
+  function enhanceAdminDepositAuditRows() {
+    const depTbody = document.getElementById("admin-deposit-tbody");
+    if (!depTbody || typeof state === "undefined") return;
+    const deps = state.deposits || [];
+    if (!deps.length) return;
+
+    depTbody.innerHTML = deps.map(d => {
+      const isPending = d.status === "Pending Verification" || d.status === "Pending";
+      const dtStr = d.createdAt || d.timestamp || new Date().toLocaleString();
+      const fromAddr = d.fromWallet || d.extAddress || state.user.extAddress || "—";
+      const toAddr = d.depositAddress || state.token.vaultAddress || "—";
+      return `
+        <tr>
+          <td class="py-3 px-3">
+            <strong class="text-white">@${d.username || "Member"}</strong>
+            <span class="text-cyan-300 block text-[10px]">${d.memberId || ""}</span>
+            <span class="text-slate-400 block text-[10px]">${dtStr}</span>
+          </td>
+          <td class="py-3 px-3 text-[10px] space-y-0.5">
+            <div class="text-amber-300 font-bold">${d.wallet || "Wallet"}</div>
+            <div class="text-slate-400 truncate max-w-[140px]">From: ${fromAddr}</div>
+            <div class="text-cyan-300 truncate max-w-[140px]">To: ${toAddr}</div>
+          </td>
+          <td class="py-3 px-3 text-emerald-400 font-bold">${Number(d.amount || 0).toLocaleString()} ${d.asset || "USDT"} <span class="block text-[10px] text-slate-400">${d.chain || "BEP-20"}</span></td>
+          <td class="py-3 px-3 text-[11px] text-slate-300 max-w-[140px] truncate">${d.txHash || "—"}</td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${d.status === 'Verified' ? 'bg-emerald-500/20 text-emerald-300' : d.status === 'Rejected' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'}">${d.status || "Pending"}</span></td>
+          <td class="py-3 px-3 text-right whitespace-nowrap space-x-1">
+            ${isPending ? `
+              <button onclick="adminVerifyDeposit('${d.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[10px] cursor-pointer">Approve</button>
+              <button onclick="adminRejectDeposit('${d.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold text-[10px] cursor-pointer">Reject</button>
+            ` : `<span class="text-slate-500 text-[11px]">Settled</span>`}
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  window.adminRejectDeposit = function(id) {
+    if (typeof state === "undefined") return;
+    const dep = (state.deposits || []).find(x => x.id === id);
+    if (!dep) return;
+    dep.status = "Rejected";
+    if (typeof persistSharedState === "function") persistSharedState();
+    enhanceAdminDepositAuditRows();
+    if (typeof window.renderAdminUnifiedDepositPanel === "function") window.renderAdminUnifiedDepositPanel();
+    if (typeof triggerSystemPopup === "function") triggerSystemPopup("Deposit Rejected", `${id} marked Rejected.`, "error");
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    refreshSavedWithdrawAddressUI();
+    updateWithdrawFeeBreakdown();
+    enhanceWalletAndTokenVisuals();
+    upgradeSelectedMemberEditorWithSearchAndRowButtons();
+    enhanceAdminDepositAuditRows();
+
+    const origRenderAdmin = window.renderAdminTables;
+    if (typeof origRenderAdmin === "function") {
+      window.renderAdminTables = function() {
+        origRenderAdmin.apply(this, arguments);
+        upgradeSelectedMemberEditorWithSearchAndRowButtons();
+        enhanceAdminDepositAuditRows();
+      };
+    }
+
+    const origSync = window.syncUI;
+    if (typeof origSync === "function") {
+      window.syncUI = function() {
+        origSync.apply(this, arguments);
+        refreshSavedWithdrawAddressUI();
+        enhanceWalletAndTokenVisuals();
       };
     }
   });
