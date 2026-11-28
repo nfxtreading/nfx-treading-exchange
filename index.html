@@ -7036,5 +7036,852 @@
 })();
 </script>
 
+
+<script>
+(function() {
+  function ensureReferralHistoryState() {
+    if (typeof state === "undefined") return;
+    state.referralJoinHistory = Array.isArray(state.referralJoinHistory) ? state.referralJoinHistory : [];
+    state.teamMembers = Array.isArray(state.teamMembers) ? state.teamMembers : [];
+    if (!state.user) state.user = {};
+  }
+
+  function recordReferralJoinEntry(entry) {
+    ensureReferralHistoryState();
+    if (!entry || !entry.uid) return;
+    const cleanUid = String(entry.uid).trim().toUpperCase();
+    const cleanUser = String(entry.username || "Member").trim();
+    const cleanRefCode = String(entry.refCode || "").trim().toUpperCase();
+    const nowTime = entry.joinedAt || new Date().toLocaleString();
+
+    const existingIdx = state.referralJoinHistory.findIndex(r => String(r.uid).toUpperCase() === cleanUid);
+    const record = {
+      uid: cleanUid,
+      username: cleanUser,
+      refCode: cleanRefCode || "DIRECT",
+      level: Number(entry.level || 1),
+      active: Boolean(entry.active),
+      joinedAt: nowTime
+    };
+
+    if (existingIdx >= 0) {
+      state.referralJoinHistory[existingIdx] = {
+        ...state.referralJoinHistory[existingIdx],
+        ...record,
+        username: cleanUser !== "Member" ? cleanUser : state.referralJoinHistory[existingIdx].username,
+        refCode: cleanRefCode || state.referralJoinHistory[existingIdx].refCode
+      };
+    } else {
+      state.referralJoinHistory.unshift(record);
+    }
+
+    const tmIdx = state.teamMembers.findIndex(m => String(m.uid).toUpperCase() === cleanUid);
+    if (tmIdx >= 0) {
+      state.teamMembers[tmIdx].username = cleanUser;
+      state.teamMembers[tmIdx].refCode = record.refCode;
+      state.teamMembers[tmIdx].active = Boolean(entry.active || state.teamMembers[tmIdx].active);
+    } else {
+      state.teamMembers.unshift({
+        uid: cleanUid,
+        username: cleanUser,
+        refCode: record.refCode,
+        level: record.level,
+        investUsd: Number(entry.investUsd || 0),
+        active: Boolean(entry.active),
+        bonusUsd: Number(entry.bonusUsd || 0)
+      });
+    }
+  }
+
+  function injectReferralJoinHistoryUI() {
+    ensureReferralHistoryState();
+    const membersPage = document.getElementById("subpage-members");
+    if (!membersPage || document.getElementById("referral-join-history-card")) return;
+
+    const card = document.createElement("div");
+    card.id = "referral-join-history-card";
+    card.className = "cyber-panel rounded-2xl p-4 sm:p-5 border border-cyan-400/45 space-y-3";
+    card.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+        <div>
+          <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase">Referral Registration Log</span>
+          <h3 class="text-base font-extrabold text-white mt-0.5">Referral Join &amp; Registration History (UID &amp; Username)</h3>
+          <p class="text-[11px] text-slate-400">Shows every member who joined via referral code/link with their Member UID, Username, Referral Code, Join Time, and Active/Inactive status.</p>
+        </div>
+        <span class="font-mono text-xs text-cyan-300">Joined Count: <strong id="ref-join-history-count" class="text-white">0</strong></span>
+      </div>
+
+      <div class="overflow-x-auto max-h-64 overflow-y-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-900 text-slate-400 sticky top-0">
+            <tr>
+              <th class="py-2.5 px-3">#</th>
+              <th class="py-2.5 px-3">Member UID</th>
+              <th class="py-2.5 px-3">Username</th>
+              <th class="py-2.5 px-3">Referral Code</th>
+              <th class="py-2.5 px-3">Joined Time</th>
+              <th class="py-2.5 px-3 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody id="ref-join-history-tbody" class="divide-y divide-slate-800/70 bg-slate-950/70">
+            <tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No referral registrations recorded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    membersPage.appendChild(card);
+  }
+
+  window.renderReferralJoinHistoryTable = function() {
+    ensureReferralHistoryState();
+    injectReferralJoinHistoryUI();
+    const tbody = document.getElementById("ref-join-history-tbody");
+    const cntEl = document.getElementById("ref-join-history-count");
+    if (!tbody) return;
+
+    const rows = state.referralJoinHistory || [];
+    if (cntEl) cntEl.textContent = String(rows.length);
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No referral registrations recorded yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map((r, idx) => `
+      <tr>
+        <td class="py-2.5 px-3 text-slate-400">${idx + 1}</td>
+        <td class="py-2.5 px-3 font-bold text-cyan-300">${r.uid}</td>
+        <td class="py-2.5 px-3 font-bold text-white">@${String(r.username || "Member").replace(/^@/, "")}</td>
+        <td class="py-2.5 px-3 text-amber-300">${r.refCode || "DIRECT"}</td>
+        <td class="py-2.5 px-3 text-slate-300">${r.joinedAt || "-"}</td>
+        <td class="py-2.5 px-3 text-right">${r.active ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Active</span>' : '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">Inactive</span>'}</td>
+      </tr>
+    `).join("");
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    ensureReferralHistoryState();
+    injectReferralJoinHistoryUI();
+
+    const origCompleteReg = window.completeUserRegistration;
+    if (typeof origCompleteReg === "function") {
+      window.completeUserRegistration = async function(e) {
+        const res = await origCompleteReg.apply(this, arguments);
+        if (state.user && state.user.registered && state.user.memberId) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const refFromUrl = urlParams.get("ref") || state.user.referredBy || "DIRECT";
+          const hasActivity = Number(state.user.usdtBalance || 0) > 0 || Number(state.user.nfxBalance || 0) > 0 || (state.activePlans && state.activePlans.length > 0);
+          recordReferralJoinEntry({
+            uid: state.user.memberId,
+            username: state.user.username,
+            refCode: refFromUrl,
+            level: 1,
+            active: hasActivity,
+            joinedAt: new Date().toLocaleString()
+          });
+          if (typeof persistSharedState === "function") persistSharedState();
+          window.renderReferralJoinHistoryTable();
+          if (typeof refreshSeparateTeamAndMembersUI === "function") refreshSeparateTeamAndMembersUI();
+        }
+        return res;
+      };
+    }
+
+    const origAdd10 = window.addTenLevelTeamMember;
+    if (typeof origAdd10 === "function") {
+      window.addTenLevelTeamMember = function(e) {
+        const uidVal = (document.getElementById("sim10-uid")?.value || "").trim().toUpperCase();
+        const lvlVal = parseInt(document.getElementById("sim10-level")?.value || "1", 10);
+        const invVal = parseFloat(document.getElementById("sim10-invest")?.value) || 0;
+        const profVal = parseFloat(document.getElementById("sim10-daily-profit")?.value) || 0;
+        const res = origAdd10.apply(this, arguments);
+        if (uidVal) {
+          recordReferralJoinEntry({
+            uid: uidVal,
+            username: uidVal.replace(/^NFX-/, "User_"),
+            refCode: state.user.referralCode || "REF-CODE",
+            level: lvlVal,
+            active: invVal > 0 || profVal > 0,
+            investUsd: invVal,
+            joinedAt: new Date().toLocaleString()
+          });
+          if (typeof persistSharedState === "function") persistSharedState();
+          window.renderReferralJoinHistoryTable();
+        }
+        return res;
+      };
+    }
+
+    const origPersist = window.persistSharedState;
+    if (typeof origPersist === "function") {
+      window.persistSharedState = function() {
+        origPersist.apply(this, arguments);
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw && typeof state !== "undefined") {
+            const snap = JSON.parse(raw);
+            snap.referralJoinHistory = state.referralJoinHistory || [];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(snap));
+          }
+        } catch (_) {}
+      };
+    }
+
+    const origLoad = window.loadSharedState;
+    if (typeof origLoad === "function") {
+      window.loadSharedState = function() {
+        origLoad.apply(this, arguments);
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw && typeof state !== "undefined") {
+            const snap = JSON.parse(raw);
+            if (Array.isArray(snap.referralJoinHistory)) {
+              state.referralJoinHistory = snap.referralJoinHistory;
+            }
+          }
+        } catch (_) {}
+        window.renderReferralJoinHistoryTable();
+      };
+    }
+
+    const origRefreshMembers = window.refreshSeparateTeamAndMembersUI;
+    if (typeof origRefreshMembers === "function") {
+      window.refreshSeparateTeamAndMembersUI = function() {
+        origRefreshMembers.apply(this, arguments);
+        window.renderReferralJoinHistoryTable();
+      };
+    }
+
+    window.renderReferralJoinHistoryTable();
+  });
+})();
+</script>
+
+
+<script>
+(function() {
+  // =========================================================================
+  // 1. UNIFIED MEMBER & REFERRAL CHAIN STORE + AUTO-CALCULATE PRESERVATION
+  // =========================================================================
+  function ensureFullChainAndAuditState() {
+    if (typeof state === "undefined") return;
+    state.referralJoinHistory = Array.isArray(state.referralJoinHistory) ? state.referralJoinHistory : [];
+    state.teamMembers = Array.isArray(state.teamMembers) ? state.teamMembers : [];
+    state.withdrawals = Array.isArray(state.withdrawals) ? state.withdrawals : [];
+    state.deposits = Array.isArray(state.deposits) ? state.deposits : [];
+    state.activePlans = Array.isArray(state.activePlans) ? state.activePlans : [];
+    if (!state.user) state.user = {};
+    if (!state.token) state.token = {};
+    state.levelChainFilter = state.levelChainFilter || "ALL";
+  }
+
+  function getChainRateForLevel(lvl) {
+    const n = parseInt(lvl, 10);
+    if (n >= 1 && n <= 10) return 11 - n; // L1=10%, L2=9%, ..., L10=1%
+    return 0;
+  }
+
+  function upsertMemberIntoRegistry(memberObj) {
+    if (!memberObj || !memberObj.memberId) return;
+    const uid = String(memberObj.memberId).trim().toUpperCase();
+    const uname = String(memberObj.username || "Member").trim().replace(/^@/, "");
+    const existingRaw = localStorage.getItem(`nfx_account_${uid}`);
+    const prev = existingRaw ? JSON.parse(existingRaw) : {};
+
+    const merged = {
+      ...prev,
+      ...memberObj,
+      registered: true,
+      memberId: uid,
+      username: uname || prev.username || "Member",
+      withdrawalFeePct: Math.min(7, Math.max(0, Number(memberObj.withdrawalFeePct ?? prev.withdrawalFeePct ?? 7))),
+      usdtBalance: Number(memberObj.usdtBalance ?? prev.usdtBalance ?? 0),
+      bnbBalance: Number(memberObj.bnbBalance ?? prev.bnbBalance ?? 0),
+      nfxBalance: Number(memberObj.nfxBalance ?? prev.nfxBalance ?? 0)
+    };
+
+    localStorage.setItem(`nfx_account_${uid}`, JSON.stringify(merged));
+    if (merged.username) {
+      localStorage.setItem(`nfx_user_${merged.username.toLowerCase()}`, JSON.stringify(merged));
+    }
+
+    if (state.user && String(state.user.memberId || "").toUpperCase() === uid) {
+      Object.assign(state.user, merged);
+    }
+    return merged;
+  }
+
+  function addOrUpdateChainMember(entry) {
+    ensureFullChainAndAuditState();
+    if (!entry || !entry.uid) return;
+    const uid = String(entry.uid).trim().toUpperCase();
+    const username = String(entry.username || uid.replace(/^NFX-/, "User_")).trim().replace(/^@/, "");
+    const level = Math.min(10, Math.max(1, parseInt(entry.level || "1", 10)));
+    const rate = getChainRateForLevel(level);
+    const inv = Math.max(0, Number(entry.investUsd ?? 0));
+    const dailyProfit = Math.max(0, Number(entry.dailyProfitUsd ?? (inv * 0.01)));
+    const bonusUsd = Number(entry.bonusUsd ?? +(inv * rate / 100).toFixed(2));
+    const referredBy = String(entry.referredBy || (state.user && state.user.memberId) || "SPONSOR").trim().toUpperCase();
+    const refCodeUsed = String(entry.refCode || (state.user && state.user.referralCode) || "REF-CODE").trim().toUpperCase();
+    const active = Boolean(entry.active ?? (inv > 0 || dailyProfit > 0));
+    const joinedAt = entry.joinedAt || new Date().toLocaleString();
+
+    const idx = state.teamMembers.findIndex(m => String(m.uid).toUpperCase() === uid);
+    const row = {
+      uid,
+      username,
+      level,
+      referredBy,
+      refCode: refCodeUsed,
+      investUsd: inv,
+      dailyProfitUsd: dailyProfit,
+      active,
+      bonusUsd,
+      joinedAt
+    };
+    if (idx >= 0) {
+      state.teamMembers[idx] = { ...state.teamMembers[idx], ...row };
+    } else {
+      state.teamMembers.unshift(row);
+    }
+
+    const hIdx = state.referralJoinHistory.findIndex(h => String(h.uid).toUpperCase() === uid);
+    const hRow = {
+      uid,
+      username,
+      level,
+      referredBy,
+      refCode: refCodeUsed,
+      active,
+      joinedAt
+    };
+    if (hIdx >= 0) {
+      state.referralJoinHistory[hIdx] = { ...state.referralJoinHistory[hIdx], ...hRow };
+    } else {
+      state.referralJoinHistory.unshift(hRow);
+    }
+  }
+
+  // =========================================================================
+  // 2. 10-LEVEL REFERRAL REGISTER CHAIN VIEW (LEVEL 1 TO LEVEL 10)
+  // =========================================================================
+  function injectTenLevelRegisterChainSection() {
+    ensureFullChainAndAuditState();
+    const membersPage = document.getElementById("subpage-members");
+    if (!membersPage || document.getElementById("ten-level-register-chain-card")) return;
+
+    const card = document.createElement("div");
+    card.id = "ten-level-register-chain-card";
+    card.className = "cyber-panel rounded-2xl p-4 sm:p-5 border border-amber-400/50 space-y-3";
+    card.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase">10-Step Referral Tree &amp; Register History</span>
+          <h3 class="text-base font-extrabold text-white mt-0.5">10-Level Referral Join &amp; Registration Chain (Level 1 &rarr; Level 10)</h3>
+          <p class="text-[11px] text-slate-400">Shows every registered member across all 10 referral steps: who joined (UID &amp; Username), which referral code/sponsor brought them in, and their level/status.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-1" id="chain-level-filter-pills"></div>
+      </div>
+
+      <div class="overflow-x-auto max-h-72 overflow-y-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-900 text-slate-400 sticky top-0">
+            <tr>
+              <th class="py-2.5 px-3">Step / Level</th>
+              <th class="py-2.5 px-3">Joined UID &amp; Username</th>
+              <th class="py-2.5 px-3">Referred By / Code</th>
+              <th class="py-2.5 px-3">Joined Time</th>
+              <th class="py-2.5 px-3 text-right">Status &amp; Daily Comm</th>
+            </tr>
+          </thead>
+          <tbody id="ten-level-chain-tbody" class="divide-y divide-slate-800/70 bg-slate-950/70">
+            <tr><td colspan="5" class="py-4 text-center text-slate-500 font-sans">No referral chain members registered yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    membersPage.appendChild(card);
+    renderChainFilterPills();
+  }
+
+  function renderChainFilterPills() {
+    const box = document.getElementById("chain-level-filter-pills");
+    if (!box) return;
+    const pills = [
+      { key: "ALL", label: "All 10 Levels" },
+      ...Array.from({ length: 10 }, (_, i) => ({ key: String(i + 1), label: `L${i + 1}` }))
+    ];
+    box.innerHTML = pills.map(p => {
+      const active = state.levelChainFilter === p.key;
+      return `<button type="button" onclick="setLevelChainFilter('${p.key}')" class="px-2 py-1 rounded-lg font-mono text-[10px] font-bold cursor-pointer ${active ? 'bg-amber-400 text-slate-950' : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-amber-400/50'}">${p.label}</button>`;
+    }).join("");
+  }
+
+  window.setLevelChainFilter = function(key) {
+    state.levelChainFilter = key;
+    renderChainFilterPills();
+    renderTenLevelRegisterChainTable();
+  };
+
+  window.renderTenLevelRegisterChainTable = function() {
+    ensureFullChainAndAuditState();
+    injectTenLevelRegisterChainSection();
+    const tbody = document.getElementById("ten-level-chain-tbody");
+    if (!tbody) return;
+
+    const combined = [...(state.teamMembers || [])];
+    (state.referralJoinHistory || []).forEach(h => {
+      if (!combined.some(m => String(m.uid).toUpperCase() === String(h.uid).toUpperCase())) {
+        combined.push(h);
+      }
+    });
+
+    const filt = state.levelChainFilter || "ALL";
+    const rows = combined.filter(item => {
+      if (filt === "ALL") return true;
+      return Number(item.level || 1) === Number(filt);
+    });
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-500 font-sans">No members in this referral level yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(item => {
+      const lvl = Math.min(10, Math.max(1, Number(item.level || 1)));
+      const rate = getChainRateForLevel(lvl);
+      const dProf = Number(item.dailyProfitUsd ?? (Number(item.investUsd || 0) * 0.01));
+      const dComm = +(dProf * rate / 100).toFixed(4);
+      const uname = String(item.username || item.uid.replace(/^NFX-/, "User_")).replace(/^@/, "");
+      return `
+        <tr>
+          <td class="py-2.5 px-3 font-bold text-amber-300">Level ${lvl} (${rate}%)</td>
+          <td class="py-2.5 px-3"><strong class="text-white">${item.uid}</strong> <span class="text-cyan-300 block text-[10px]">@${uname}</span></td>
+          <td class="py-2.5 px-3 text-slate-200">Ref: <span class="text-emerald-300">${item.refCode || "DIRECT"}</span><span class="block text-[10px] text-slate-400">By: ${item.referredBy || "SPONSOR"}</span></td>
+          <td class="py-2.5 px-3 text-slate-300">${item.joinedAt || "-"}</td>
+          <td class="py-2.5 px-3 text-right">${item.active ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Active</span>' : '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">Inactive</span>'} <span class="block text-[10px] text-cyan-300">+$${dComm.toFixed(4)}/d</span></td>
+        </tr>
+      `;
+    }).join("");
+  };
+
+  // =========================================================================
+  // 3. ADMIN MASTER: FULL REGISTERED MEMBER SEARCH, DESTINATION COPY & TX HASH SUBMIT
+  // =========================================================================
+  window.copyAdminWithdrawDestination = function(addr) {
+    const clean = String(addr || "").trim();
+    if (!clean) return;
+    const ta = document.createElement("textarea");
+    ta.value = clean;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Destination Copied!", `Copied address: ${clean}`);
+    } else if (typeof notify === "function") {
+      notify("Destination Copied!", `Copied address: ${clean}`);
+    }
+  };
+
+  window.adminSubmitWithdrawalTxHash = function(reqId) {
+    ensureFullChainAndAuditState();
+    const inp = document.getElementById(`adm-wd-tx-inp-${reqId}`);
+    const txHash = (inp ? inp.value : "").trim();
+    if (!txHash || txHash.length < 4) {
+      if (typeof triggerSystemPopup === "function") {
+        triggerSystemPopup("Enter Tx Hash", "Please type or paste a valid Transaction Hash before submitting.", "error");
+      }
+      return;
+    }
+
+    const req = state.withdrawals.find(w => w.id === reqId);
+    if (!req) return;
+    req.txHash = txHash;
+    req.txUpdatedAt = new Date().toLocaleString();
+    req.timestamp = req.timestamp || new Date().toLocaleTimeString();
+
+    if (typeof persistSharedState === "function") persistSharedState();
+    if (typeof window.syncPlatformSettingsToCloud === "function") window.syncPlatformSettingsToCloud();
+    renderAdminEnhancedWithdrawTable();
+    renderMemberNoCopyWithdrawHistory();
+
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Tx Hash Submitted!", `Saved Tx Hash for ${reqId} — visible in member's Withdrawal History.`);
+    }
+  };
+
+  function renderAdminEnhancedWithdrawTable() {
+    const wdTbody = document.getElementById("admin-withdraw-tbody");
+    if (!wdTbody || typeof state === "undefined") return;
+
+    wdTbody.innerHTML = (state.withdrawals || []).map(w => {
+      const isPending = w.status === "Pending Review";
+      const isApproved = w.status === "Successful";
+      const destAddr = String(w.destination || "");
+      const curTx = String(w.txHash || "");
+      return `
+        <tr class="${isPending ? 'bg-rose-500/5' : ''}">
+          <td class="py-3 px-3"><strong class="text-white">${w.id}</strong><span class="block text-[10px] text-slate-400">${w.timestamp || ""}</span></td>
+          <td class="py-3 px-3"><strong class="text-white">@${w.username || "Member"}</strong><span class="block text-[10px] text-cyan-300">${w.memberId || ""}</span></td>
+          <td class="py-3 px-3 font-bold text-amber-300">${Number(w.amount || 0).toLocaleString()} ${w.asset || "USDT"}</td>
+          <td class="py-3 px-3 text-[11px] text-slate-300">
+            <div class="flex items-center gap-1.5">
+              <span class="truncate max-w-[140px]">${destAddr}</span>
+              <button type="button" onclick="copyAdminWithdrawDestination('${destAddr.replace(/'/g, "\\'")}')" class="px-2 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-400 text-cyan-200 hover:text-slate-950 border border-cyan-400/50 font-sans font-extrabold text-[10px] cursor-pointer shrink-0">Copy</button>
+            </div>
+            <div class="mt-1.5 flex items-center gap-1">
+              <input type="text" id="adm-wd-tx-inp-${w.id}" value="${curTx.replace(/"/g, "&quot;")}" placeholder="Type Tx Hash..." class="w-36 px-2 py-1 rounded bg-slate-900 border border-amber-400/50 font-mono text-[10px] text-emerald-300 focus:outline-none" />
+              <button type="button" onclick="adminSubmitWithdrawalTxHash('${w.id}')" class="px-2 py-1 rounded bg-amber-400 hover:bg-amber-300 text-slate-950 font-sans font-black text-[10px] cursor-pointer shrink-0">Save Tx</button>
+            </div>
+          </td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isApproved ? 'bg-emerald-500/20 text-emerald-300' : isPending ? 'bg-amber-500/20 text-amber-300' : 'bg-rose-500/20 text-rose-300'}">${w.status}</span></td>
+          <td class="py-3 px-3 text-[11px] text-slate-300 max-w-[180px]">
+            <div>${w.reason || ""}</div>
+            ${curTx ? `<div class="text-[10px] text-emerald-400 truncate mt-0.5">Tx: ${curTx}</div>` : `<div class="text-[10px] text-slate-500 mt-0.5">Tx: Pending</div>`}
+          </td>
+          <td class="py-3 px-3 text-right whitespace-nowrap">
+            ${isPending ? `
+              <button onclick="adminApproveWithdrawal('${w.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] cursor-pointer">Approve</button>
+              <button onclick="openRejectModal('${w.id}')" class="px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold text-[11px] ml-1 cursor-pointer">Reject</button>
+            ` : `<span class="text-slate-500 text-[11px]">Settled</span>`}
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // =========================================================================
+  // 4. MEMBER WITHDRAWAL HISTORY: SHOWS WITHDRAW TIME + TX HASH, NO COPY BUTTON
+  // =========================================================================
+  function renderMemberNoCopyWithdrawHistory() {
+    const wdBox = document.getElementById("member-wd-history-list");
+    if (!wdBox || typeof state === "undefined") return;
+
+    const myUid = String((state.user && state.user.memberId) || "").toUpperCase();
+    const myWds = (state.withdrawals || []).filter(w => {
+      if (w.isCurrentUser) return true;
+      if (myUid && String(w.memberId || "").toUpperCase() === myUid) return true;
+      return false;
+    });
+
+    if (!myWds.length) {
+      wdBox.innerHTML = `<p class="text-slate-500 font-sans">No withdrawals submitted yet.</p>`;
+      return;
+    }
+
+    wdBox.innerHTML = myWds.map(w => {
+      const isApproved = w.status === "Successful";
+      const isRejected = w.status === "Withdrawal Failed / Rejected";
+      const badgeClass = isApproved
+        ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/50"
+        : isRejected
+          ? "bg-rose-500/20 text-rose-300 border-rose-400/50"
+          : "bg-amber-500/20 text-amber-300 border-amber-400/50";
+      const wTime = w.withdrawTime || w.timestamp || new Date().toLocaleString();
+      const txVal = w.txHash && String(w.txHash).trim() ? String(w.txHash).trim() : "Pending Admin Submission";
+
+      return `
+        <div class="p-3 rounded-xl bg-slate-900 border ${isApproved ? 'border-emerald-500/40' : isRejected ? 'border-rose-500/50' : 'border-amber-500/40'} space-y-1.5 select-none">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-white">${w.id} • ${Number(w.amount || 0).toLocaleString()} ${w.asset || "USDT"}</span>
+            <span class="px-2 py-0.5 rounded border text-[10px] font-bold ${badgeClass}">${w.status}</span>
+          </div>
+          <p class="text-[11px] text-cyan-200 break-all">To: ${w.destination || ""}</p>
+          <p class="text-[11px] text-amber-300">Withdraw Time: ${wTime}</p>
+          <p class="text-[11px] text-emerald-300 break-all">Transaction Hash (Tx Hash): ${txVal}</p>
+          ${w.reason ? `<p class="text-[10px] text-slate-400">Note / Reason: ${w.reason}</p>` : ""}
+        </div>
+      `;
+    }).join("");
+  }
+
+  // =========================================================================
+  // 5. WIRE EVERYTHING INTO REGISTRATION, ADMIN SEARCH & PERSISTENCE
+  // =========================================================================
+  window.addEventListener("DOMContentLoaded", () => {
+    ensureFullChainAndAuditState();
+    injectTenLevelRegisterChainSection();
+    renderTenLevelRegisterChainTable();
+    renderAdminEnhancedWithdrawTable();
+    renderMemberNoCopyWithdrawHistory();
+
+    const origCompleteReg = window.completeUserRegistration;
+    if (typeof origCompleteReg === "function") {
+      window.completeUserRegistration = async function(e) {
+        const res = await origCompleteReg.apply(this, arguments);
+        if (state.user && state.user.registered && state.user.memberId) {
+          const params = new URLSearchParams(window.location.search);
+          const refFromUrl = params.get("ref") || state.user.referredBy || "DIRECT";
+          const hasActivity = Number(state.user.usdtBalance || 0) > 0 || Number(state.user.nfxBalance || 0) > 0 || (state.activePlans && state.activePlans.length > 0);
+
+          upsertMemberIntoRegistry(state.user);
+          addOrUpdateChainMember({
+            uid: state.user.memberId,
+            username: state.user.username,
+            level: 1,
+            referredBy: refFromUrl,
+            refCode: refFromUrl,
+            investUsd: Number(state.user.usdtBalance || 0),
+            active: hasActivity,
+            joinedAt: new Date().toLocaleString()
+          });
+
+          if (typeof persistSharedState === "function") persistSharedState();
+          if (typeof window.renderAdminMemberDirectory === "function") window.renderAdminMemberDirectory();
+          renderTenLevelRegisterChainTable();
+          if (typeof window.renderReferralJoinHistoryTable === "function") window.renderReferralJoinHistoryTable();
+        }
+        return res;
+      };
+    }
+
+    const origPersist = window.persistSharedState;
+    if (typeof origPersist === "function") {
+      window.persistSharedState = function() {
+        origPersist.apply(this, arguments);
+        try {
+          if (state.user && state.user.registered && state.user.memberId) {
+            upsertMemberIntoRegistry(state.user);
+          }
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw && typeof state !== "undefined") {
+            const snap = JSON.parse(raw);
+            snap.referralJoinHistory = state.referralJoinHistory || [];
+            snap.teamMembers = state.teamMembers || [];
+            snap.withdrawals = state.withdrawals || [];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(snap));
+          }
+        } catch (_) {}
+      };
+    }
+
+    const origLoad = window.loadSharedState;
+    if (typeof origLoad === "function") {
+      window.loadSharedState = function() {
+        origLoad.apply(this, arguments);
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw && typeof state !== "undefined") {
+            const snap = JSON.parse(raw);
+            if (Array.isArray(snap.referralJoinHistory)) state.referralJoinHistory = snap.referralJoinHistory;
+            if (Array.isArray(snap.teamMembers)) state.teamMembers = snap.teamMembers;
+          }
+        } catch (_) {}
+        renderTenLevelRegisterChainTable();
+        renderAdminEnhancedWithdrawTable();
+        renderMemberNoCopyWithdrawHistory();
+      };
+    }
+
+    const origRenderAdmin = window.renderAdminTables;
+    if (typeof origRenderAdmin === "function") {
+      window.renderAdminTables = function() {
+        origRenderAdmin.apply(this, arguments);
+        renderAdminEnhancedWithdrawTable();
+        if (typeof window.renderAdminMemberDirectory === "function") window.renderAdminMemberDirectory();
+      };
+    }
+
+    const origRenderMemberHist = window.renderMemberHistories;
+    if (typeof origRenderMemberHist === "function") {
+      window.renderMemberHistories = function() {
+        origRenderMemberHist.apply(this, arguments);
+        renderMemberNoCopyWithdrawHistory();
+      };
+    }
+
+    const origSyncUI = window.syncUI;
+    if (typeof origSyncUI === "function") {
+      window.syncUI = function() {
+        origSyncUI.apply(this, arguments);
+        renderTenLevelRegisterChainTable();
+        renderMemberNoCopyWithdrawHistory();
+      };
+    }
+  });
+})();
+</script>
+
+
+<script>
+(function() {
+  // =========================================================================
+  // LIVE MEMBER STATE & REAL-TIME ADMIN SEARCH SYNC ENGINE
+  // =========================================================================
+  function getLiveMemberSnapshot(uid) {
+    const cleanUid = String(uid || "").trim().toUpperCase();
+    if (!cleanUid) return null;
+
+    let fromStorage = null;
+    try {
+      const raw = localStorage.getItem(`nfx_account_${cleanUid}`);
+      if (raw) fromStorage = JSON.parse(raw);
+    } catch (_) {}
+
+    const isCurrentActiveUser = typeof state !== "undefined" &&
+      state.user &&
+      String(state.user.memberId || "").trim().toUpperCase() === cleanUid;
+
+    if (isCurrentActiveUser) {
+      const liveMerged = {
+        ...(fromStorage || {}),
+        ...state.user,
+        memberId: cleanUid,
+        username: state.user.username || (fromStorage && fromStorage.username) || "Member",
+        usdtBalance: Number(state.user.usdtBalance ?? (fromStorage && fromStorage.usdtBalance) ?? 0),
+        bnbBalance: Number(state.user.bnbBalance ?? (fromStorage && fromStorage.bnbBalance) ?? 0),
+        nfxBalance: Number(state.user.nfxBalance ?? (fromStorage && fromStorage.nfxBalance) ?? 0),
+        activePlans: Array.isArray(state.activePlans) ? [...state.activePlans] : (fromStorage && fromStorage.activePlans) || [],
+        teamMembers: Array.isArray(state.teamMembers) ? [...state.teamMembers] : (fromStorage && fromStorage.teamMembers) || [],
+        referralJoinHistory: Array.isArray(state.referralJoinHistory) ? [...state.referralJoinHistory] : (fromStorage && fromStorage.referralJoinHistory) || [],
+        teamCommissionEarned: Number(state.teamCommissionEarned ?? (fromStorage && fromStorage.teamCommissionEarned) ?? 0),
+        dailyTeamCommissionEarned: Number(state.dailyTeamCommissionEarned ?? (fromStorage && fromStorage.dailyTeamCommissionEarned) ?? 0),
+        joiningBonusEarned: Number(state.joiningBonusEarned ?? (fromStorage && fromStorage.joiningBonusEarned) ?? 0),
+        teamStatsOverride: state.teamStatsOverride || (fromStorage && fromStorage.teamStatsOverride) || null
+      };
+      try {
+        localStorage.setItem(`nfx_account_${cleanUid}`, JSON.stringify(liveMerged));
+        if (liveMerged.username) {
+          localStorage.setItem(`nfx_user_${String(liveMerged.username).toLowerCase()}`, JSON.stringify(liveMerged));
+        }
+      } catch (_) {}
+      return liveMerged;
+    }
+
+    return fromStorage;
+  }
+
+  function flushLiveMemberStateNow() {
+    if (typeof state === "undefined" || !state.user || !state.user.registered || !state.user.memberId) return;
+    const uid = String(state.user.memberId).trim().toUpperCase();
+    const liveObj = getLiveMemberSnapshot(uid);
+    if (!liveObj) return;
+    try {
+      localStorage.setItem(`nfx_account_${uid}`, JSON.stringify(liveObj));
+      if (liveObj.username) {
+        localStorage.setItem(`nfx_user_${String(liveObj.username).toLowerCase()}`, JSON.stringify(liveObj));
+      }
+    } catch (_) {}
+    if (typeof window.syncExchangeUserToCloud === "function") {
+      try { window.syncExchangeUserToCloud(); } catch (_) {}
+    }
+  }
+
+  function renderLiveSummaryBannerInsideAdminEditor(memberData) {
+    const form = document.querySelector("#admin-member-control-suite form");
+    if (!form || !memberData) return;
+    let banner = document.getElementById("adm-live-member-summary-box");
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.id = "adm-live-member-summary-box";
+      banner.className = "p-3 rounded-xl bg-slate-900/95 border border-emerald-400/50 font-mono text-[11px] grid grid-cols-2 sm:grid-cols-4 gap-2";
+      form.insertBefore(banner, form.children[1] || null);
+    }
+
+    const plans = Array.isArray(memberData.activePlans) ? memberData.activePlans : [];
+    const totalInvestedInPlans = plans.reduce((s, p) => s + Number(p.principalUsd || 0), 0);
+    const totalProfitFromPlans = plans.reduce((s, p) => s + Number(p.earnedUsd || 0), 0);
+
+    banner.innerHTML = `
+      <div><span class="text-[10px] text-slate-400 block">Live USDT</span><strong class="text-emerald-400 text-xs">$${Number(memberData.usdtBalance || 0).toFixed(2)}</strong></div>
+      <div><span class="text-[10px] text-slate-400 block">Live NFX</span><strong class="text-cyan-300 text-xs">${Number(memberData.nfxBalance || 0).toFixed(4)} NFX</strong></div>
+      <div><span class="text-[10px] text-slate-400 block">Plan Invested</span><strong class="text-amber-300 text-xs">$${totalInvestedInPlans.toFixed(2)}</strong></div>
+      <div><span class="text-[10px] text-slate-400 block">Plan Profit Earned</span><strong class="text-purple-300 text-xs">+$${totalProfitFromPlans.toFixed(2)}</strong></div>
+    `;
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    // Always fetch latest live state when Admin selects a member
+    const origSelectProfile = window.selectAdminMemberProfile;
+    if (typeof origSelectProfile === "function") {
+      window.selectAdminMemberProfile = function(uid) {
+        flushLiveMemberStateNow();
+        const cleanUid = String(uid || "").trim().toUpperCase();
+        const fresh = getLiveMemberSnapshot(cleanUid);
+        if (fresh) {
+          try {
+            localStorage.setItem(`nfx_account_${cleanUid}`, JSON.stringify(fresh));
+          } catch (_) {}
+        }
+        origSelectProfile.call(this, cleanUid);
+        if (fresh) {
+          renderLiveSummaryBannerInsideAdminEditor(fresh);
+        }
+      };
+    }
+
+    // Always pull live data from state + localStorage + cloud when searching in Admin
+    const origLookup = window.adminLookupAndLoadMember;
+    if (typeof origLookup === "function") {
+      window.adminLookupAndLoadMember = async function() {
+        flushLiveMemberStateNow();
+        const rawQ = (document.getElementById("adm-editor-lookup-inp")?.value || "").trim();
+        if (!rawQ) return;
+        const qLower = rawQ.toLowerCase().replace(/^@/, "");
+
+        if (typeof state !== "undefined" && state.user && state.user.memberId) {
+          const curUid = String(state.user.memberId).toUpperCase();
+          const curUser = String(state.user.username || "").toLowerCase();
+          if (curUid.toLowerCase() === qLower || curUser === qLower) {
+            const liveFresh = getLiveMemberSnapshot(curUid);
+            if (liveFresh) {
+              localStorage.setItem(`nfx_account_${curUid}`, JSON.stringify(liveFresh));
+            }
+          }
+        }
+        await origLookup.apply(this, arguments);
+        const uidNow = (document.getElementById("adm-edit-uid")?.value || "").trim().toUpperCase();
+        const latest = getLiveMemberSnapshot(uidNow);
+        if (latest) renderLiveSummaryBannerInsideAdminEditor(latest);
+      };
+    }
+
+    // Refresh directory so Admin member cards always display live balances
+    const origRenderDir = window.renderAdminMemberDirectory;
+    if (typeof origRenderDir === "function") {
+      window.renderAdminMemberDirectory = function() {
+        flushLiveMemberStateNow();
+        origRenderDir.apply(this, arguments);
+      };
+    }
+
+    // Keep live state synced whenever member buys plans, earns daily profit, runs auto-trade, or swaps
+    const hooksToFlush = [
+      "enrollInvestmentPlan",
+      "runAutoDailyPayoutAll",
+      "fastForwardMaturityAll",
+      "simulate24hCycle",
+      "executeMainSwap",
+      "executeWalletQuickNfx",
+      "addTenLevelTeamMember",
+      "simulateDailyTeamCommissionPayout"
+    ];
+
+    hooksToFlush.forEach(fnName => {
+      const origFn = window[fnName];
+      if (typeof origFn === "function") {
+        window[fnName] = function() {
+          const res = origFn.apply(this, arguments);
+          flushLiveMemberStateNow();
+          if (state.portal === "admin" && state.selectedAdminMemberUid) {
+            const latest = getLiveMemberSnapshot(state.selectedAdminMemberUid);
+            if (latest) {
+              if (typeof window.selectAdminMemberProfile === "function") {
+                window.selectAdminMemberProfile(state.selectedAdminMemberUid);
+              }
+              renderLiveSummaryBannerInsideAdminEditor(latest);
+            }
+          }
+          return res;
+        };
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
