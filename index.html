@@ -5816,5 +5816,943 @@
 })();
 </script>
 
+
+<script>
+(function() {
+  // =========================================================================
+  // 1. STEP-BY-STEP SINGLE "BACK" BUTTON & NAVIGATION STACK
+  // =========================================================================
+  const navHistoryStack = [];
+  let isNavigatingBack = false;
+
+  function getCurrentNavSnapshot() {
+    const profModal = document.getElementById("profile-modal");
+    const profOpen = profModal && !profModal.classList.contains("hidden");
+    const activeProfSub = Array.from(document.querySelectorAll(".prof-sub-panel"))
+      .find(p => !p.classList.contains("hidden"))?.id?.replace("prof-panel-", "") || "holdings";
+
+    const landingHidden = document.getElementById("view-landing")?.classList.contains("hidden");
+    const activeMainTab = Array.from(document.querySelectorAll(".main-tab-panel"))
+      .find(p => !p.classList.contains("hidden"))?.id || "tab-pro-trading";
+
+    const activeHubSub = state.activePlansHubSubPage || "INVEST";
+
+    return {
+      inDashboard: Boolean(landingHidden),
+      mainTab: activeMainTab,
+      hubSub: activeHubSub,
+      profOpen: Boolean(profOpen),
+      profSub: activeProfSub
+    };
+  }
+
+  function isSameSnapshot(a, b) {
+    if (!a || !b) return false;
+    return a.inDashboard === b.inDashboard &&
+           a.mainTab === b.mainTab &&
+           a.hubSub === b.hubSub &&
+           a.profOpen === b.profOpen &&
+           a.profSub === b.profSub;
+  }
+
+  function recordNavSnapshot(snap) {
+    if (isNavigatingBack || !snap) return;
+    const top = navHistoryStack[navHistoryStack.length - 1];
+    if (!isSameSnapshot(top, snap)) {
+      navHistoryStack.push(snap);
+      if (navHistoryStack.length > 50) navHistoryStack.shift();
+    }
+    updateSingleBackButtonVisibility();
+  }
+
+  function updateSingleBackButtonVisibility() {
+    const btn = document.getElementById("global-single-back-btn");
+    if (!btn) return;
+    if (navHistoryStack.length > 0) {
+      btn.classList.remove("hidden");
+      btn.classList.add("inline-flex");
+    } else {
+      btn.classList.add("hidden");
+      btn.classList.remove("inline-flex");
+    }
+  }
+
+  window.handleSingleStepBack = function() {
+    if (!navHistoryStack.length) return;
+    const prev = navHistoryStack.pop();
+    updateSingleBackButtonVisibility();
+    isNavigatingBack = true;
+    try {
+      const profModal = document.getElementById("profile-modal");
+      if (!prev.profOpen && profModal && !profModal.classList.contains("hidden")) {
+        profModal.classList.add("hidden");
+      }
+
+      if (!prev.inDashboard) {
+        document.getElementById("view-dashboard")?.classList.add("hidden");
+        document.getElementById("view-landing")?.classList.remove("hidden");
+        return;
+      }
+
+      if (document.getElementById("view-dashboard")?.classList.contains("hidden")) {
+        document.getElementById("view-landing")?.classList.add("hidden");
+        document.getElementById("view-dashboard")?.classList.remove("hidden");
+      }
+
+      if (typeof window.switchMainTab === "function") {
+        window.switchMainTab(prev.mainTab, true);
+      }
+      if (prev.mainTab === "tab-plans-team" && typeof window.switchPlansTeamSubPage === "function") {
+        window.switchPlansTeamSubPage(prev.hubSub, true);
+      }
+
+      if (prev.profOpen && typeof window.openProfileModal === "function") {
+        window.openProfileModal(prev.profSub, true);
+      }
+    } finally {
+      isNavigatingBack = false;
+      updateSingleBackButtonVisibility();
+    }
+  };
+
+  function injectSingleBackButton() {
+    const dashHeader = document.querySelector("#view-dashboard header > div");
+    if (dashHeader && !document.getElementById("global-single-back-btn")) {
+      const backBtn = document.createElement("button");
+      backBtn.id = "global-single-back-btn";
+      backBtn.type = "button";
+      backBtn.onclick = window.handleSingleStepBack;
+      backBtn.className = "hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-cyan-500/20 border border-cyan-400/70 text-cyan-200 font-sans font-extrabold text-xs shadow-[0_0_12px_rgba(0,242,254,0.25)] transition cursor-pointer shrink-0";
+      backBtn.innerHTML = `<span>&larr;</span><span>Back</span>`;
+      dashHeader.insertBefore(backBtn, dashHeader.firstChild);
+    }
+
+    // Also place a synchronized Back button inside the Profile Modal header so users inside Profile sub-tabs can step back cleanly
+    const profHeader = document.querySelector("#profile-modal > div > div:first-child");
+    if (profHeader && !document.getElementById("modal-single-back-btn")) {
+      const mBack = document.createElement("button");
+      mBack.id = "modal-single-back-btn";
+      mBack.type = "button";
+      mBack.onclick = window.handleSingleStepBack;
+      mBack.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-cyan-500/20 border border-cyan-400/70 text-cyan-200 font-sans font-extrabold text-xs mr-2 cursor-pointer shrink-0";
+      mBack.innerHTML = `<span>&larr;</span><span>Back</span>`;
+      profHeader.insertBefore(mBack, profHeader.firstChild);
+    }
+  }
+
+  // =========================================================================
+  // 2. 10-LEVEL JOINING BONUS (10% -> 1%) & DAILY PROFIT COMMISSION ENGINE
+  // =========================================================================
+  const TEN_LEVEL_RATES = [
+    { level: 1, label: "Level 1 (A - Direct)", rate: 10 },
+    { level: 2, label: "Level 2 (B)", rate: 9 },
+    { level: 3, label: "Level 3 (C)", rate: 8 },
+    { level: 4, label: "Level 4", rate: 7 },
+    { level: 5, label: "Level 5", rate: 6 },
+    { level: 6, label: "Level 6", rate: 5 },
+    { level: 7, label: "Level 7", rate: 4 },
+    { level: 8, label: "Level 8", rate: 3 },
+    { level: 9, label: "Level 9", rate: 2 },
+    { level: 10, label: "Level 10", rate: 1 }
+  ];
+
+  function getRateForLevel(lvl) {
+    const n = parseInt(lvl, 10);
+    if (n >= 1 && n <= 10) return 11 - n; // 1->10%, 2->9%, ..., 10->1%
+    return 0;
+  }
+
+  function ensureExtendedTeamState() {
+    if (typeof state === "undefined") return;
+    state.activePlansHubSubPage = state.activePlansHubSubPage || "INVEST";
+    state.teamMembers = Array.isArray(state.teamMembers) ? state.teamMembers : [];
+    state.teamCommissionEarned = Number(state.teamCommissionEarned || 0);
+    state.dailyTeamCommissionEarned = Number(state.dailyTeamCommissionEarned || 0);
+    state.joiningBonusEarned = Number(state.joiningBonusEarned || 0);
+    state.teamStatsOverride = state.teamStatsOverride || null;
+  }
+
+  function computeDetailedTeamMetrics() {
+    ensureExtendedTeamState();
+    const list = state.teamMembers || [];
+    const ov = state.teamStatsOverride;
+
+    const l1 = list.filter(m => Number(m.level) === 1);
+    const l2 = list.filter(m => Number(m.level) === 2);
+    const l3 = list.filter(m => Number(m.level) === 3);
+
+    const aActive = ov && ov.aActive !== undefined ? Number(ov.aActive) : l1.filter(m => m.active).length;
+    const aInactive = ov && ov.aInactive !== undefined ? Number(ov.aInactive) : l1.filter(m => !m.active).length;
+    const bActive = ov && ov.bActive !== undefined ? Number(ov.bActive) : l2.filter(m => m.active).length;
+    const bInactive = ov && ov.bInactive !== undefined ? Number(ov.bInactive) : l2.filter(m => !m.active).length;
+    const cActive = ov && ov.cActive !== undefined ? Number(ov.cActive) : l3.filter(m => m.active).length;
+    const cInactive = ov && ov.cInactive !== undefined ? Number(ov.cInactive) : l3.filter(m => !m.active).length;
+
+    const deeperActive = list.filter(m => Number(m.level) > 3 && m.active).length;
+    const deeperInactive = list.filter(m => Number(m.level) > 3 && !m.active).length;
+
+    const totalActive = ov && ov.totalActive !== undefined
+      ? Number(ov.totalActive)
+      : (aActive + bActive + cActive + deeperActive);
+    const totalInactive = ov && ov.totalInactive !== undefined
+      ? Number(ov.totalInactive)
+      : (aInactive + bInactive + cInactive + deeperInactive);
+
+    const totalMembers = totalActive + totalInactive;
+    const teamVol = list.reduce((s, m) => s + Number(m.investUsd || 0), 0);
+
+    // Auto-calculate daily profit commission across all 10 levels (10% down to 1% of each member's daily profit)
+    let autoDailyComm = 0;
+    let autoJoinBonus = 0;
+    list.forEach(m => {
+      const pct = getRateForLevel(m.level) / 100;
+      const memberDailyProfit = Number(m.dailyProfitUsd !== undefined ? m.dailyProfitUsd : (Number(m.investUsd || 0) * 0.01));
+      const commFromMember = m.dailyCommOverride !== undefined
+        ? Number(m.dailyCommOverride)
+        : +(memberDailyProfit * pct).toFixed(4);
+      m.computedDailyComm = commFromMember;
+      autoDailyComm += commFromMember;
+
+      const jb = m.bonusUsd !== undefined ? Number(m.bonusUsd) : +(Number(m.investUsd || 0) * pct).toFixed(2);
+      autoJoinBonus += jb;
+    });
+
+    const dailyCommissionTotal = ov && ov.dailyCommissionUsd !== undefined
+      ? Number(ov.dailyCommissionUsd)
+      : +autoDailyComm.toFixed(4);
+
+    const joiningBonusTotal = ov && ov.joiningBonusUsd !== undefined
+      ? Number(ov.joiningBonusUsd)
+      : +autoJoinBonus.toFixed(2);
+
+    return {
+      aActive, aInactive,
+      bActive, bInactive,
+      cActive, cInactive,
+      totalActive, totalInactive, totalMembers,
+      teamVol,
+      dailyCommissionTotal,
+      joiningBonusTotal,
+      combinedCommission: +(dailyCommissionTotal + joiningBonusTotal).toFixed(2)
+    };
+  }
+
+  // =========================================================================
+  // 3. SEPARATE PAGES FOR INVEST / PLAN, TEAM, AND MEMBERS
+  // =========================================================================
+  function buildSeparatePlansTeamMembersPages() {
+    const hub = document.getElementById("tab-plans-team");
+    if (!hub || document.getElementById("hub-subpage-switcher-bar")) return;
+
+    // Wrap existing Invest/Plan blocks into a dedicated #subpage-invest container
+    const existingChildren = Array.from(hub.children);
+    const investPage = document.createElement("div");
+    investPage.id = "subpage-invest";
+    investPage.className = "hub-subpage space-y-5";
+
+    // Move first 4 blocks (header, validity pills, plan cards, active locked ledger) into #subpage-invest
+    for (let i = 0; i < Math.min(4, existingChildren.length); i++) {
+      investPage.appendChild(existingChildren[i]);
+    }
+    // Remove old combined team grid (5th child) so we replace it with dedicated Team & Members pages
+    if (existingChildren[4]) {
+      existingChildren[4].remove();
+    }
+
+    // Top 3-Button Page Switcher Bar inside the Hub
+    const switcherBar = document.createElement("div");
+    switcherBar.id = "hub-subpage-switcher-bar";
+    switcherBar.className = "cyber-panel rounded-2xl p-3 border border-cyan-400/50 flex flex-wrap items-center justify-between gap-3";
+    switcherBar.innerHTML = `
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" id="subbtn-INVEST" onclick="switchPlansTeamSubPage('INVEST')" class="hub-sub-btn px-4 py-2 rounded-xl text-xs font-black bg-cyan-500 text-slate-950 uppercase tracking-wider cursor-pointer">
+          1. Invest / Plan Page
+        </button>
+        <button type="button" id="subbtn-TEAM" onclick="switchPlansTeamSubPage('TEAM')" class="hub-sub-btn px-4 py-2 rounded-xl text-xs font-black bg-slate-900 text-amber-300 border border-slate-700 hover:border-amber-400 uppercase tracking-wider cursor-pointer">
+          2. Team &amp; 10-Level Commission Page
+        </button>
+        <button type="button" id="subbtn-MEMBERS" onclick="switchPlansTeamSubPage('MEMBERS')" class="hub-sub-btn px-4 py-2 rounded-xl text-xs font-black bg-slate-900 text-emerald-300 border border-slate-700 hover:border-emerald-400 uppercase tracking-wider cursor-pointer">
+          3. Members (A / B / C Active &amp; Inactive) Page
+        </button>
+      </div>
+      <span class="font-mono text-[11px] text-slate-400">Each option opens its dedicated view • Use <strong class="text-cyan-300">&larr; Back</strong> to step back</span>
+    `;
+
+    // DEDICATED PAGE 2: TEAM & 10-LEVEL BONUS + DAILY PROFIT COMMISSION
+    const teamPage = document.createElement("div");
+    teamPage.id = "subpage-team";
+    teamPage.className = "hub-subpage hidden space-y-5";
+    teamPage.innerHTML = `
+      <div class="cyber-panel rounded-2xl p-5 border-l-4 border-l-amber-400 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase">10-Level Bonus &amp; Daily Profit Override</span>
+          <h2 class="text-xl font-black text-white mt-1">NFX 10-Level Team Commission System (10% &rarr; 1%)</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Direct Joining Bonus (10% down to 1%) + Daily Team Profit Commission (10% down to 1% on each member's daily profit from Member #1).</p>
+        </div>
+        <div class="flex flex-wrap gap-3 font-mono text-xs">
+          <div class="px-3.5 py-2 rounded-xl bg-slate-950 border border-emerald-500/40">
+            <span class="text-[10px] text-slate-400 block">Joining Bonus Earned</span>
+            <strong id="team-page-join-bonus" class="text-sm text-emerald-400">$0.00</strong>
+          </div>
+          <div class="px-3.5 py-2 rounded-xl bg-slate-950 border border-cyan-500/40">
+            <span class="text-[10px] text-slate-400 block">Daily Profit Commission</span>
+            <strong id="team-page-daily-comm" class="text-sm text-cyan-300">$0.0000</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual 1 -> 3 -> 9 Duplication & 10-Level Structure -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div class="lg:col-span-7 cyber-panel rounded-2xl p-5 space-y-3 border border-cyan-500/35">
+          <h3 class="text-sm font-extrabold text-cyan-300 uppercase tracking-wider">10-Level Joining Bonus &amp; Daily Profit Commission Schedule</h3>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 text-slate-400">
+                <tr>
+                  <th class="py-2.5 px-3">Level / Tier</th>
+                  <th class="py-2.5 px-3">Joining Bonus %</th>
+                  <th class="py-2.5 px-3">Example ($100 USDT)</th>
+                  <th class="py-2.5 px-3">Daily Profit Comm %</th>
+                  <th class="py-2.5 px-3 text-right">On $1/Day Profit</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/70 bg-slate-950/70">
+                ${TEN_LEVEL_RATES.map(r => `
+                  <tr>
+                    <td class="py-2 px-3 font-bold text-white">${r.label}</td>
+                    <td class="py-2 px-3 text-emerald-400 font-bold">${r.rate}%</td>
+                    <td class="py-2 px-3 text-slate-200">$${(100 * r.rate / 100).toFixed(2)}</td>
+                    <td class="py-2 px-3 text-cyan-300 font-bold">${r.rate}%</td>
+                    <td class="py-2 px-3 text-right text-amber-300 font-bold">$${(1 * r.rate / 100).toFixed(2)}/day</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 space-y-4">
+          <div class="cyber-panel rounded-2xl p-5 space-y-3 border border-amber-400/40">
+            <h3 class="text-sm font-extrabold text-amber-300 uppercase">How Team Growth &amp; Daily Commission Works</h3>
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-200 space-y-1.5 leading-relaxed">
+              <div class="text-center font-bold text-amber-300">[ YOU — Main Sponsor ]</div>
+              <div class="text-center text-cyan-400">&darr; 10% Direct Bonus &amp; 10% Daily Profit Commission</div>
+              <div class="grid grid-cols-3 gap-1.5 text-center">
+                <div class="p-1.5 rounded bg-slate-900 border border-cyan-500/40">A1 (Left)<br/><span class="text-emerald-400">10%</span></div>
+                <div class="p-1.5 rounded bg-slate-900 border border-cyan-500/40">A2 (Mid)<br/><span class="text-emerald-400">10%</span></div>
+                <div class="p-1.5 rounded bg-slate-900 border border-cyan-500/40">A3 (Right)<br/><span class="text-emerald-400">10%</span></div>
+              </div>
+              <div class="text-center text-emerald-400">&darr; Each A recruits 3 B-Members (9 Total &bull; 9% Rate)</div>
+              <div class="text-center text-amber-300">&darr; Continues Level 3 (8%) &rarr; Level 10 (1%)</div>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>Starting from Member #1:</strong> As soon as a downline member joins and earns daily profit (e.g. $1.00/day), you automatically receive <strong>10% ($0.10/day)</strong> from Level 1 (A), <strong>9% ($0.09/day)</strong> from Level 2 (B), <strong>8% ($0.08/day)</strong> from Level 3 (C), stepping down by 1% per level through Level 10 (1%).
+            </p>
+          </div>
+
+          <form onsubmit="addTenLevelTeamMember(event)" class="cyber-panel rounded-2xl p-5 space-y-3 border-t-4 border-t-emerald-400">
+            <h4 class="text-sm font-extrabold text-white">Simulate / Track 10-Level Member &amp; Daily Profit</h4>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Member UID</label>
+                <input type="text" id="sim10-uid" value="NFX-408219" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Downline Level (1-10)</label>
+                <select id="sim10-level" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-cyan-300">
+                  ${TEN_LEVEL_RATES.map(r => `<option value="${r.level}">${r.label} (${r.rate}%)</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">USDT Invest ($)</label>
+                <input type="number" id="sim10-invest" value="100" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">Member Daily Profit ($)</label>
+                <input type="number" id="sim10-daily-profit" value="1.00" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-emerald-300" />
+              </div>
+            </div>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
+              Add Member &amp; Auto-Calculate Bonus + Daily Comm
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+
+    // DEDICATED PAGE 3: MEMBERS (A, B, C ACTIVE & INACTIVE + PER-MEMBER DAILY COMMISSION TABLE)
+    const membersPage = document.createElement("div");
+    membersPage.id = "subpage-members";
+    membersPage.className = "hub-subpage hidden space-y-5";
+    membersPage.innerHTML = `
+      <div class="cyber-panel rounded-2xl p-5 border-l-4 border-l-emerald-400 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase">Live Team Roster &amp; Activation Status</span>
+          <h2 class="text-xl font-black text-white mt-1">Members Directory — A / B / C Active &amp; Inactive Counts</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Tracks every member joining via your referral link, separated into Active &amp; Inactive across Levels A, B, and C with daily commission earned from each member.</p>
+        </div>
+        <button type="button" onclick="simulateDailyTeamCommissionPayout()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase cursor-pointer">
+          Collect Today's Daily Team Commission
+        </button>
+      </div>
+
+      <!-- Overall Active & Inactive Summary -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono text-xs">
+        <div class="cyber-panel rounded-xl p-3.5 border border-slate-800">
+          <span class="text-[10px] font-sans text-slate-400 block">Total Team Members</span>
+          <strong id="mem-pg-total" class="text-xl text-white">0</strong>
+        </div>
+        <div class="cyber-panel rounded-xl p-3.5 border border-emerald-500/45">
+          <span class="text-[10px] font-sans text-emerald-300 block">Total Active Members</span>
+          <strong id="mem-pg-active" class="text-xl text-emerald-400">0</strong>
+        </div>
+        <div class="cyber-panel rounded-xl p-3.5 border border-amber-500/45">
+          <span class="text-[10px] font-sans text-amber-300 block">Total Inactive Members</span>
+          <strong id="mem-pg-inactive" class="text-xl text-amber-300">0</strong>
+        </div>
+        <div class="cyber-panel rounded-xl p-3.5 border border-cyan-500/45">
+          <span class="text-[10px] font-sans text-cyan-300 block">Team Volume (USDT)</span>
+          <strong id="mem-pg-vol" class="text-lg text-cyan-300">$0.00</strong>
+        </div>
+        <div class="cyber-panel rounded-xl p-3.5 border border-purple-500/45">
+          <span class="text-[10px] font-sans text-purple-300 block">Daily Comm / Day</span>
+          <strong id="mem-pg-daily-comm" class="text-lg text-purple-300">$0.0000</strong>
+        </div>
+      </div>
+
+      <!-- A, B, C Level-Specific Active & Inactive Breakdown Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+        <div class="cyber-panel rounded-2xl p-4 border-t-4 border-t-cyan-400 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-sans font-black text-sm text-white">A-Members (Level 1 Direct)</span>
+            <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">10% Rate</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/35">
+              <span class="text-[10px] font-sans text-emerald-300 block">A Active Member</span>
+              <strong id="mem-a-active" class="text-lg text-emerald-400">0</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-amber-500/35">
+              <span class="text-[10px] font-sans text-amber-300 block">A Inactive Member</span>
+              <strong id="mem-a-inactive" class="text-lg text-amber-300">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="cyber-panel rounded-2xl p-4 border-t-4 border-t-emerald-400 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-sans font-black text-sm text-white">B-Members (Level 2)</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">9% Rate</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/35">
+              <span class="text-[10px] font-sans text-emerald-300 block">B Active Member</span>
+              <strong id="mem-b-active" class="text-lg text-emerald-400">0</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-amber-500/35">
+              <span class="text-[10px] font-sans text-amber-300 block">B Inactive Member</span>
+              <strong id="mem-b-inactive" class="text-lg text-amber-300">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="cyber-panel rounded-2xl p-4 border-t-4 border-t-amber-400 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-sans font-black text-sm text-white">C-Members (Level 3)</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">8% Rate</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/35">
+              <span class="text-[10px] font-sans text-emerald-300 block">C Active Member</span>
+              <strong id="mem-c-active" class="text-lg text-emerald-400">0</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-amber-500/35">
+              <span class="text-[10px] font-sans text-amber-300 block">C Inactive Member</span>
+              <strong id="mem-c-inactive" class="text-lg text-amber-300">0</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Downline Roster & Per-Member Daily Commission Table -->
+      <div class="cyber-panel rounded-2xl p-4 overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="py-2.5 px-3">Member UID &amp; Name</th>
+              <th class="py-2.5 px-3">Level (Rate)</th>
+              <th class="py-2.5 px-3">Status</th>
+              <th class="py-2.5 px-3">Invest (USDT)</th>
+              <th class="py-2.5 px-3">Joining Bonus</th>
+              <th class="py-2.5 px-3">Member Daily Profit</th>
+              <th class="py-2.5 px-3 text-right">Your Daily Comm</th>
+            </tr>
+          </thead>
+          <tbody id="members-full-roster-tbody" class="divide-y divide-slate-800/60">
+            <tr><td colspan="7" class="py-4 text-center text-slate-500 font-sans">No members joined yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    hub.innerHTML = "";
+    hub.appendChild(switcherBar);
+    hub.appendChild(investPage);
+    hub.appendChild(teamPage);
+    hub.appendChild(membersPage);
+  }
+
+  window.switchPlansTeamSubPage = function(subKey, skipHistory = false) {
+    ensureExtendedTeamState();
+    const valid = ["INVEST", "TEAM", "MEMBERS"].includes(subKey) ? subKey : "INVEST";
+    if (!skipHistory) {
+      recordNavSnapshot(getCurrentNavSnapshot());
+    }
+    state.activePlansHubSubPage = valid;
+
+    document.querySelectorAll(".hub-subpage").forEach(el => el.classList.add("hidden"));
+    const targetId = valid === "INVEST" ? "subpage-invest" : valid === "TEAM" ? "subpage-team" : "subpage-members";
+    document.getElementById(targetId)?.classList.remove("hidden");
+
+    document.querySelectorAll(".hub-sub-btn").forEach(b => {
+      b.className = "hub-sub-btn px-4 py-2 rounded-xl text-xs font-black bg-slate-900 text-slate-300 border border-slate-700 hover:border-cyan-400 uppercase tracking-wider cursor-pointer";
+    });
+    const activeBtn = document.getElementById(`subbtn-${valid}`);
+    if (activeBtn) {
+      activeBtn.className = "hub-sub-btn px-4 py-2 rounded-xl text-xs font-black bg-cyan-500 text-slate-950 uppercase tracking-wider cursor-pointer";
+    }
+
+    refreshSeparateTeamAndMembersUI();
+  };
+
+  function refreshSeparateTeamAndMembersUI() {
+    const m = computeDetailedTeamMetrics();
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    setTxt("team-page-join-bonus", typeof formatMoney === "function" ? formatMoney(m.joiningBonusTotal) : `$${m.joiningBonusTotal.toFixed(2)}`);
+    setTxt("team-page-daily-comm", `$${m.dailyCommissionTotal.toFixed(4)}/day`);
+
+    setTxt("mem-pg-total", String(m.totalMembers));
+    setTxt("mem-pg-active", String(m.totalActive));
+    setTxt("mem-pg-inactive", String(m.totalInactive));
+    setTxt("mem-pg-vol", typeof formatMoney === "function" ? formatMoney(m.teamVol) : `$${m.teamVol.toFixed(2)}`);
+    setTxt("mem-pg-daily-comm", `$${m.dailyCommissionTotal.toFixed(4)}/day`);
+
+    setTxt("mem-a-active", String(m.aActive));
+    setTxt("mem-a-inactive", String(m.aInactive));
+    setTxt("mem-b-active", String(m.bActive));
+    setTxt("mem-b-inactive", String(m.bInactive));
+    setTxt("mem-c-active", String(m.cActive));
+    setTxt("mem-c-inactive", String(m.cInactive));
+
+    const tbody = document.getElementById("members-full-roster-tbody");
+    if (!tbody) return;
+    const list = state.teamMembers || [];
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-500 font-sans">No members joined yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(item => {
+      const rate = getRateForLevel(item.level);
+      const lvlTag = item.level === 1 ? "L1 (A)" : item.level === 2 ? "L2 (B)" : item.level === 3 ? "L3 (C)" : `L${item.level}`;
+      const inv = Number(item.investUsd || 0);
+      const jb = Number(item.bonusUsd !== undefined ? item.bonusUsd : (inv * rate / 100));
+      const dProf = Number(item.dailyProfitUsd !== undefined ? item.dailyProfitUsd : (inv * 0.01));
+      const dComm = Number(item.dailyCommOverride !== undefined ? item.dailyCommOverride : (dProf * rate / 100));
+      return `
+        <tr>
+          <td class="py-2.5 px-3"><strong class="text-white">${item.uid}</strong>${item.username ? `<span class="block text-[10px] text-slate-400">@${item.username}</span>` : ""}</td>
+          <td class="py-2.5 px-3 text-cyan-300 font-bold">${lvlTag} • ${rate}%</td>
+          <td class="py-2.5 px-3">${item.active ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Active</span>' : '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">Inactive</span>'}</td>
+          <td class="py-2.5 px-3 text-slate-200">$${inv.toFixed(2)}</td>
+          <td class="py-2.5 px-3 text-emerald-400 font-bold">+$${jb.toFixed(2)}</td>
+          <td class="py-2.5 px-3 text-slate-300">$${dProf.toFixed(2)}/day</td>
+          <td class="py-2.5 px-3 text-right text-amber-300 font-bold">+$${dComm.toFixed(4)}/day</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  window.addTenLevelTeamMember = function(e) {
+    e.preventDefault();
+    ensureExtendedTeamState();
+    const uid = (document.getElementById("sim10-uid")?.value || "").trim().toUpperCase();
+    const level = Math.min(10, Math.max(1, parseInt(document.getElementById("sim10-level")?.value || "1", 10)));
+    const investUsd = Math.max(0, parseFloat(document.getElementById("sim10-invest")?.value) || 0);
+    const dailyProfitUsd = Math.max(0, parseFloat(document.getElementById("sim10-daily-profit")?.value) || 0);
+    if (!uid) return;
+
+    if (state.teamMembers.some(m => String(m.uid).toUpperCase() === uid)) {
+      if (typeof triggerSystemPopup === "function") triggerSystemPopup("Duplicate UID", `${uid} is already in your team.`, "error");
+      return;
+    }
+
+    const rate = getRateForLevel(level);
+    const bonusUsd = +(investUsd * rate / 100).toFixed(2);
+    const dailyComm = +(dailyProfitUsd * rate / 100).toFixed(4);
+    const isActive = investUsd > 0 || dailyProfitUsd > 0;
+
+    state.teamMembers.unshift({
+      uid,
+      level,
+      investUsd,
+      dailyProfitUsd,
+      active: isActive,
+      bonusUsd
+    });
+
+    if (bonusUsd > 0) {
+      state.user.usdtBalance = +(Number(state.user.usdtBalance || 0) + bonusUsd).toFixed(2);
+      state.joiningBonusEarned = +(Number(state.joiningBonusEarned || 0) + bonusUsd).toFixed(2);
+    }
+
+    if (typeof persistSharedState === "function") persistSharedState();
+    refreshSeparateTeamAndMembersUI();
+    if (typeof syncUI === "function") syncUI();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup(
+        "10-Level Member Added!",
+        `${uid} added at Level ${level} (${rate}%) • Joining Bonus: +$${bonusUsd.toFixed(2)} • Daily Profit Comm: +$${dailyComm.toFixed(4)}/day.`
+      );
+    }
+  };
+
+  window.simulateDailyTeamCommissionPayout = function() {
+    const m = computeDetailedTeamMetrics();
+    if (m.dailyCommissionTotal <= 0) {
+      if (typeof triggerSystemPopup === "function") triggerSystemPopup("No Active Daily Commission", "Add active downline members with daily profit first.", "info");
+      return;
+    }
+    state.user.usdtBalance = +(Number(state.user.usdtBalance || 0) + m.dailyCommissionTotal).toFixed(4);
+    state.dailyTeamCommissionEarned = +(Number(state.dailyTeamCommissionEarned || 0) + m.dailyCommissionTotal).toFixed(4);
+    if (typeof persistSharedState === "function") persistSharedState();
+    refreshSeparateTeamAndMembersUI();
+    if (typeof syncUI === "function") syncUI();
+    if (typeof triggerSystemPopup === "function") {
+      triggerSystemPopup("Daily Team Commission Credited!", `+$${m.dailyCommissionTotal.toFixed(4)} USDT credited from your active team's daily profit.`);
+    }
+  };
+
+  // =========================================================================
+  // 4. EXPAND ADMIN MASTER MEMBER EDITOR WITH ALL A/B/C ACTIVE/INACTIVE & DAILY COMM FIELDS
+  // =========================================================================
+  function upgradeAdminEditorWithFullTeamAndCommissionFields() {
+    const form = document.querySelector("#admin-member-control-suite form");
+    if (!form || document.getElementById("adm-extended-team-grid")) return;
+
+    const extBox = document.createElement("div");
+    extBox.id = "adm-extended-team-grid";
+    extBox.className = "p-3.5 rounded-xl bg-slate-900/90 border border-amber-400/45 space-y-3";
+    extBox.innerHTML = `
+      <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+        <span class="font-sans font-extrabold text-xs text-amber-300 uppercase">Full Team Active/Inactive &amp; Per-Member Daily Commission Control</span>
+        <span class="text-[10px] text-cyan-300">Auto-Syncs to Member ID</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div>
+          <label class="text-[10px] text-emerald-300 block mb-1">Total Active Members</label>
+          <input type="number" min="0" id="adm-edit-total-active" value="0" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-emerald-500/40 text-emerald-400 font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-amber-300 block mb-1">Total Inactive Members</label>
+          <input type="number" min="0" id="adm-edit-total-inactive" value="0" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-amber-500/40 text-amber-300 font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-cyan-300 block mb-1">Daily Comm From Member ($/day)</label>
+          <input type="number" step="0.0001" min="0" id="adm-edit-daily-comm" value="0.0000" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-cyan-500/40 text-cyan-300 font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-purple-300 block mb-1">Joining Bonus Total ($)</label>
+          <input type="number" step="0.01" min="0" id="adm-edit-join-bonus" value="0.00" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-purple-500/40 text-purple-300 font-bold" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+        <div>
+          <label class="text-[10px] text-cyan-300 block mb-1">A Active</label>
+          <input type="number" min="0" id="adm-edit-a-active" value="0" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-emerald-400 font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-1">A Inactive</label>
+          <input type="number" min="0" id="adm-edit-a-inactive" value="0" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-amber-300" />
+        </div>
+        <div>
+          <label class="text-[10px] text-emerald-300 block mb-1">B Active</label>
+          <input type="number" min="0" id="adm-edit-b-active" value="0" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-emerald-400 font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-1">B Inactive</label>
+          <input type="number" min="0" id="adm-edit-b-inactive" value="0" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-amber-300" />
+        </div>
+        <div>
+          <label class="text-[10px] text-amber-300 block mb-1">C Active</label>
+          <input type="number" min="0" id="adm-edit-c-active" value="0" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-emerald-400 font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-1">C Inactive</label>
+          <input type="number" min="0" id="adm-edit-c-inactive" value="0" class="w-full px-2 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-amber-300" />
+        </div>
+      </div>
+    `;
+
+    const submitRow = form.querySelector("button[type='submit']")?.parentElement;
+    if (submitRow) {
+      form.insertBefore(extBox, submitRow);
+    } else {
+      form.appendChild(extBox);
+    }
+  }
+
+  // =========================================================================
+  // 5. WIRE EVERYTHING TOGETHER ON DOM READY
+  // =========================================================================
+  window.addEventListener("DOMContentLoaded", () => {
+    ensureExtendedTeamState();
+    injectSingleBackButton();
+    buildSeparatePlansTeamMembersPages();
+
+    // Hook top nav buttons so clicking Invest, Plan, or Team opens its dedicated page and records Back history
+    const btnInvest = document.getElementById("btn-quick-invest");
+    const btnPlan = document.getElementById("btn-quick-plan");
+    const btnTeam = document.getElementById("btn-quick-team");
+    const btnHub = document.getElementById("btn-tab-plans-team");
+
+    if (btnInvest) {
+      btnInvest.onclick = () => {
+        window.switchMainTab("tab-plans-team");
+        window.switchPlansTeamSubPage("INVEST", true);
+      };
+    }
+    if (btnPlan) {
+      btnPlan.onclick = () => {
+        window.switchMainTab("tab-plans-team");
+        window.switchPlansTeamSubPage("INVEST", true);
+      };
+    }
+    if (btnTeam) {
+      btnTeam.onclick = () => {
+        window.switchMainTab("tab-plans-team");
+        window.switchPlansTeamSubPage("TEAM", true);
+      };
+    }
+    if (btnHub) {
+      btnHub.textContent = "Invest / Team / Members";
+      btnHub.onclick = () => {
+        window.switchMainTab("tab-plans-team");
+      };
+    }
+
+    // Add a dedicated "Members" quick button right next to "Team" in the top nav bar
+    const navBar = document.querySelector("#view-dashboard header nav");
+    if (navBar && !document.getElementById("btn-quick-members")) {
+      const bMem = document.createElement("button");
+      bMem.id = "btn-quick-members";
+      bMem.type = "button";
+      bMem.className = "main-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900/90 text-emerald-300 border border-slate-800 hover:border-emerald-400/50 transition whitespace-nowrap cursor-pointer";
+      bMem.textContent = "Members";
+      bMem.onclick = () => {
+        window.switchMainTab("tab-plans-team");
+        window.switchPlansTeamSubPage("MEMBERS", true);
+      };
+      navBar.appendChild(bMem);
+    }
+
+    // Wrap navigation functions to record step-by-step history for the Single Back Button
+    const origEnterDash = window.enterExchangeDashboard;
+    if (typeof origEnterDash === "function") {
+      window.enterExchangeDashboard = function() {
+        recordNavSnapshot(getCurrentNavSnapshot());
+        origEnterDash.apply(this, arguments);
+        injectSingleBackButton();
+      };
+    }
+
+    const origSwitchMain = window.switchMainTab;
+    if (typeof origSwitchMain === "function") {
+      window.switchMainTab = function(tabId, skipHistory = false) {
+        if (!skipHistory) recordNavSnapshot(getCurrentNavSnapshot());
+        origSwitchMain.apply(this, arguments);
+        if (tabId === "tab-plans-team") {
+          window.switchPlansTeamSubPage(state.activePlansHubSubPage || "INVEST", true);
+        }
+      };
+    }
+
+    const origOpenProf = window.openProfileModal;
+    if (typeof origOpenProf === "function") {
+      window.openProfileModal = function(sub = "holdings", skipHistory = false) {
+        if (!skipHistory) recordNavSnapshot(getCurrentNavSnapshot());
+        origOpenProf.apply(this, arguments);
+        injectSingleBackButton();
+      };
+    }
+
+    const origSwitchProfSub = window.switchProfSub;
+    if (typeof origSwitchProfSub === "function") {
+      window.switchProfSub = function(sub, skipHistory = false) {
+        if (!skipHistory) recordNavSnapshot(getCurrentNavSnapshot());
+        origSwitchProfSub.apply(this, arguments);
+      };
+    }
+
+    // Upgrade Admin Editor & hook select/save so all A/B/C Active/Inactive & Daily Commission fields sync immediately
+    upgradeAdminEditorWithFullTeamAndCommissionFields();
+
+    const origSelectAdminMember = window.selectAdminMemberProfile;
+    if (typeof origSelectAdminMember === "function") {
+      window.selectAdminMemberProfile = function(uid) {
+        upgradeAdminEditorWithFullTeamAndCommissionFields();
+        origSelectAdminMember.apply(this, arguments);
+        const cleanUid = String(uid || "").trim().toUpperCase();
+        const raw = localStorage.getItem(`nfx_account_${cleanUid}`);
+        const m = raw ? JSON.parse(raw) : (state.user && String(state.user.memberId).toUpperCase() === cleanUid ? state.user : {});
+        const ov = m.teamStatsOverride || {};
+        const tList = Array.isArray(m.teamMembers) ? m.teamMembers : [];
+
+        const aAct = ov.aActive ?? tList.filter(x => Number(x.level) === 1 && x.active).length;
+        const aInact = ov.aInactive ?? tList.filter(x => Number(x.level) === 1 && !x.active).length;
+        const bAct = ov.bActive ?? tList.filter(x => Number(x.level) === 2 && x.active).length;
+        const bInact = ov.bInactive ?? tList.filter(x => Number(x.level) === 2 && !x.active).length;
+        const cAct = ov.cActive ?? tList.filter(x => Number(x.level) === 3 && x.active).length;
+        const cInact = ov.cInactive ?? tList.filter(x => Number(x.level) === 3 && !x.active).length;
+
+        const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+        setV("adm-edit-a-active", aAct);
+        setV("adm-edit-a-inactive", aInact);
+        setV("adm-edit-b-active", bAct);
+        setV("adm-edit-b-inactive", bInact);
+        setV("adm-edit-c-active", cAct);
+        setV("adm-edit-c-inactive", cInact);
+        setV("adm-edit-total-active", ov.totalActive ?? (aAct + bAct + cAct));
+        setV("adm-edit-total-inactive", ov.totalInactive ?? (aInact + bInact + cInact));
+        setV("adm-edit-daily-comm", Number(ov.dailyCommissionUsd ?? m.dailyTeamCommissionEarned ?? 0).toFixed(4));
+        setV("adm-edit-join-bonus", Number(ov.joiningBonusUsd ?? m.joiningBonusEarned ?? 0).toFixed(2));
+      };
+    }
+
+    const origSaveAdminMember = window.adminSaveSelectedMemberProfile;
+    if (typeof origSaveAdminMember === "function") {
+      window.adminSaveSelectedMemberProfile = async function(e) {
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        upgradeAdminEditorWithFullTeamAndCommissionFields();
+
+        const uid = (document.getElementById("adm-edit-uid")?.value || "").trim().toUpperCase();
+        const aAct = Math.max(0, parseInt(document.getElementById("adm-edit-a-active")?.value || "0", 10));
+        const aInact = Math.max(0, parseInt(document.getElementById("adm-edit-a-inactive")?.value || "0", 10));
+        const bAct = Math.max(0, parseInt(document.getElementById("adm-edit-b-active")?.value || "0", 10));
+        const bInact = Math.max(0, parseInt(document.getElementById("adm-edit-b-inactive")?.value || "0", 10));
+        const cAct = Math.max(0, parseInt(document.getElementById("adm-edit-c-active")?.value || "0", 10));
+        const cInact = Math.max(0, parseInt(document.getElementById("adm-edit-c-inactive")?.value || "0", 10));
+
+        const totActInput = Math.max(0, parseInt(document.getElementById("adm-edit-total-active")?.value || "0", 10));
+        const totInactInput = Math.max(0, parseInt(document.getElementById("adm-edit-total-inactive")?.value || "0", 10));
+        const dailyCommUsd = Math.max(0, parseFloat(document.getElementById("adm-edit-daily-comm")?.value) || 0);
+        const joiningBonusUsd = Math.max(0, parseFloat(document.getElementById("adm-edit-join-bonus")?.value) || 0);
+
+        // Keep legacy A/B/C total inputs aligned with Active + Inactive sums
+        const aTotEl = document.getElementById("adm-edit-a-count");
+        const bTotEl = document.getElementById("adm-edit-b-count");
+        const cTotEl = document.getElementById("adm-edit-c-count");
+        if (aTotEl) aTotEl.value = aAct + aInact;
+        if (bTotEl) bTotEl.value = bAct + bInact;
+        if (cTotEl) cTotEl.value = cAct + cInact;
+
+        await origSaveAdminMember.call(this, { preventDefault: () => {}, target: e && e.target });
+
+        if (uid) {
+          const overridePayload = {
+            aActive: aAct,
+            aInactive: aInact,
+            bActive: bAct,
+            bInactive: bInact,
+            cActive: cAct,
+            cInactive: cInact,
+            totalActive: Math.max(totActInput, aAct + bAct + cAct),
+            totalInactive: Math.max(totInactInput, aInact + bInact + cInact),
+            dailyCommissionUsd: dailyCommUsd,
+            joiningBonusUsd: joiningBonusUsd
+          };
+
+          const raw = localStorage.getItem(`nfx_account_${uid}`);
+          const obj = raw ? JSON.parse(raw) : { ...state.user, memberId: uid, registered: true };
+          obj.teamStatsOverride = overridePayload;
+          obj.dailyTeamCommissionEarned = dailyCommUsd;
+          obj.joiningBonusEarned = joiningBonusUsd;
+
+          // Build exact active & inactive member rows for A, B, and C so member roster reflects every count
+          const rebuiltRoster = [];
+          const appendRows = (lvl, actCnt, inactCnt) => {
+            const r = getRateForLevel(lvl);
+            for (let i = 1; i <= actCnt; i++) {
+              rebuiltRoster.push({
+                uid: `NFX-${lvl}A${String(i).padStart(3, "0")}`,
+                level: lvl,
+                active: true,
+                investUsd: 100,
+                dailyProfitUsd: 1.0,
+                bonusUsd: +(100 * r / 100).toFixed(2)
+              });
+            }
+            for (let j = 1; j <= inactCnt; j++) {
+              rebuiltRoster.push({
+                uid: `NFX-${lvl}I${String(j).padStart(3, "0")}`,
+                level: lvl,
+                active: false,
+                investUsd: 0,
+                dailyProfitUsd: 0,
+                bonusUsd: 0
+              });
+            }
+          };
+          appendRows(1, aAct, aInact);
+          appendRows(2, bAct, bInact);
+          appendRows(3, cAct, cInact);
+
+          obj.teamMembers = rebuiltRoster;
+          localStorage.setItem(`nfx_account_${uid}`, JSON.stringify(obj));
+
+          if (!state.user.memberId || String(state.user.memberId).toUpperCase() === uid) {
+            Object.assign(state.user, obj);
+            state.teamMembers = rebuiltRoster;
+            state.teamStatsOverride = overridePayload;
+            state.dailyTeamCommissionEarned = dailyCommUsd;
+            state.joiningBonusEarned = joiningBonusUsd;
+          }
+
+          if (typeof persistSharedState === "function") persistSharedState();
+          if (typeof window.syncExchangeUserToCloud === "function") {
+            try { await window.syncExchangeUserToCloud(); } catch (_) {}
+          }
+          refreshSeparateTeamAndMembersUI();
+          if (typeof syncUI === "function") syncUI();
+        }
+      };
+    }
+
+    const origRenderAdminTables = window.renderAdminTables;
+    if (typeof origRenderAdminTables === "function") {
+      window.renderAdminTables = function() {
+        origRenderAdminTables.apply(this, arguments);
+        upgradeAdminEditorWithFullTeamAndCommissionFields();
+      };
+    }
+
+    const origSyncUI = window.syncUI;
+    if (typeof origSyncUI === "function") {
+      window.syncUI = function() {
+        origSyncUI.apply(this, arguments);
+        refreshSeparateTeamAndMembersUI();
+      };
+    }
+
+    refreshSeparateTeamAndMembersUI();
+  });
+})();
+</script>
+
 </body>
 </html>
