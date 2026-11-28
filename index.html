@@ -648,7 +648,21 @@
                     Confirm BEP-20 Swap
                   </button>
                 </div>
-              </div>
+              
+      <div id="single-my-swap-history-card" class="cyber-panel rounded-2xl p-5 mt-5 border border-cyan-500/30 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div>
+            <span class="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 text-[10px] font-bold uppercase">Swap Log</span>
+            <h3 class="text-sm font-black text-white mt-0.5">My Swap History</h3>
+          </div>
+          <span class="font-mono text-[11px] text-amber-300">Gas Fee: 0.25%</span>
+        </div>
+        <div id="single-swap-history-list" class="font-mono text-xs text-slate-400">
+          No swaps executed yet.
+        </div>
+      </div>
+    
+</div>
 
               <!-- TAB 4: NFT MARKETPLACE WITH 3 TIER CARDS + PRICE TIER SELECTOR ($5 MINIMUM) -->
               <div id="tab-nft" class="main-tab-panel hidden space-y-5">
@@ -6150,34 +6164,7 @@
             </p>
           </div>
 
-          <form onsubmit="addTenLevelTeamMember(event)" class="cyber-panel rounded-2xl p-5 space-y-3 border-t-4 border-t-emerald-400">
-            <h4 class="text-sm font-extrabold text-white">Simulate / Track 10-Level Member &amp; Daily Profit</h4>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="text-[10px] text-slate-400 block mb-1">Member UID</label>
-                <input type="text" id="sim10-uid" value="NFX-408219" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
-              </div>
-              <div>
-                <label class="text-[10px] text-slate-400 block mb-1">Downline Level (1-10)</label>
-                <select id="sim10-level" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-cyan-300">
-                  ${TEN_LEVEL_RATES.map(r => `<option value="${r.level}">${r.label} (${r.rate}%)</option>`).join("")}
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="text-[10px] text-slate-400 block mb-1">USDT Invest ($)</label>
-                <input type="number" id="sim10-invest" value="100" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-white" />
-              </div>
-              <div>
-                <label class="text-[10px] text-slate-400 block mb-1">Member Daily Profit ($)</label>
-                <input type="number" id="sim10-daily-profit" value="1.00" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 font-mono text-xs text-emerald-300" />
-              </div>
-            </div>
-            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer">
-              Add Member &amp; Auto-Calculate Bonus + Daily Comm
-            </button>
-          </form>
+          
         </div>
       </div>
     `;
@@ -6193,9 +6180,7 @@
           <h2 class="text-xl font-black text-white mt-1">Members Directory — A / B / C Active &amp; Inactive Counts</h2>
           <p class="text-xs text-slate-400 mt-0.5">Tracks every member joining via your referral link, separated into Active &amp; Inactive across Levels A, B, and C with daily commission earned from each member.</p>
         </div>
-        <button type="button" onclick="simulateDailyTeamCommissionPayout()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase cursor-pointer">
-          Collect Today's Daily Team Commission
-        </button>
+        
       </div>
 
       <!-- Overall Active & Inactive Summary -->
@@ -9497,6 +9482,488 @@
       };
     }
   });
+</script>
+
+
+<script type="module">
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+  const dbTenLevel = getFirestore();
+  const LEVEL_PCT_MAP = {
+    1: 10,
+    2: 9,
+    3: 8,
+    4: 7,
+    5: 6,
+    6: 5,
+    7: 4,
+    8: 3,
+    9: 2,
+    10: 1
+  };
+  const KNOWN_CODE_TO_UID = {
+    "REFSXBWS5": "NFX-471928"
+  };
+
+  function getLevelPercent(lvl) {
+    return LEVEL_PCT_MAP[Number(lvl)] || 0;
+  }
+
+  async function resolveSponsorUidUniversal(refInput) {
+    const raw = String(refInput || "").trim().replace(/^@/, "");
+    if (!raw) return null;
+    const upper = raw.toUpperCase();
+    const lower = raw.toLowerCase();
+
+    if (KNOWN_CODE_TO_UID[upper]) return KNOWN_CODE_TO_UID[upper];
+    if (upper.startsWith("NFX-")) return upper;
+
+    // 1. Check localStorage accounts
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith("nfx_account_")) {
+          const obj = JSON.parse(localStorage.getItem(k) || "{}");
+          if (
+            obj &&
+            obj.memberId &&
+            (
+              String(obj.referralCode || "").toUpperCase() === upper ||
+              String(obj.memberId || "").toUpperCase() === upper ||
+              String(obj.username || "").toLowerCase() === lower
+            )
+          ) {
+            return String(obj.memberId).toUpperCase();
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 2. Check Firestore referralCodes/{code}
+    try {
+      const rSnap = await getDoc(doc(dbTenLevel, "referralCodes", upper));
+      if (rSnap.exists() && rSnap.data().uid) {
+        return String(rSnap.data().uid).toUpperCase();
+      }
+    } catch (_) {}
+
+    // 3. Query Firestore users where referralCode == upper
+    try {
+      const qRef = query(collection(dbTenLevel, "users"), where("referralCode", "==", upper));
+      const qs = await getDocs(qRef);
+      if (!qs.empty) {
+        const d = qs.docs[0].data();
+        return String(d.memberId || qs.docs[0].id).toUpperCase();
+      }
+    } catch (_) {}
+
+    // 4. Check usernames/{lower}
+    try {
+      const uSnap = await getDoc(doc(dbTenLevel, "usernames", lower));
+      if (uSnap.exists() && uSnap.data().uid) {
+        return String(uSnap.data().uid).toUpperCase();
+      }
+    } catch (_) {}
+
+    return upper;
+  }
+
+  async function fetchMemberDocByUid(uid) {
+    const cleanUid = String(uid || "").trim().toUpperCase();
+    if (!cleanUid) return null;
+    let localObj = null;
+    try {
+      const raw = localStorage.getItem(`nfx_account_${cleanUid}`);
+      if (raw) localObj = JSON.parse(raw);
+    } catch (_) {}
+
+    try {
+      const snap = await getDoc(doc(dbTenLevel, "users", cleanUid));
+      if (snap.exists()) {
+        return { ...(localObj || {}), ...snap.data(), memberId: cleanUid };
+      }
+    } catch (_) {}
+
+    return localObj;
+  }
+
+  async function saveMemberDocByUid(uid, memberObj) {
+    const cleanUid = String(uid || "").trim().toUpperCase();
+    if (!cleanUid || !memberObj) return;
+    try {
+      localStorage.setItem(`nfx_account_${cleanUid}`, JSON.stringify(memberObj));
+      if (memberObj.username) {
+        localStorage.setItem(`nfx_user_${String(memberObj.username).toLowerCase()}`, JSON.stringify(memberObj));
+      }
+    } catch (_) {}
+
+    if (typeof state !== "undefined" && state.user && String(state.user.memberId || "").toUpperCase() === cleanUid) {
+      Object.assign(state.user, memberObj);
+      if (Array.isArray(memberObj.teamMembers)) state.teamMembers = memberObj.teamMembers;
+      if (memberObj.teamCommissionEarned !== undefined) state.teamCommissionEarned = Number(memberObj.teamCommissionEarned);
+      if (memberObj.joiningBonusEarned !== undefined) state.joiningBonusEarned = Number(memberObj.joiningBonusEarned);
+      if (memberObj.dailyTeamCommissionEarned !== undefined) state.dailyTeamCommissionEarned = Number(memberObj.dailyTeamCommissionEarned);
+    }
+
+    try {
+      await setDoc(doc(dbTenLevel, "users", cleanUid), {
+        ...memberObj,
+        memberId: cleanUid,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.warn("Save upline member doc:", err);
+    }
+  }
+
+  // Cascade registration & optional initial investment up to 10 levels (Level 1 = 10% -> Level 10 = 1%)
+  window.cascadeMemberToTenLevels = async function(newMemberObj, directSponsorRef, initialInvestUsd = 0) {
+    if (!newMemberObj || !newMemberObj.memberId) return;
+    const childUid = String(newMemberObj.memberId).trim().toUpperCase();
+    const childUsername = String(newMemberObj.username || childUid).trim().replace(/^@/, "");
+    const childRefCode = String(newMemberObj.referralCode || "").trim().toUpperCase();
+
+    // Ensure child's own referralCode <-> childUid mapping is saved
+    if (childRefCode) {
+      try {
+        await setDoc(doc(dbTenLevel, "referralCodes", childRefCode), {
+          uid: childUid,
+          username: childUsername,
+          referralCode: childRefCode,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (_) {}
+    }
+
+    let currentRef = directSponsorRef || newMemberObj.referredBy || new URLSearchParams(window.location.search).get("ref") || "";
+    if (!currentRef) return;
+
+    const visited = new Set([childUid]);
+    let directOwnerUid = null;
+
+    for (let level = 1; level <= 10; level++) {
+      const uplineUid = await resolveSponsorUidUniversal(currentRef);
+      if (!uplineUid || visited.has(uplineUid)) break;
+      visited.add(uplineUid);
+      if (level === 1) directOwnerUid = uplineUid;
+
+      const uplineDoc = await fetchMemberDocByUid(uplineUid) || {
+        registered: true,
+        memberId: uplineUid,
+        uid: uplineUid,
+        username: uplineUid,
+        usdtBalance: 0,
+        bnbBalance: 0,
+        nfxBalance: 0,
+        teamMembers: [],
+        teamCommissionEarned: 0,
+        joiningBonusEarned: 0,
+        dailyTeamCommissionEarned: 0
+      };
+
+      const ratePct = getLevelPercent(level);
+      const invVal = Math.max(0, Number(initialInvestUsd || newMemberObj.usdtBalance || 0));
+      const joinBonus = +(invVal * ratePct / 100).toFixed(2);
+      const dailyProfitEst = +(invVal * 0.01).toFixed(4);
+      const dailyCommEst = +(dailyProfitEst * ratePct / 100).toFixed(4);
+
+      const list = Array.isArray(uplineDoc.teamMembers) ? [...uplineDoc.teamMembers] : [];
+      const existingIdx = list.findIndex(m => String(m.uid || "").toUpperCase() === childUid);
+
+      const memberEntry = {
+        uid: childUid,
+        username: childUsername,
+        level,
+        ratePct,
+        investUsd: invVal,
+        dailyProfitUsd: dailyProfitEst,
+        computedDailyComm: dailyCommEst,
+        active: invVal > 0,
+        bonusUsd: existingIdx >= 0 ? +(Number(list[existingIdx].bonusUsd || 0) + joinBonus).toFixed(2) : joinBonus,
+        joinedAt: (existingIdx >= 0 && list[existingIdx].joinedAt) || new Date().toLocaleString()
+      };
+
+      if (existingIdx >= 0) {
+        list[existingIdx] = { ...list[existingIdx], ...memberEntry };
+      } else {
+        list.unshift(memberEntry);
+      }
+
+      uplineDoc.teamMembers = list;
+      if (joinBonus > 0) {
+        uplineDoc.usdtBalance = +(Number(uplineDoc.usdtBalance || 0) + joinBonus).toFixed(2);
+        uplineDoc.joiningBonusEarned = +(Number(uplineDoc.joiningBonusEarned || 0) + joinBonus).toFixed(2);
+        uplineDoc.teamCommissionEarned = +(Number(uplineDoc.teamCommissionEarned || 0) + joinBonus).toFixed(2);
+      }
+
+      await saveMemberDocByUid(uplineUid, uplineDoc);
+
+      // Move up to next sponsor in chain for levels 2..10
+      currentRef = uplineDoc.referredBy || "";
+      if (!currentRef) break;
+    }
+
+    // Save resolved direct sponsor UID on new member's own document so future investments/daily profits also cascade 10 levels
+    if (directOwnerUid) {
+      newMemberObj.referredBy = directOwnerUid;
+      await saveMemberDocByUid(childUid, newMemberObj);
+    }
+
+    if (typeof renderTeamHub === "function") renderTeamHub();
+    if (typeof syncUI === "function") syncUI();
+  };
+
+  // Also cascade 10-level Joining Bonus & Daily Profit Commission whenever a member invests or activates a plan
+  window.cascadeInvestmentToTenLevels = async function(investorUid, investAmountUsd) {
+    const cleanInvestorUid = String(investorUid || "").trim().toUpperCase();
+    const amt = Math.max(0, Number(investAmountUsd || 0));
+    if (!cleanInvestorUid || amt <= 0) return;
+
+    const investorDoc = await fetchMemberDocByUid(cleanInvestorUid);
+    if (!investorDoc || !investorDoc.referredBy) return;
+
+    let currentRef = investorDoc.referredBy;
+    const visited = new Set([cleanInvestorUid]);
+
+    for (let level = 1; level <= 10; level++) {
+      const uplineUid = await resolveSponsorUidUniversal(currentRef);
+      if (!uplineUid || visited.has(uplineUid)) break;
+      visited.add(uplineUid);
+
+      const uplineDoc = await fetchMemberDocByUid(uplineUid);
+      if (!uplineDoc) break;
+
+      const ratePct = getLevelPercent(level);
+      const joinBonus = +(amt * ratePct / 100).toFixed(2);
+      const dailyProfit = +(amt * 0.01).toFixed(4);
+      const dailyComm = +(dailyProfit * ratePct / 100).toFixed(4);
+
+      const list = Array.isArray(uplineDoc.teamMembers) ? [...uplineDoc.teamMembers] : [];
+      const idx = list.findIndex(m => String(m.uid || "").toUpperCase() === cleanInvestorUid);
+      if (idx >= 0) {
+        list[idx].investUsd = +(Number(list[idx].investUsd || 0) + amt).toFixed(2);
+        list[idx].dailyProfitUsd = +(Number(list[idx].dailyProfitUsd || 0) + dailyProfit).toFixed(4);
+        list[idx].computedDailyComm = +(Number(list[idx].computedDailyComm || 0) + dailyComm).toFixed(4);
+        list[idx].active = true;
+        list[idx].bonusUsd = +(Number(list[idx].bonusUsd || 0) + joinBonus).toFixed(2);
+      } else {
+        list.unshift({
+          uid: cleanInvestorUid,
+          username: investorDoc.username || cleanInvestorUid,
+          level,
+          ratePct,
+          investUsd: amt,
+          dailyProfitUsd: dailyProfit,
+          computedDailyComm: dailyComm,
+          active: true,
+          bonusUsd: joinBonus,
+          joinedAt: new Date().toLocaleString()
+        });
+      }
+
+      uplineDoc.teamMembers = list;
+      uplineDoc.usdtBalance = +(Number(uplineDoc.usdtBalance || 0) + joinBonus).toFixed(2);
+      uplineDoc.joiningBonusEarned = +(Number(uplineDoc.joiningBonusEarned || 0) + joinBonus).toFixed(2);
+      uplineDoc.teamCommissionEarned = +(Number(uplineDoc.teamCommissionEarned || 0) + joinBonus).toFixed(2);
+
+      await saveMemberDocByUid(uplineUid, uplineDoc);
+
+      currentRef = uplineDoc.referredBy || "";
+      if (!currentRef) break;
+    }
+  };
+
+  // Hook into registration, Admin member creation, and Plan enrollment
+  window.addEventListener("DOMContentLoaded", () => {
+    window.registerReferralMemberToOwnerCloud = async function(newMemberObj) {
+      const refParam = new URLSearchParams(window.location.search).get("ref") || newMemberObj?.referredBy || "";
+      await window.cascadeMemberToTenLevels(newMemberObj, refParam, Number(newMemberObj?.usdtBalance || 0));
+    };
+
+    const origEnroll = window.enrollInvestmentPlan;
+    if (typeof origEnroll === "function") {
+      window.enrollInvestmentPlan = async function(tierId) {
+        const beforeLen = Array.isArray(state.activePlans) ? state.activePlans.length : 0;
+        const res = origEnroll.apply(this, arguments);
+        const afterLen = Array.isArray(state.activePlans) ? state.activePlans.length : 0;
+        if (afterLen > beforeLen && state.user && state.user.memberId) {
+          const latestPlan = state.activePlans[0];
+          await window.cascadeInvestmentToTenLevels(state.user.memberId, Number(latestPlan?.principalUsd || 0));
+        }
+        return res;
+      };
+    }
+
+    const origAdminCreate = window.adminCreateNewMemberAccount;
+    if (typeof origAdminCreate === "function") {
+      window.adminCreateNewMemberAccount = async function(e) {
+        const sponsorRaw = (document.getElementById("adm-new-mem-sponsor")?.value || "").trim();
+        const initUsdt = Math.max(0, parseFloat(document.getElementById("adm-new-mem-usdt")?.value) || 0);
+        await origAdminCreate.apply(this, arguments);
+        const badgeTxt = document.getElementById("adm-created-member-badge")?.textContent || "";
+        const m = badgeTxt.match(/NFX-\d+/i);
+        if (m && sponsorRaw) {
+          const createdDoc = await fetchMemberDocByUid(m[0]);
+          if (createdDoc) {
+            await window.cascadeMemberToTenLevels(createdDoc, sponsorRaw, initUsdt);
+          }
+        }
+      };
+    }
+
+    // Also hook Admin Direct Deposit so if an inactive referral receives deposit from Admin, their status & 10-level upline bonus update automatically!
+    const origAdminDirectDep = window.adminExecuteDirectMemberDeposit;
+    if (typeof origAdminDirectDep === "function") {
+      window.adminExecuteDirectMemberDeposit = async function(e) {
+        const uid = (document.getElementById("adm-dep-uid-box")?.value || "").trim().toUpperCase();
+        const amount = parseFloat(document.getElementById("adm-dep-amount-box")?.value) || 0;
+        await origAdminDirectDep.apply(this, arguments);
+        if (uid && amount > 0) {
+          await window.cascadeInvestmentToTenLevels(uid, amount);
+        }
+      };
+    }
+  });
+</script>
+
+
+<script>
+(function() {
+  function hideUnwantedControls() {
+    // Remove/hide Simulate / Track 10-Level Member & Daily Profit box
+    document.querySelectorAll("form").forEach(frm => {
+      const txt = (frm.textContent || "");
+      if (txt.includes("Simulate / Track 10-Level Member") || frm.getAttribute("onsubmit")?.includes("addTenLevelTeamMember")) {
+        frm.remove();
+      }
+    });
+
+    // Remove/hide Collect Today's Daily Team Commission button
+    document.querySelectorAll("button").forEach(btn => {
+      const txt = (btn.textContent || "").trim();
+      if (txt.includes("Collect Today's Daily Team Commission") || btn.getAttribute("onclick")?.includes("simulateDailyTeamCommissionPayout")) {
+        btn.remove();
+      }
+    });
+
+    // Deduplicate any extra "My Swap History" cards so only ONE remains in #tab-swap
+    const tabSwap = document.getElementById("tab-swap");
+    if (tabSwap) {
+      const histBoxes = Array.from(tabSwap.querySelectorAll("div")).filter(el => {
+        const t = el.textContent || "";
+        return t.includes("My Swap History") && el.querySelector("h3, h4");
+      });
+      histBoxes.forEach((box, idx) => {
+        if (idx > 0 && box.id !== "single-my-swap-history-card") {
+          box.remove();
+        }
+      });
+    }
+  }
+
+  function renderSingleSwapHistoryLog() {
+    const listEl = document.getElementById("single-swap-history-list");
+    if (!listEl || typeof state === "undefined") return;
+    const logs = (state.gasTreasury && Array.isArray(state.gasTreasury.logs)) ? state.gasTreasury.logs : [];
+    if (!logs.length) {
+      listEl.innerHTML = `<p class="text-slate-500 font-sans">No swaps executed yet.</p>`;
+      return;
+    }
+    listEl.innerHTML = logs.slice(0, 20).map(g => `
+      <div class="py-2 px-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between gap-2 mb-1.5">
+        <div>
+          <strong class="text-white">${g.pair || "Swap"}</strong>
+          <span class="text-[10px] text-slate-400 block">${g.time || ""} • UID: ${g.memberId || ""}</span>
+        </div>
+        <span class="text-emerald-400 font-bold">Gas: ${g.bnb || 0} BNB ($${g.usd || 0})</span>
+      </div>
+    `).join("");
+  }
+
+  // Automatic Joining Bonus & Team Commission credit directly to member wallet
+  window.autoCreditJoiningAndTeamCommission = function(volumeUsd, reasonLabel = "Team Activity") {
+    if (typeof state === "undefined" || !state.user) return 0;
+    const vol = Math.max(0, Number(volumeUsd || 0));
+    if (vol <= 0) return 0;
+
+    const rates = { 1: 0.10, 2: 0.09, 3: 0.08, 4: 0.07, 5: 0.06, 6: 0.05, 7: 0.04, 8: 0.03, 9: 0.02, 10: 0.01 };
+    let totalCredited = 0;
+
+    if (Array.isArray(state.teamMembers) && state.teamMembers.length > 0) {
+      state.teamMembers.forEach(m => {
+        const lvl = Number(m.level || 1);
+        const r = rates[lvl] || 0;
+        if (r > 0 && (m.active || Number(m.investUsd || 0) > 0 || Number(m.dailyProfitUsd || 0) > 0)) {
+          const bonusAmt = +(vol * r * 0.1).toFixed(4);
+          if (bonusAmt > 0) {
+            m.bonusUsd = +((Number(m.bonusUsd) || 0) + bonusAmt).toFixed(4);
+            totalCredited = +(totalCredited + bonusAmt).toFixed(4);
+          }
+        }
+      });
+    }
+
+    if (totalCredited > 0) {
+      state.user.usdtBalance = +((Number(state.user.usdtBalance) || 0) + totalCredited).toFixed(4);
+      state.teamCommissionEarned = +((Number(state.teamCommissionEarned) || 0) + totalCredited).toFixed(4);
+      state.joiningBonusEarned = +((Number(state.joiningBonusEarned) || 0) + totalCredited).toFixed(4);
+      if (typeof persistSharedState === "function") persistSharedState();
+      if (typeof syncUI === "function") syncUI();
+    }
+    return totalCredited;
+  };
+
+  // Make simulateDailyTeamCommissionPayout an automatic no-op/auto-credit helper
+  window.simulateDailyTeamCommissionPayout = function() {
+    if (typeof state === "undefined" || !state.user) return;
+    const rates = { 1: 0.10, 2: 0.09, 3: 0.08, 4: 0.07, 5: 0.06, 6: 0.05, 7: 0.04, 8: 0.03, 9: 0.02, 10: 0.01 };
+    let dailySum = 0;
+    (state.teamMembers || []).forEach(m => {
+      const r = rates[Number(m.level || 1)] || 0;
+      const dProf = Number(m.dailyProfitUsd !== undefined ? m.dailyProfitUsd : (Number(m.investUsd || 0) * 0.01));
+      dailySum += +(dProf * r).toFixed(4);
+    });
+    if (dailySum > 0) {
+      state.user.usdtBalance = +((Number(state.user.usdtBalance) || 0) + dailySum).toFixed(4);
+      state.dailyTeamCommissionEarned = +((Number(state.dailyTeamCommissionEarned) || 0) + dailySum).toFixed(4);
+      if (typeof persistSharedState === "function") persistSharedState();
+      if (typeof syncUI === "function") syncUI();
+    }
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    hideUnwantedControls();
+    renderSingleSwapHistoryLog();
+    window.simulateDailyTeamCommissionPayout();
+
+    const origSync = window.syncUI;
+    if (typeof origSync === "function") {
+      window.syncUI = function() {
+        origSync.apply(this, arguments);
+        hideUnwantedControls();
+        renderSingleSwapHistoryLog();
+      };
+    }
+
+    const origSwap = window.executeMainSwap;
+    if (typeof origSwap === "function") {
+      window.executeMainSwap = function() {
+        origSwap.apply(this, arguments);
+        renderSingleSwapHistoryLog();
+      };
+    }
+  });
+})();
 </script>
 
 </body>
